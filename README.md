@@ -2,4 +2,4 @@
 
 PS Vita homebrew flight radar. Current build target: v1.2.
 
-Verified v1.2 build patch ready.
+Verified v1.2 build patch is staged.
