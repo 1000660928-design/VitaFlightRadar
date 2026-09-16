@@ -42,7 +42,10 @@ jobs:
           cat patches/v13_patch.part*.b64 | base64 -d > v13_patch.zip
           echo "9a4c130f4d5ed5b4f0efcae4ec11745f87fc1bba2fcf90f877ce448c278b8487  v13_patch.zip" | sha256sum -c -
           python3 -c "import zipfile; z=zipfile.ZipFile('v13_patch.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src'); print('v1.3 patch applied:', len(z.namelist()), 'files')"
-          base64 -d patches/icon0_fixed.b64 > VitaFlightRadar/sce_sys/icon0.png
+          echo "6e1784d4e27c75f2bd3052078a974dfd931725612a0e716f01326e258a18e14d  patches/icon_fix.zip.b64" | sha256sum -c -
+          base64 -d patches/icon_fix.zip.b64 > icon_fix.zip
+          echo "d746345660586920ff797c1032500baa3256e8ec5885f6d7dbf9e1e04d5710b4  icon_fix.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('icon_fix.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/sce_sys'); print('Known-good Vita icon restored')"
           echo "7918a7a0f1323bfa5f00b529578a5d0594ab49c54f357c3170508e650a50023d  VitaFlightRadar/sce_sys/icon0.png" | sha256sum -c -
 
       - name: Build Vita-safe Jansson 2.15.1
