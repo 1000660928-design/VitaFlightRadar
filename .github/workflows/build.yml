@@ -15,38 +15,17 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Verify source chunks
-        run: |
-          echo "12fa1cfa9f065a1f11a1677d58ec2832dd1a6365582c43a74d2aa0788139d8db  source.part1.b64" | sha256sum -c -
-          echo "699d1f528e1446ab94f349ffc28262fb0873096b6ca0201cb75241c2ba799979  source.part2.b64" | sha256sum -c -
-          echo "a220d41a021f3b0ad60e60a0ed362f3df2a949450ec4cc0db3930564e085bf6f  source.part3a.b64" | sha256sum -c -
-          echo "6eac1b31ce2e1d42498df6feb86799b65a00990458ab371cfa287034442fe6c4  source.part3b.b64" | sha256sum -c -
-          echo "bda84132fb7ccc74ba20ff9ef7220d37044452db14439820400d0dd258ddce6b  source.part4.b64" | sha256sum -c -
-          echo "7f4ee50e51dc055a04ec6f9412e2de0fc3acee1164d36eb044d9de6d085d3aaa  source.part5.b64" | sha256sum -c -
-
-      - name: Reconstruct and extract source
+      - name: Reconstruct base source
         run: |
           cat source.part1.b64 source.part2.b64 source.part3a.b64 source.part3b.b64 source.part4.b64 source.part5.b64 | base64 -d > VitaFlightRadar-v1.0-source.zip
           echo "435d57e62e1b8b97011271615d02bd7c9166251fdddb206731fbb2c07626b6a1  VitaFlightRadar-v1.0-source.zip" | sha256sum -c -
-          python3 -c "import zipfile; z=zipfile.ZipFile('VitaFlightRadar-v1.0-source.zip'); assert z.testzip() is None; z.extractall('.'); print('ZIP OK:', len(z.namelist()), 'files')"
+          python3 -c "import zipfile; z=zipfile.ZipFile('VitaFlightRadar-v1.0-source.zip'); assert z.testzip() is None; z.extractall('.'); print('Base source OK')"
 
-      - name: Install Vita-compatible LiveArea icon
+      - name: Apply v1.1 source patch
         run: |
-          base64 -d patches/icon0_fixed.b64 > VitaFlightRadar/sce_sys/icon0.png
-          echo "7918a7a0f1323bfa5f00b529578a5d0594ab49c54f357c3170508e650a50023d  VitaFlightRadar/sce_sys/icon0.png" | sha256sum -c -
-          python3 - <<'PY'
-          from pathlib import Path
-          import struct
-          p = Path('VitaFlightRadar/sce_sys/icon0.png')
-          b = p.read_bytes()
-          if b[:8] != b'\x89PNG\r\n\x1a\n':
-              raise SystemExit('icon0.png is not PNG')
-          n = struct.unpack('>I', b[8:12])[0]
-          w,h,bit_depth,color_type,comp,filt,interlace = struct.unpack('>IIBBBBB', b[16:16+n])
-          print('icon0:', w, h, 'bit depth', bit_depth, 'color type', color_type, 'interlace', interlace)
-          if (w,h,bit_depth,color_type,interlace) != (128,128,8,3,0):
-              raise SystemExit('icon0.png is not Vita-compatible 128x128 8-bit indexed non-interlaced PNG')
-          PY
+          cat patches/v11_patch.part1.b64 patches/v11_patch.part2.b64 patches/v11_patch.part3.b64 | base64 -d > v11_patch.zip
+          echo "2d18c861ce2065764b6f279ff2982fbdf231c903710c6a716c73e5f3e04af959  v11_patch.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v11_patch.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar'); print('v1.1 patch applied:', len(z.namelist()), 'files')"
 
       - name: Build Vita-safe Jansson 2.15.1
         run: |
@@ -60,7 +39,6 @@ jobs:
           if old not in s:
               raise SystemExit('Could not find Jansson forced PIC setting')
           p.write_text(s.replace(old, new))
-          print('Patched Jansson static library to POSITION_INDEPENDENT_CODE false')
           PY
           cmake -S jansson-src -B jansson-build \
             -DCMAKE_TOOLCHAIN_FILE=$VITASDK/share/vita.toolchain.cmake \
@@ -74,27 +52,18 @@ jobs:
           JANSSON_LIB="$(find jansson-build -name libjansson.a -type f | head -n 1)"
           test -n "$JANSSON_LIB"
           cp "$JANSSON_LIB" VitaFlightRadar/libjansson_vita.a
-          echo "Custom Jansson: $JANSSON_LIB"
           if arm-vita-eabi-readelf -rW "$JANSSON_LIB" 2>/dev/null | grep -q R_ARM_BASE_PREL; then
             echo 'ERROR: custom Jansson still contains R_ARM_BASE_PREL'
-            arm-vita-eabi-readelf -rW "$JANSSON_LIB" 2>/dev/null | grep -C 3 R_ARM_BASE_PREL || true
             exit 1
           fi
 
-      - name: Apply VitaSDK compatibility fixes
+      - name: Configure VitaSDK project
         run: |
-          cp patches/native_net.c VitaFlightRadar/src/net.c
           python3 - <<'PY'
           from pathlib import Path
-
-          p = Path('VitaFlightRadar/src/app_config.c')
-          s = p.read_text()
-          if '#include <psp2/io/stat.h>' not in s:
-              s = s.replace('#include <psp2/io/fcntl.h>', '#include <psp2/io/fcntl.h>\n#include <psp2/io/stat.h>')
-          p.write_text(s)
-
           p = Path('VitaFlightRadar/CMakeLists.txt')
           s = p.read_text()
+          s = s.replace('set(VITA_VERSION "01.00")', 'set(VITA_VERSION "01.10")')
           s = s.replace('find_package(CURL REQUIRED)\n', '')
           s = s.replace('find_package(OpenSSL REQUIRED)\n', '')
           s = s.replace('    ${CURL_INCLUDE_DIRS}\n', '')
@@ -102,22 +71,20 @@ jobs:
           s = s.replace('    ${CURL_LIBRARIES}\n', '')
           s = s.replace('    ${OPENSSL_LIBRARIES}\n', '')
           s = s.replace('    jansson\n', '    ${CMAKE_SOURCE_DIR}/libjansson_vita.a\n')
+          s = s.replace('    src/net.c\n)', '    src/net.c\n    src/map.c\n    src/route.c\n)')
+          s = s.replace('    SceKernelThreadMgr_stub\n', '    SceKernelThreadMgr_stub\n    SceRtc_stub\n')
           s = s.replace('set(CMAKE_C_STANDARD_REQUIRED ON)', 'set(CMAKE_C_STANDARD_REQUIRED ON)\nset(CMAKE_POSITION_INDEPENDENT_CODE OFF)\nadd_compile_options(-fno-pic -fno-pie)\nadd_link_options(-no-pie)')
           s = s.replace('target_include_directories(${PROJECT_NAME} PRIVATE', 'set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE OFF)\n\ntarget_include_directories(${PROJECT_NAME} PRIVATE')
           p.write_text(s)
           PY
-
-      - name: Configure VitaSDK build
-        working-directory: VitaFlightRadar
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake -S VitaFlightRadar -B VitaFlightRadar/build -DCMAKE_BUILD_TYPE=Release
 
       - name: Build VPK
-        working-directory: VitaFlightRadar
-        run: cmake --build build --parallel
+        run: cmake --build VitaFlightRadar/build --parallel
 
-      - name: Upload installable VPK
+      - name: Upload VPK
         uses: actions/upload-artifact@v4
         with:
-          name: VitaFlightRadar-VPK
+          name: VitaFlightRadar-v1.1-VPK
           path: VitaFlightRadar/build/VitaFlightRadar.vpk
           if-no-files-found: error
