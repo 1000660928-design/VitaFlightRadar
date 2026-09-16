@@ -24,16 +24,32 @@ jobs:
           echo "bda84132fb7ccc74ba20ff9ef7220d37044452db14439820400d0dd258ddce6b  source.part4.b64" | sha256sum -c -
           echo "7f4ee50e51dc055a04ec6f9412e2de0fc3acee1164d36eb044d9de6d085d3aaa  source.part5.b64" | sha256sum -c -
 
-      - name: Reconstruct source archive
-        run: cat source.part1.b64 source.part2.b64 source.part3a.b64 source.part3b.b64 source.part4.b64 source.part5.b64 | base64 -d > VitaFlightRadar-v1.0-source.zip
-
-      - name: Verify source archive
+      - name: Reconstruct and extract source
         run: |
+          cat source.part1.b64 source.part2.b64 source.part3a.b64 source.part3b.b64 source.part4.b64 source.part5.b64 | base64 -d > VitaFlightRadar-v1.0-source.zip
           echo "435d57e62e1b8b97011271615d02bd7c9166251fdddb206731fbb2c07626b6a1  VitaFlightRadar-v1.0-source.zip" | sha256sum -c -
-          python3 -c "import zipfile; z=zipfile.ZipFile('VitaFlightRadar-v1.0-source.zip'); assert z.testzip() is None; print('ZIP OK:', len(z.namelist()), 'files')"
+          python3 -c "import zipfile; z=zipfile.ZipFile('VitaFlightRadar-v1.0-source.zip'); assert z.testzip() is None; z.extractall('.'); print('ZIP OK:', len(z.namelist()), 'files')"
 
-      - name: Extract VitaFlightRadar source
-        run: python3 -c "import zipfile; zipfile.ZipFile('VitaFlightRadar-v1.0-source.zip').extractall('.')"
+      - name: Build Vita-safe Jansson 2.15.1
+        run: |
+          git clone --depth 1 --branch v2.15.1 https://github.com/akheron/jansson.git jansson-src
+          cmake -S jansson-src -B jansson-build \
+            -DCMAKE_TOOLCHAIN_FILE=$VITASDK/share/vita.toolchain.cmake \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_POSITION_INDEPENDENT_CODE=OFF \
+            -DCMAKE_C_FLAGS='-fno-pic -fno-pie' \
+            -DJANSSON_BUILD_DOCS=OFF \
+            -DJANSSON_EXAMPLES=OFF \
+            -DJANSSON_WITHOUT_TESTS=ON
+          cmake --build jansson-build --parallel
+          JANSSON_LIB="$(find jansson-build -name libjansson.a -type f | head -n 1)"
+          test -n "$JANSSON_LIB"
+          cp "$JANSSON_LIB" VitaFlightRadar/libjansson_vita.a
+          echo "Custom Jansson: $JANSSON_LIB"
+          if arm-vita-eabi-readelf -rW "$JANSSON_LIB" 2>/dev/null | grep -q R_ARM_BASE_PREL; then
+            echo 'ERROR: custom Jansson still contains R_ARM_BASE_PREL'
+            exit 1
+          fi
 
       - name: Apply VitaSDK compatibility fixes
         run: |
@@ -55,7 +71,8 @@ jobs:
           s = s.replace('    ${OPENSSL_INCLUDE_DIR}\n', '')
           s = s.replace('    ${CURL_LIBRARIES}\n', '')
           s = s.replace('    ${OPENSSL_LIBRARIES}\n', '')
-          s = s.replace('set(CMAKE_C_STANDARD_REQUIRED ON)', 'set(CMAKE_C_STANDARD_REQUIRED ON)\nset(CMAKE_POSITION_INDEPENDENT_CODE OFF)\nadd_compile_options(-fno-pic -fno-pie)\nadd_link_options(-no-pie -Wl,-Map=VitaFlightRadar.map)')
+          s = s.replace('    jansson\n', '    ${CMAKE_SOURCE_DIR}/libjansson_vita.a\n')
+          s = s.replace('set(CMAKE_C_STANDARD_REQUIRED ON)', 'set(CMAKE_C_STANDARD_REQUIRED ON)\nset(CMAKE_POSITION_INDEPENDENT_CODE OFF)\nadd_compile_options(-fno-pic -fno-pie)\nadd_link_options(-no-pie)')
           s = s.replace('target_include_directories(${PROJECT_NAME} PRIVATE', 'set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE OFF)\n\ntarget_include_directories(${PROJECT_NAME} PRIVATE')
           p.write_text(s)
           PY
@@ -63,20 +80,6 @@ jobs:
       - name: Configure VitaSDK build
         working-directory: VitaFlightRadar
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build linked ARM ELF only
-        working-directory: VitaFlightRadar
-        run: cmake --build build --target VitaFlightRadar --parallel
-
-      - name: Diagnose unsupported relocations
-        working-directory: VitaFlightRadar
-        run: |
-          echo '=== R_ARM_BASE_PREL relocations in final linked ELF ==='
-          arm-vita-eabi-readelf -rW build/VitaFlightRadar | grep -C 4 'R_ARM_BASE_PREL' || true
-          echo '=== Dynamic/relocation sections ==='
-          arm-vita-eabi-readelf -SW build/VitaFlightRadar | grep -E 'rel|dyn|got|plt' || true
-          echo '=== Suspect symbols in linker map ==='
-          arm-vita-eabi-readelf -rW build/VitaFlightRadar | awk '/R_ARM_BASE_PREL/ {print $NF}' | sort -u | while read sym; do echo "--- $sym ---"; grep -n -C 3 "$sym" build/VitaFlightRadar.map || true; done
 
       - name: Build VPK
         working-directory: VitaFlightRadar
