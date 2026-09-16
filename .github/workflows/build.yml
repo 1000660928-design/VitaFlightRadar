@@ -55,8 +55,7 @@ jobs:
           s = s.replace('    ${OPENSSL_INCLUDE_DIR}\n', '')
           s = s.replace('    ${CURL_LIBRARIES}\n', '')
           s = s.replace('    ${OPENSSL_LIBRARIES}\n', '')
-          s = s.replace('set(CMAKE_C_STANDARD_REQUIRED ON)', 'set(CMAKE_C_STANDARD_REQUIRED ON)\nset(CMAKE_POSITION_INDEPENDENT_CODE OFF)\nadd_compile_options(-fno-pic -fno-pie)\nadd_link_options(-no-pie)')
-          s = s.replace('add_executable(${PROJECT_NAME}\n', 'add_executable(${PROJECT_NAME}\n')
+          s = s.replace('set(CMAKE_C_STANDARD_REQUIRED ON)', 'set(CMAKE_C_STANDARD_REQUIRED ON)\nset(CMAKE_POSITION_INDEPENDENT_CODE OFF)\nadd_compile_options(-fno-pic -fno-pie)\nadd_link_options(-no-pie -Wl,-Map=VitaFlightRadar.map)')
           s = s.replace('target_include_directories(${PROJECT_NAME} PRIVATE', 'set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE OFF)\n\ntarget_include_directories(${PROJECT_NAME} PRIVATE')
           p.write_text(s)
           PY
@@ -64,6 +63,20 @@ jobs:
       - name: Configure VitaSDK build
         working-directory: VitaFlightRadar
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build linked ARM ELF only
+        working-directory: VitaFlightRadar
+        run: cmake --build build --target VitaFlightRadar --parallel
+
+      - name: Diagnose unsupported relocations
+        working-directory: VitaFlightRadar
+        run: |
+          echo '=== R_ARM_BASE_PREL relocations in final linked ELF ==='
+          arm-vita-eabi-readelf -rW build/VitaFlightRadar | grep -C 4 'R_ARM_BASE_PREL' || true
+          echo '=== Dynamic/relocation sections ==='
+          arm-vita-eabi-readelf -SW build/VitaFlightRadar | grep -E 'rel|dyn|got|plt' || true
+          echo '=== Suspect symbols in linker map ==='
+          arm-vita-eabi-readelf -rW build/VitaFlightRadar | awk '/R_ARM_BASE_PREL/ {print $NF}' | sort -u | while read sym; do echo "--- $sym ---"; grep -n -C 3 "$sym" build/VitaFlightRadar.map || true; done
 
       - name: Build VPK
         working-directory: VitaFlightRadar
