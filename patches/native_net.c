@@ -3,7 +3,7 @@
 #include <psp2/net/http.h>
 #include <psp2/net/net.h>
 #include <psp2/net/netctl.h>
-#include <psp2/net/ssl.h>
+#include <psp2/libssl.h>
 #include <psp2/sysmodule.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -103,7 +103,6 @@ int vfr_net_init(char *error_text, size_t error_text_size) {
     if (rc < 0) return init_fail(rc, error_text, error_text_size, "sceSslInit");
     g_ssl_initialized = 1;
 
-    /* Public read-only aircraft data; Vita certificate stores can be outdated. */
     sceHttpsDisableOption(SCE_HTTPS_FLAG_SERVER_VERIFY |
                           SCE_HTTPS_FLAG_CN_CHECK |
                           SCE_HTTPS_FLAG_NOT_AFTER_CHECK |
