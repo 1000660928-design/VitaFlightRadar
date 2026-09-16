@@ -3,7 +3,7 @@ name: Build VitaFlightRadar VPK
 on:
   workflow_dispatch:
   push:
-    branches: ["main", "v12-build"]
+    branches: ["v13-build"]
 
 jobs:
   build:
@@ -30,6 +30,18 @@ jobs:
           cat patches/v12_patch.part1a.b64 patches/v12_patch.part1b.b64 patches/v12_patch.part2.b64 patches/v12_patch.part3.b64 | base64 -d > v12_patch.zip
           echo "81fd38aa36349286088a9ed04b6b0b5055fda5bf7305d093405fc011a09b4b19  v12_patch.zip" | sha256sum -c -
           python3 -c "import zipfile; z=zipfile.ZipFile('v12_patch.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src'); print('v1.2 patch applied:', len(z.namelist()), 'files')"
+
+      - name: Reconstruct and apply v1.3 patch
+        run: |
+          echo "7a5898edbb3cdb8356397b35a0fca13aff023ec39510e34e033263cb4e0b76dd  patches/v13_patch.part01.b64" | sha256sum -c -
+          echo "5a4689d70bafe54cbd29baabcc89efd0f43fa1d7fa2ef972b161495ca8bfc8de  patches/v13_patch.part02.b64" | sha256sum -c -
+          echo "9ee25da4b7fd411c8eaf1d38b93d6819ee7aa8f42d04e181bd20c262c8855349  patches/v13_patch.part03.b64" | sha256sum -c -
+          echo "c7663f8d85821149bef884cb4c87db66da56de28d2a3e067bc924c947e327232  patches/v13_patch.part04.b64" | sha256sum -c -
+          echo "167523063c0dea069552945e12e7d65ec2706d0e49441eb6d7af4e7238e61354  patches/v13_patch.part05.b64" | sha256sum -c -
+          echo "7feed3af2119a72c4d336887d069917895fbb5fffe95d12bd42054113f807b63  patches/v13_patch.part06.b64" | sha256sum -c -
+          cat patches/v13_patch.part*.b64 | base64 -d > v13_patch.zip
+          echo "9a4c130f4d5ed5b4f0efcae4ec11745f87fc1bba2fcf90f877ce448c278b8487  v13_patch.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v13_patch.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src'); print('v1.3 patch applied:', len(z.namelist()), 'files')"
           base64 -d patches/icon0_fixed.b64 > VitaFlightRadar/sce_sys/icon0.png
           echo "7918a7a0f1323bfa5f00b529578a5d0594ab49c54f357c3170508e650a50023d  VitaFlightRadar/sce_sys/icon0.png" | sha256sum -c -
 
@@ -69,7 +81,7 @@ jobs:
           from pathlib import Path
           p = Path('VitaFlightRadar/CMakeLists.txt')
           s = p.read_text()
-          s = s.replace('set(VITA_VERSION "01.00")', 'set(VITA_VERSION "01.20")')
+          s = s.replace('set(VITA_VERSION "01.00")', 'set(VITA_VERSION "01.30")')
           s = s.replace('find_package(CURL REQUIRED)\n', '')
           s = s.replace('find_package(OpenSSL REQUIRED)\n', '')
           s = s.replace('    ${CURL_INCLUDE_DIRS}\n', '')
@@ -88,9 +100,22 @@ jobs:
       - name: Build VPK
         run: cmake --build VitaFlightRadar/build --parallel
 
+      - name: Verify package icon
+        run: |
+          python3 - <<'PY'
+          import zipfile, hashlib
+          p='VitaFlightRadar/build/VitaFlightRadar.vpk'
+          with zipfile.ZipFile(p) as z:
+              bad=z.testzip()
+              assert bad is None, bad
+              icon=z.read('sce_sys/icon0.png')
+              assert hashlib.sha256(icon).hexdigest() == '7918a7a0f1323bfa5f00b529578a5d0594ab49c54f357c3170508e650a50023d'
+              print('VPK ZIP integrity + icon OK')
+          PY
+
       - name: Upload VPK
         uses: actions/upload-artifact@v4
         with:
-          name: VitaFlightRadar-v1.2.1-VPK
+          name: VitaFlightRadar-v1.3-VPK
           path: VitaFlightRadar/build/VitaFlightRadar.vpk
           if-no-files-found: error
