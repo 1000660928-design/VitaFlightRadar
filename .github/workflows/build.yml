@@ -35,6 +35,17 @@ jobs:
       - name: Extract VitaFlightRadar source
         run: python3 -c "import zipfile; zipfile.ZipFile('VitaFlightRadar-v1.0-source.zip').extractall('.')"
 
+      - name: Apply VitaSDK compatibility fixes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('VitaFlightRadar/src/app_config.c')
+          s = p.read_text()
+          if '#include <psp2/io/dirent.h>' not in s:
+              s = s.replace('#include <psp2/io/fcntl.h>', '#include <psp2/io/fcntl.h>\n#include <psp2/io/dirent.h>')
+          p.write_text(s)
+          PY
+
       - name: Configure VitaSDK build
         working-directory: VitaFlightRadar
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
