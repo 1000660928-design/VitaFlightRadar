@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Extract VitaFlightRadar source
-        run: unzip -q VitaFlightRadar-v1.0-source.zip
+        run: python3 -c "import zipfile; zipfile.ZipFile('VitaFlightRadar-v1.0-source.zip').extractall('.')"
 
       - name: Configure VitaSDK build
         working-directory: VitaFlightRadar
