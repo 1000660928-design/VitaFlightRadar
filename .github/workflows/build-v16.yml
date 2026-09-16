@@ -1,0 +1,116 @@
+name: Build VitaFlightRadar v1.6 VPK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["v16-build"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: vitasdk/vitasdk:2026.08-20260813
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Reconstruct source and apply patches
+        run: |
+          cat source.part1.b64 source.part2.b64 source.part3a.b64 source.part3b.b64 source.part4.b64 source.part5.b64 | base64 -d > base.zip
+          echo "435d57e62e1b8b97011271615d02bd7c9166251fdddb206731fbb2c07626b6a1  base.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('base.zip'); assert z.testzip() is None; z.extractall('.')"
+
+          cat patches/v12_patch.part1a.b64 patches/v12_patch.part1b.b64 patches/v12_patch.part2.b64 patches/v12_patch.part3.b64 | base64 -d > v12.zip
+          echo "81fd38aa36349286088a9ed04b6b0b5055fda5bf7305d093405fc011a09b4b19  v12.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v12.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+
+          cat patches/v13_patch.part*.b64 | base64 -d > v13.zip
+          echo "9a4c130f4d5ed5b4f0efcae4ec11745f87fc1bba2fcf90f877ce448c278b8487  v13.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v13.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+
+          cat patches/v14_patch.part01.b64 patches/v14_patch.part02.b64 patches/v14_patch.part03.b64 patches/v14_patch.part04.b64 | base64 -d > v14.zip
+          echo "747b1fa093bc3d376e28cab7df717f42206828fc041f55950280c1435cab1edb  v14.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v14.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+
+          cat patches/v15_patch.part01.b64 patches/v15_patch.part02.b64 patches/v15_patch.part03.b64 patches/v15_patch.part04.b64 | base64 -d > v15.zip
+          echo "ab10424241314ce2a7a1bcc4e7bba06e52684ff0e93df5ba81aab752497b8fbb  v15.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v15.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+
+          echo "8c12b9cf326ed6210716832354c9b00d4d21536b4093bc965895e758003be21f  patches/v16_patch.part01.b64" | sha256sum -c -
+          echo "d682ce42c098fc521783e3e6c492ad05494c616185245b774347c8943dd55ce8  patches/v16_patch.part02.b64" | sha256sum -c -
+          echo "22658d5c69aeac161b1cca88da736840d8bf0ccb39d1216245b980b5f2d2ff59  patches/v16_patch.part03.b64" | sha256sum -c -
+          cat patches/v16_patch.part01.b64 patches/v16_patch.part02.b64 patches/v16_patch.part03.b64 | base64 -d > v16.zip
+          echo "f143e973382a345516d66f3ea9c56ddceefec03784407910f8a7d7eab67e050f  v16.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v16.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src'); print('v1.6 patch OK')"
+
+          echo "6e1784d4e27c75f2bd3052078a974dfd931725612a0e716f01326e258a18e14d  patches/icon_fix.zip.b64" | sha256sum -c -
+          base64 -d patches/icon_fix.zip.b64 > icon_fix.zip
+          echo "d746345660586920ff797c1032500baa3256e8ec5885f6d7dbf9e1e04d5710b4  icon_fix.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('icon_fix.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/sce_sys')"
+          echo "7918a7a0f1323bfa5f00b529578a5d0594ab49c54f357c3170508e650a50023d  VitaFlightRadar/sce_sys/icon0.png" | sha256sum -c -
+
+      - name: Build Vita-safe Jansson 2.15.1
+        run: |
+          git clone --depth 1 --branch v2.15.1 https://github.com/akheron/jansson.git jansson-src
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('jansson-src/CMakeLists.txt')
+          s=p.read_text()
+          old='set_target_properties(jansson PROPERTIES\n      POSITION_INDEPENDENT_CODE true)'
+          new='set_target_properties(jansson PROPERTIES\n      POSITION_INDEPENDENT_CODE false)'
+          if old not in s: raise SystemExit('Jansson PIC setting not found')
+          p.write_text(s.replace(old,new))
+          PY
+          cmake -S jansson-src -B jansson-build \
+            -DCMAKE_TOOLCHAIN_FILE=$VITASDK/share/vita.toolchain.cmake \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_POSITION_INDEPENDENT_CODE=OFF \
+            -DCMAKE_C_FLAGS='-fno-pic -fno-pie' \
+            -DJANSSON_BUILD_DOCS=OFF -DJANSSON_EXAMPLES=OFF -DJANSSON_WITHOUT_TESTS=ON
+          cmake --build jansson-build --parallel
+          JANSSON_LIB="$(find jansson-build -name libjansson.a -type f | head -n 1)"
+          test -n "$JANSSON_LIB"
+          cp "$JANSSON_LIB" VitaFlightRadar/libjansson_vita.a
+          if arm-vita-eabi-readelf -rW "$JANSSON_LIB" 2>/dev/null | grep -q R_ARM_BASE_PREL; then exit 1; fi
+
+      - name: Configure VitaSDK project
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('VitaFlightRadar/CMakeLists.txt')
+          s=p.read_text()
+          s=s.replace('set(VITA_VERSION "01.00")','set(VITA_VERSION "01.60")')
+          s=s.replace('find_package(CURL REQUIRED)\n','').replace('find_package(OpenSSL REQUIRED)\n','')
+          s=s.replace('    ${CURL_INCLUDE_DIRS}\n','').replace('    ${OPENSSL_INCLUDE_DIR}\n','')
+          s=s.replace('    ${CURL_LIBRARIES}\n','').replace('    ${OPENSSL_LIBRARIES}\n','')
+          s=s.replace('    jansson\n','    ${CMAKE_SOURCE_DIR}/libjansson_vita.a\n')
+          s=s.replace('    src/net.c\n)','    src/net.c\n    src/map.c\n    src/route.c\n)')
+          s=s.replace('    SceKernelThreadMgr_stub\n','    SceKernelThreadMgr_stub\n    SceRtc_stub\n    SceAppUtil_stub\n    SceIme_stub\n')
+          s=s.replace('set(CMAKE_C_STANDARD_REQUIRED ON)','set(CMAKE_C_STANDARD_REQUIRED ON)\nset(CMAKE_POSITION_INDEPENDENT_CODE OFF)\nadd_compile_options(-fno-pic -fno-pie)\nadd_link_options(-no-pie)')
+          s=s.replace('target_include_directories(${PROJECT_NAME} PRIVATE','set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE OFF)\n\ntarget_include_directories(${PROJECT_NAME} PRIVATE')
+          p.write_text(s)
+          PY
+          cmake -S VitaFlightRadar -B VitaFlightRadar/build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build VPK
+        run: cmake --build VitaFlightRadar/build --parallel
+
+      - name: Verify package
+        run: |
+          python3 - <<'PY'
+          import zipfile, hashlib
+          p='VitaFlightRadar/build/VitaFlightRadar.vpk'
+          with zipfile.ZipFile(p) as z:
+              assert z.testzip() is None
+              icon=z.read('sce_sys/icon0.png')
+              assert hashlib.sha256(icon).hexdigest()=='7918a7a0f1323bfa5f00b529578a5d0594ab49c54f357c3170508e650a50023d'
+              print('VPK integrity + icon OK')
+          PY
+
+      - name: Upload VPK
+        uses: actions/upload-artifact@v4
+        with:
+          name: VitaFlightRadar-v1.6-VPK
+          path: VitaFlightRadar/build/VitaFlightRadar.vpk
+          if-no-files-found: error
