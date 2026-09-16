@@ -37,12 +37,24 @@ jobs:
 
       - name: Apply VitaSDK compatibility fixes
         run: |
+          cp patches/native_net.c VitaFlightRadar/src/net.c
           python3 - <<'PY'
           from pathlib import Path
+
           p = Path('VitaFlightRadar/src/app_config.c')
           s = p.read_text()
           if '#include <psp2/io/stat.h>' not in s:
               s = s.replace('#include <psp2/io/fcntl.h>', '#include <psp2/io/fcntl.h>\n#include <psp2/io/stat.h>')
+          p.write_text(s)
+
+          p = Path('VitaFlightRadar/CMakeLists.txt')
+          s = p.read_text()
+          s = s.replace('find_package(CURL REQUIRED)\n', '')
+          s = s.replace('find_package(OpenSSL REQUIRED)\n', '')
+          s = s.replace('    ${CURL_INCLUDE_DIRS}\n', '')
+          s = s.replace('    ${OPENSSL_INCLUDE_DIR}\n', '')
+          s = s.replace('    ${CURL_LIBRARIES}\n', '')
+          s = s.replace('    ${OPENSSL_LIBRARIES}\n', '')
           p.write_text(s)
           PY
 
