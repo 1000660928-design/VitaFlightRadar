@@ -21,11 +21,11 @@ jobs:
           echo "435d57e62e1b8b97011271615d02bd7c9166251fdddb206731fbb2c07626b6a1  VitaFlightRadar-v1.0-source.zip" | sha256sum -c -
           python3 -c "import zipfile; z=zipfile.ZipFile('VitaFlightRadar-v1.0-source.zip'); assert z.testzip() is None; z.extractall('.'); print('Base source OK')"
 
-      - name: Apply v1.1 source patch
+      - name: Apply v1.2 source patch
         run: |
-          cat patches/v11_patch.part1.b64 patches/v11_patch.part2.b64 patches/v11_patch.part3.b64 | base64 -d > v11_patch.zip
-          echo "2d18c861ce2065764b6f279ff2982fbdf231c903710c6a716c73e5f3e04af959  v11_patch.zip" | sha256sum -c -
-          python3 -c "import zipfile; z=zipfile.ZipFile('v11_patch.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar'); print('v1.1 patch applied:', len(z.namelist()), 'files')"
+          echo "81fd38aa36349286088a9ed04b6b0b5055fda5bf7305d093405fc011a09b4b19  patches/v12_patch.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('patches/v12_patch.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar'); print('v1.2 patch applied:', len(z.namelist()), 'files')"
+          base64 -d patches/icon0_fixed.b64 > VitaFlightRadar/sce_sys/icon0.png
 
       - name: Build Vita-safe Jansson 2.15.1
         run: |
@@ -63,7 +63,7 @@ jobs:
           from pathlib import Path
           p = Path('VitaFlightRadar/CMakeLists.txt')
           s = p.read_text()
-          s = s.replace('set(VITA_VERSION "01.00")', 'set(VITA_VERSION "01.10")')
+          s = s.replace('set(VITA_VERSION "01.00")', 'set(VITA_VERSION "01.20")')
           s = s.replace('find_package(CURL REQUIRED)\n', '')
           s = s.replace('find_package(OpenSSL REQUIRED)\n', '')
           s = s.replace('    ${CURL_INCLUDE_DIRS}\n', '')
@@ -85,6 +85,6 @@ jobs:
       - name: Upload VPK
         uses: actions/upload-artifact@v4
         with:
-          name: VitaFlightRadar-v1.1-VPK
+          name: VitaFlightRadar-v1.2-VPK
           path: VitaFlightRadar/build/VitaFlightRadar.vpk
           if-no-files-found: error
