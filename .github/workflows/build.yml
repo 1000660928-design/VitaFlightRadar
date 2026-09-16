@@ -3,7 +3,7 @@ name: Build VitaFlightRadar VPK
 on:
   workflow_dispatch:
   push:
-    branches: ["main"]
+    branches: ["main", "v12-build"]
 
 jobs:
   build:
@@ -21,10 +21,14 @@ jobs:
           echo "435d57e62e1b8b97011271615d02bd7c9166251fdddb206731fbb2c07626b6a1  VitaFlightRadar-v1.0-source.zip" | sha256sum -c -
           python3 -c "import zipfile; z=zipfile.ZipFile('VitaFlightRadar-v1.0-source.zip'); assert z.testzip() is None; z.extractall('.'); print('Base source OK')"
 
-      - name: Apply v1.2 source patch
+      - name: Reconstruct and apply v1.2 patch
         run: |
-          echo "81fd38aa36349286088a9ed04b6b0b5055fda5bf7305d093405fc011a09b4b19  patches/v12_patch.zip" | sha256sum -c -
-          python3 -c "import zipfile; z=zipfile.ZipFile('patches/v12_patch.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar'); print('v1.2 patch applied:', len(z.namelist()), 'files')"
+          echo "2fefde6c9ba2ff108ff535eba8aab1a453daefc77b84feef4239b1829b229105  patches/v12_patch.part1.b64" | sha256sum -c -
+          echo "bbae9a0e369054964216f29efaeec4dd502f8f8481cff7e3d329478613f764b5  patches/v12_patch.part2.b64" | sha256sum -c -
+          echo "6f6057c1794af4e19191974f7ff55b0bc468e8cd856b98b9efcc1e0cd6079dd5  patches/v12_patch.part3.b64" | sha256sum -c -
+          cat patches/v12_patch.part1.b64 patches/v12_patch.part2.b64 patches/v12_patch.part3.b64 | base64 -d > v12_patch.zip
+          echo "81fd38aa36349286088a9ed04b6b0b5055fda5bf7305d093405fc011a09b4b19  v12_patch.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v12_patch.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar'); print('v1.2 patch applied:', len(z.namelist()), 'files')"
           base64 -d patches/icon0_fixed.b64 > VitaFlightRadar/sce_sys/icon0.png
 
       - name: Build Vita-safe Jansson 2.15.1
