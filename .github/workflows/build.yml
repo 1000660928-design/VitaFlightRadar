@@ -19,12 +19,13 @@ jobs:
         run: |
           echo "12fa1cfa9f065a1f11a1677d58ec2832dd1a6365582c43a74d2aa0788139d8db  source.part1.b64" | sha256sum -c -
           echo "699d1f528e1446ab94f349ffc28262fb0873096b6ca0201cb75241c2ba799979  source.part2.b64" | sha256sum -c -
-          echo "f419756c33cdaf630e71f85fa76d69f93c09949c148695321add272f584791dd  source.part3.b64" | sha256sum -c -
+          echo "a220d41a021f3b0ad60e60a0ed362f3df2a949450ec4cc0db3930564e085bf6f  source.part3a.b64" | sha256sum -c -
+          echo "6eac1b31ce2e1d42498df6feb86799b65a00990458ab371cfa287034442fe6c4  source.part3b.b64" | sha256sum -c -
           echo "bda84132fb7ccc74ba20ff9ef7220d37044452db14439820400d0dd258ddce6b  source.part4.b64" | sha256sum -c -
           echo "7f4ee50e51dc055a04ec6f9412e2de0fc3acee1164d36eb044d9de6d085d3aaa  source.part5.b64" | sha256sum -c -
 
       - name: Reconstruct source archive
-        run: cat source.part1.b64 source.part2.b64 source.part3.b64 source.part4.b64 source.part5.b64 | base64 -d > VitaFlightRadar-v1.0-source.zip
+        run: cat source.part1.b64 source.part2.b64 source.part3a.b64 source.part3b.b64 source.part4.b64 source.part5.b64 | base64 -d > VitaFlightRadar-v1.0-source.zip
 
       - name: Verify source archive
         run: |
