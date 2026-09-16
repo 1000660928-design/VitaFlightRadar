@@ -37,10 +37,11 @@ jobs:
           echo "ab10424241314ce2a7a1bcc4e7bba06e52684ff0e93df5ba81aab752497b8fbb  v15.zip" | sha256sum -c -
           python3 -c "import zipfile; z=zipfile.ZipFile('v15.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
 
-          echo "8c12b9cf326ed6210716832354c9b00d4d21536b4093bc965895e758003be21f  patches/v16_patch.part01.b64" | sha256sum -c -
+          echo "104550d0806c2e681720dec299a44864476b8221ad58f6477fef9bdd12e9ca8c  patches/v16_patch.part01a.b64" | sha256sum -c -
+          echo "5bcda2acc1d0d79a05af76f92927c9a32bff82a185949978f7ab7d3a3844738b  patches/v16_patch.part01b.b64" | sha256sum -c -
           echo "d682ce42c098fc521783e3e6c492ad05494c616185245b774347c8943dd55ce8  patches/v16_patch.part02.b64" | sha256sum -c -
           echo "22658d5c69aeac161b1cca88da736840d8bf0ccb39d1216245b980b5f2d2ff59  patches/v16_patch.part03.b64" | sha256sum -c -
-          cat patches/v16_patch.part01.b64 patches/v16_patch.part02.b64 patches/v16_patch.part03.b64 | base64 -d > v16.zip
+          cat patches/v16_patch.part01a.b64 patches/v16_patch.part01b.b64 patches/v16_patch.part02.b64 patches/v16_patch.part03.b64 | base64 -d > v16.zip
           echo "f143e973382a345516d66f3ea9c56ddceefec03784407910f8a7d7eab67e050f  v16.zip" | sha256sum -c -
           python3 -c "import zipfile; z=zipfile.ZipFile('v16.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src'); print('v1.6 patch OK')"
 
