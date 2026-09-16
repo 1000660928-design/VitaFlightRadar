@@ -33,6 +33,17 @@ jobs:
       - name: Build Vita-safe Jansson 2.15.1
         run: |
           git clone --depth 1 --branch v2.15.1 https://github.com/akheron/jansson.git jansson-src
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('jansson-src/CMakeLists.txt')
+          s = p.read_text()
+          old = 'set_target_properties(jansson PROPERTIES\n      POSITION_INDEPENDENT_CODE true)'
+          new = 'set_target_properties(jansson PROPERTIES\n      POSITION_INDEPENDENT_CODE false)'
+          if old not in s:
+              raise SystemExit('Could not find Jansson forced PIC setting')
+          p.write_text(s.replace(old, new))
+          print('Patched Jansson static library to POSITION_INDEPENDENT_CODE false')
+          PY
           cmake -S jansson-src -B jansson-build \
             -DCMAKE_TOOLCHAIN_FILE=$VITASDK/share/vita.toolchain.cmake \
             -DCMAKE_BUILD_TYPE=Release \
@@ -48,6 +59,7 @@ jobs:
           echo "Custom Jansson: $JANSSON_LIB"
           if arm-vita-eabi-readelf -rW "$JANSSON_LIB" 2>/dev/null | grep -q R_ARM_BASE_PREL; then
             echo 'ERROR: custom Jansson still contains R_ARM_BASE_PREL'
+            arm-vita-eabi-readelf -rW "$JANSSON_LIB" 2>/dev/null | grep -C 3 R_ARM_BASE_PREL || true
             exit 1
           fi
 
