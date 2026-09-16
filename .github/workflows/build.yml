@@ -3,7 +3,7 @@ name: Build VitaFlightRadar VPK
 on:
   workflow_dispatch:
   push:
-    branches: ["v13-build"]
+    branches: ["v14-build"]
 
 jobs:
   build:
@@ -48,6 +48,16 @@ jobs:
           python3 -c "import zipfile; z=zipfile.ZipFile('icon_fix.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/sce_sys'); print('Known-good Vita icon restored')"
           echo "7918a7a0f1323bfa5f00b529578a5d0594ab49c54f357c3170508e650a50023d  VitaFlightRadar/sce_sys/icon0.png" | sha256sum -c -
 
+      - name: Reconstruct and apply v1.4 patch
+        run: |
+          echo "37582d6bfd65e27b46f61048cb96b5ed45e0539bc51525bade5f8af64d7e8a49  patches/v14_patch.part01.b64" | sha256sum -c -
+          echo "7d688b2ba8795ee68a362bbc45e184858f1c9c6ae5c166de11cc9dbe45661eb8  patches/v14_patch.part02.b64" | sha256sum -c -
+          echo "5b59bc597a8bffc5d45520102bca5aa16d0ddb3013cb4719984f178cd18b8baa  patches/v14_patch.part03.b64" | sha256sum -c -
+          echo "2be0b15fb28ae5af224f1f7ed99d3108d4843e20e151c4b479a436b4eede6f7b  patches/v14_patch.part04.b64" | sha256sum -c -
+          cat patches/v14_patch.part01.b64 patches/v14_patch.part02.b64 patches/v14_patch.part03.b64 patches/v14_patch.part04.b64 | base64 -d > v14_patch.zip
+          echo "747b1fa093bc3d376e28cab7df717f42206828fc041f55950280c1435cab1edb  v14_patch.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v14_patch.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src'); print('v1.4 patch applied:', len(z.namelist()), 'files')"
+
       - name: Build Vita-safe Jansson 2.15.1
         run: |
           git clone --depth 1 --branch v2.15.1 https://github.com/akheron/jansson.git jansson-src
@@ -84,7 +94,7 @@ jobs:
           from pathlib import Path
           p = Path('VitaFlightRadar/CMakeLists.txt')
           s = p.read_text()
-          s = s.replace('set(VITA_VERSION "01.00")', 'set(VITA_VERSION "01.30")')
+          s = s.replace('set(VITA_VERSION "01.00")', 'set(VITA_VERSION "01.40")')
           s = s.replace('find_package(CURL REQUIRED)\n', '')
           s = s.replace('find_package(OpenSSL REQUIRED)\n', '')
           s = s.replace('    ${CURL_INCLUDE_DIRS}\n', '')
@@ -119,6 +129,6 @@ jobs:
       - name: Upload VPK
         uses: actions/upload-artifact@v4
         with:
-          name: VitaFlightRadar-v1.3-VPK
+          name: VitaFlightRadar-v1.4-VPK
           path: VitaFlightRadar/build/VitaFlightRadar.vpk
           if-no-files-found: error
