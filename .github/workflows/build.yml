@@ -1,0 +1,34 @@
+name: Build VitaFlightRadar VPK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: vitasdk/vitasdk:2026.08-20260813
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Extract VitaFlightRadar source
+        run: unzip -q VitaFlightRadar-v1.0-source.zip
+
+      - name: Configure VitaSDK build
+        working-directory: VitaFlightRadar
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build VPK
+        working-directory: VitaFlightRadar
+        run: cmake --build build --parallel
+
+      - name: Upload installable VPK
+        uses: actions/upload-artifact@v4
+        with:
+          name: VitaFlightRadar-VPK
+          path: VitaFlightRadar/build/VitaFlightRadar.vpk
+          if-no-files-found: error
