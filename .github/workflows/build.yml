@@ -3,7 +3,7 @@ name: Build VitaFlightRadar VPK
 on:
   workflow_dispatch:
   push:
-    branches: ["v14-build"]
+    branches: ["v15-build"]
 
 jobs:
   build:
@@ -58,6 +58,16 @@ jobs:
           echo "747b1fa093bc3d376e28cab7df717f42206828fc041f55950280c1435cab1edb  v14_patch.zip" | sha256sum -c -
           python3 -c "import zipfile; z=zipfile.ZipFile('v14_patch.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src'); print('v1.4 patch applied:', len(z.namelist()), 'files')"
 
+      - name: Reconstruct and apply v1.5 patch
+        run: |
+          echo "196e538d6592fd2ce1653070487b39eb630a729fd163a331e93b98f54c09ea96  patches/v15_patch.part01.b64" | sha256sum -c -
+          echo "8d84af6a8fafb84378e0654e154f0cc517ff396d4b4f4d593fa04fb8359612aa  patches/v15_patch.part02.b64" | sha256sum -c -
+          echo "51902b139115ca0b42e305416271a988351ebcdb18bb79e4c9ba5878875a0ab9  patches/v15_patch.part03.b64" | sha256sum -c -
+          echo "16ce37c30842dd763fcc0e6d5e4431310f49b1e3a7b0d81c7685c520268ebc31  patches/v15_patch.part04.b64" | sha256sum -c -
+          cat patches/v15_patch.part01.b64 patches/v15_patch.part02.b64 patches/v15_patch.part03.b64 patches/v15_patch.part04.b64 | base64 -d > v15_patch.zip
+          echo "ab10424241314ce2a7a1bcc4e7bba06e52684ff0e93df5ba81aab752497b8fbb  v15_patch.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v15_patch.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src'); print('v1.5 patch applied:', len(z.namelist()), 'files')"
+
       - name: Build Vita-safe Jansson 2.15.1
         run: |
           git clone --depth 1 --branch v2.15.1 https://github.com/akheron/jansson.git jansson-src
@@ -94,7 +104,7 @@ jobs:
           from pathlib import Path
           p = Path('VitaFlightRadar/CMakeLists.txt')
           s = p.read_text()
-          s = s.replace('set(VITA_VERSION "01.00")', 'set(VITA_VERSION "01.40")')
+          s = s.replace('set(VITA_VERSION "01.00")', 'set(VITA_VERSION "01.50")')
           s = s.replace('find_package(CURL REQUIRED)\n', '')
           s = s.replace('find_package(OpenSSL REQUIRED)\n', '')
           s = s.replace('    ${CURL_INCLUDE_DIRS}\n', '')
@@ -103,7 +113,7 @@ jobs:
           s = s.replace('    ${OPENSSL_LIBRARIES}\n', '')
           s = s.replace('    jansson\n', '    ${CMAKE_SOURCE_DIR}/libjansson_vita.a\n')
           s = s.replace('    src/net.c\n)', '    src/net.c\n    src/map.c\n    src/route.c\n)')
-          s = s.replace('    SceKernelThreadMgr_stub\n', '    SceKernelThreadMgr_stub\n    SceRtc_stub\n')
+          s = s.replace('    SceKernelThreadMgr_stub\n', '    SceKernelThreadMgr_stub\n    SceRtc_stub\n    SceAppUtil_stub\n    SceIme_stub\n')
           s = s.replace('set(CMAKE_C_STANDARD_REQUIRED ON)', 'set(CMAKE_C_STANDARD_REQUIRED ON)\nset(CMAKE_POSITION_INDEPENDENT_CODE OFF)\nadd_compile_options(-fno-pic -fno-pie)\nadd_link_options(-no-pie)')
           s = s.replace('target_include_directories(${PROJECT_NAME} PRIVATE', 'set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE OFF)\n\ntarget_include_directories(${PROJECT_NAME} PRIVATE')
           p.write_text(s)
@@ -129,6 +139,6 @@ jobs:
       - name: Upload VPK
         uses: actions/upload-artifact@v4
         with:
-          name: VitaFlightRadar-v1.4-VPK
+          name: VitaFlightRadar-v1.5-VPK
           path: VitaFlightRadar/build/VitaFlightRadar.vpk
           if-no-files-found: error
