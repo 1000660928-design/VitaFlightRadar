@@ -41,8 +41,8 @@ jobs:
           from pathlib import Path
           p = Path('VitaFlightRadar/src/app_config.c')
           s = p.read_text()
-          if '#include <psp2/io/dirent.h>' not in s:
-              s = s.replace('#include <psp2/io/fcntl.h>', '#include <psp2/io/fcntl.h>\n#include <psp2/io/dirent.h>')
+          if '#include <psp2/io/stat.h>' not in s:
+              s = s.replace('#include <psp2/io/fcntl.h>', '#include <psp2/io/fcntl.h>\n#include <psp2/io/stat.h>')
           p.write_text(s)
           PY
 
