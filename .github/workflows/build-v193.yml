@@ -6,7 +6,7 @@ on:
     branches: ["v193-build"]
     paths:
       - ".github/workflows/build-v193.yml"
-      - "patches/v193_patch.zip"
+      - "patches/v193_patch.part*.b64"
 
 jobs:
   build:
@@ -78,11 +78,15 @@ jobs:
 
       - name: Apply v1.9.3 dual-model compatibility patch
         run: |
-          echo "74c99e50e4a529a62b45eebafd0095396b6565d9ca85a1da6a4bb6faf4eb5d6e  patches/v193_patch.zip" | sha256sum -c -
+          echo "3e80bbb72c120b34970ad7401034e1eb71c8373fee0d59f3e18b9cc14688929e  patches/v193_patch.part00.b64" | sha256sum -c -
+          echo "c25bff58f03e092aca79a828bdcdeabfa6180428e8560238d9c8a73dfc26e9c8  patches/v193_patch.part01.b64" | sha256sum -c -
+          echo "fa3fb25678f07f272cffb5312c96713e388b6d8adecee693e5835287efa51f0f  patches/v193_patch.part02.b64" | sha256sum -c -
+          echo "08c46fead75a991bbb5f075d9a3811a9c6c4c8bcdb280355b6b5ec771d220102  patches/v193_patch.part03.b64" | sha256sum -c -
+          cat patches/v193_patch.part00.b64 patches/v193_patch.part01.b64 patches/v193_patch.part02.b64 patches/v193_patch.part03.b64 | base64 -d > v193.zip
+          echo "74c99e50e4a529a62b45eebafd0095396b6565d9ca85a1da6a4bb6faf4eb5d6e  v193.zip" | sha256sum -c -
           python3 - <<'PY'
           import zipfile
-          p='patches/v193_patch.zip'
-          z=zipfile.ZipFile(p)
+          z=zipfile.ZipFile('v193.zip')
           assert z.testzip() is None
           z.extractall('VitaFlightRadar/src')
           print('v1.9.3 compatibility patch OK')
@@ -117,7 +121,6 @@ jobs:
           p=Path('VitaFlightRadar/CMakeLists.txt')
           s=p.read_text()
           s=s.replace('set(VITA_VERSION "01.00")','set(VITA_VERSION "01.93")')
-          # Keep CURL + OpenSSL enabled. v1.9.3 deliberately avoids the firmware-native HTTPS stack.
           s=s.replace('    jansson\n','    ${CMAKE_SOURCE_DIR}/libjansson_vita.a\n')
           s=s.replace('    src/net.c\n)','    src/net.c\n    src/map.c\n    src/route.c\n)')
           s=s.replace('    SceKernelThreadMgr_stub\n','    SceKernelThreadMgr_stub\n    SceRtc_stub\n    SceAppUtil_stub\n    SceIme_stub\n')
