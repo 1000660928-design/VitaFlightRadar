@@ -8,29 +8,26 @@ The project started as a circular radar experiment and evolved into a touch-cont
 
 ## Download
 
-### **[Download VitaFlightRadar v1.9 VPK](releases/VitaFlightRadar-v1.9.vpk)**
+### **[Download VitaFlightRadar v1.9.1 VPK](releases/VitaFlightRadar-v1.9.1.vpk)**
 
-**v1.9 is the current recommended build.** See [RELEASES.md](RELEASES.md) and [CHANGELOG.md](CHANGELOG.md) for the complete history.
+**v1.9.1 is the current recommended build.** See [RELEASES.md](RELEASES.md) and [CHANGELOG.md](CHANGELOG.md) for the complete history.
 
-## v1.9: Maximum Performance
+## v1.9.1: Satellite Map Hotfix
 
-v1.9 keeps the v1.8 interface and focuses almost entirely on responsiveness, loading speed and reducing freezes:
+v1.9.1 fixes a regression introduced in v1.9 where live aircraft still appeared but the satellite imagery could remain completely black.
 
-- Satellite networking moved off the render/UI thread.
-- Two background map workers download tiles in parallel.
-- Persistent HTTP sessions reuse network connections instead of repeating connection setup for every tile.
-- Center and visible tiles are prioritized before surrounding tiles.
-- Neighboring/parent tiles are prefetched to make upcoming pans and zooms more likely to hit cache.
-- In-memory texture cache increased to 48 map tiles with LRU-style reuse.
-- Disk cache reads/writes happen away from the frame loop.
-- Old/cached imagery remains visible while sharper imagery arrives.
-- Texture decoding/upload work is budgeted so the renderer is not flooded by many new tiles in one frame.
-- Aircraft and route-data refreshes run in a separate background worker instead of blocking touch/map rendering.
-- Fast repeated gestures can invalidate stale map requests so the app does not waste time loading an area you already left.
-- Config writes are debounced so dragging/pinching does not constantly write settings to storage.
-- Touch gestures receive priority before background tile work resumes.
-- Release build uses aggressive compiler optimization (`-O3`) and dead-code/data section removal.
-- No forced CPU/GPU clock changes or overclock dependency. The performance work is architectural and is intended to preserve stability and battery/thermal behavior.
+To prioritize reliability, v1.9.1 restores the exact satellite-map renderer used by v1.8, which was confirmed working on real PS Vita hardware, while retaining safe Release compiler optimization.
+
+- Restores the proven v1.8 multi-tile satellite map engine.
+- Removes the experimental v1.9 asynchronous satellite-worker pipeline that caused the black-map regression.
+- Keeps one-finger panning, touch-and-hold recentering, pinch zoom and automatic aircraft-radius behavior.
+- Keeps coordinate search, aircraft filtering, AUTO/MANUAL refresh, route information and touch aircraft selection.
+- Uses optimized Release compilation (`-O3`) without forced CPU/GPU clock changes.
+- Keeps the public build privacy-safe with no creator-specific startup coordinates.
+
+### v1.9 known issue
+
+The original v1.9 performance release is preserved for development history, but it is **not recommended**. On real hardware it could display aircraft over a black background because the experimental asynchronous map pipeline failed to deliver satellite tiles to the renderer correctly.
 
 ## Map controls
 
@@ -90,7 +87,7 @@ If an older build refuses to update cleanly, delete the old VitaFlightRadar bubb
 
 The Vita itself is **not an ADS-B radio receiver**. VitaFlightRadar uses Wi-Fi to request live nearby aircraft data from the **adsb.fi open-data API**, then plots aircraft relative to the map view.
 
-Satellite imagery is rendered as cached map tiles. v1.9 adds parallel background downloading, connection reuse, priority scheduling and a larger in-memory texture cache on top of the v1.8 slippy-map engine.
+Satellite imagery is rendered as cached map tiles. v1.9.1 uses the proven v1.8 slippy-map renderer after the experimental v1.9 asynchronous tile pipeline caused a real-hardware black-map regression.
 
 Flight route and timetable information is obtained separately because raw ADS-B position data does not reliably contain origin, destination or airline schedule fields. Public aviation data is incomplete, so private/unusual flights can still have missing route or timetable information.
 
@@ -98,7 +95,7 @@ Known helicopters, rotorcraft, drones, balloons, gliders and other known non-air
 
 ## Version history
 
-See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELOG.md) for detailed notes from the original prototype through v1.9.
+See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELOG.md) for detailed notes from the original prototype through v1.9.1.
 
 Historical development/build branches remain in the repository.
 
@@ -125,7 +122,7 @@ Real PS Vita hardware testing has been a major part of the development process.
 
 VitaFlightRadar is written in C for **VitaSDK** and uses Vita2D for rendering. GitHub Actions builds and validates the installable VPK.
 
-The project includes Vita-native networking, HTTPS handling, map caching, asynchronous worker threads, static-library relocation fixes, Vita-safe icon/VPK packaging and LiveArea validation.
+The project includes Vita-native networking, HTTPS handling, map caching, static-library relocation fixes, Vita-safe icon/VPK packaging and LiveArea validation.
 
 ## Disclaimer
 
