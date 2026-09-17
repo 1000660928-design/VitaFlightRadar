@@ -2,27 +2,33 @@
 
 This file tracks the major public iterations of VitaFlightRadar.
 
+## v1.9.1
+
+Satellite-map stability hotfix.
+
+- Fixed the real-hardware regression from v1.9 where aircraft rendered correctly but the satellite map could remain completely black.
+- Removed the experimental v1.9 asynchronous satellite-worker pipeline from the recommended build.
+- Restored the exact proven v1.8 multi-tile satellite renderer and interaction model.
+- Kept one-finger panning, touch-and-hold recentering, pinch zoom and automatic aircraft-radius behavior.
+- Kept coordinate search, aircraft filtering, AUTO/MANUAL refresh, route information and touch aircraft selection.
+- Kept safe Release compiler optimization with `-O3` and linker dead-section removal.
+- Does not force CPU/GPU clock changes or require overclocking.
+- Public build contains no creator-specific startup coordinates.
+
 ## v1.9
 
-Performance-focused release built on the v1.8 feature set.
+Performance-focused experimental release built on the v1.8 feature set.
 
 - Moved satellite tile network I/O off the render/UI thread.
 - Added two background satellite-tile worker threads.
-- Added persistent HTTP sessions so map workers can reuse network connections rather than repeating setup for every tile.
-- Added priority tile scheduling so the map center and immediately visible tiles load before less important surrounding tiles.
-- Added neighboring/parent-tile prefetching for smoother future pans and zooms.
-- Increased the in-memory map texture cache to 48 tiles with LRU-style reuse.
-- Moved disk tile-cache reads and writes away from the frame loop.
-- Kept cached/older imagery visible while sharper map tiles arrive.
-- Limited texture decode/upload work per frame to reduce frame spikes.
-- Added stale-request invalidation so abandoned map locations do not keep consuming download time after a fast pan/zoom.
-- Moved aircraft and route-data refresh work to a separate background worker.
-- Added debounced configuration persistence to avoid repeated file writes during map gestures.
-- Preserved the gesture grace period so active touch interaction gets priority over background map loading.
-- Added aggressive Release compiler optimization (`-O3`, function/data sections and linker garbage collection).
-- Removed experimental forced CPU/GPU clock changes before release; v1.9 does not require overclocking and prioritizes stability.
-- Preserved all v1.8 controls, panning, touch-and-hold recentering, pinch/radius behavior, coordinate search, airplane filtering and flight information.
-- Public build remains privacy-safe and does not contain the creator's private startup-location file.
+- Added persistent HTTP sessions so map workers could reuse network connections rather than repeating setup for every tile.
+- Added priority tile scheduling, neighboring/parent-tile prefetching and a larger in-memory cache.
+- Moved disk map-cache work and aircraft/route refresh work away from the frame loop.
+- Added stale-request invalidation and debounced configuration persistence.
+- Added aggressive Release compiler optimization.
+- Removed experimental forced CPU/GPU clock changes before release.
+
+**Known issue:** real PS Vita testing showed that the experimental asynchronous map pipeline could fail to deliver satellite tiles to the renderer, producing a black map while aircraft icons continued to work. v1.9 is therefore preserved for development history but is not recommended. Use v1.9.1 or newer.
 
 ## v1.8
 
@@ -51,7 +57,7 @@ Performance-focused release built on the v1.8 feature set.
 - Removed SELECT-to-exit; use the Vita system UI/PS button normally.
 - Pinch zoom is now the single control for both map scale and aircraft search radius.
 - Zooming in automatically reduces the live-aircraft radius to match the visible map area.
-- Zooming out automatically expands the live-aircraft radius.
+- Zooming out automatically expands the live aircraft search area.
 - Added high-resolution satellite tile rebasing after pinch gestures so the map does not remain a stretched, blurry image.
 - Kept tap-to-select aircraft.
 - Kept UP/DOWN aircraft cycling.
