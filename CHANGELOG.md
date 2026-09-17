@@ -2,6 +2,25 @@
 
 This file tracks the major public iterations of VitaFlightRadar.
 
+## v1.8
+
+- Rebuilt the satellite renderer as a multi-tile slippy-map system instead of replacing one large map image after every view change.
+- Added one-finger map dragging/panning.
+- Releasing a drag makes the new map center the aircraft tracking center and refreshes the live aircraft feed around that point.
+- Added stationary touch-and-hold recentering to the geographic point beneath the finger.
+- Kept two-finger pinch as the unified map zoom + aircraft-radius control.
+- Added horizontal world wrapping to remove the hard left/right map edge when panning around the globe.
+- Added an in-memory tile cache and a persistent Vita storage tile cache.
+- Added progressive tile loading so missing tiles arrive one at a time instead of blanking and rebuilding the entire map at once.
+- Added cached parent/low-resolution tile fallback while sharper imagery is being loaded, reducing cut-off/empty map regions.
+- Increased supported satellite zoom detail up to zoom level 19.
+- Changed post-pinch rebasing to prefer sharper imagery that can be downscaled instead of stretching lower-resolution imagery upward.
+- Added a short touch-gesture grace period before new satellite network requests begin, reducing interruptions while repeatedly dragging or pinching.
+- Improved smaller-text rendering for cleaner readability.
+- Kept the aircraft feed radius tied to the actual visible map area, up to the adsb.fi nearby-query limit.
+- Kept coordinate search, tap-to-select, UP/DOWN selection, Square AUTO/MANUAL refresh and START manual refresh.
+- Public builds use a neutral coordinate-search example and do not include the creator's private startup-location file.
+
 ## v1.7
 
 - Removed the world-map mode entirely.
