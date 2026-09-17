@@ -72,8 +72,7 @@ jobs:
           s = s.replace('"SATELLITE SHARPENING Z%d"', '"HQ SATELLITE Z%d"')
           p.write_text(s)
           h = Path('VitaFlightRadar/src/map.h')
-          hs = h.read_text().replace('#define VFR_MAP_MAX_TILES 32', '#define VFR_MAP_MAX_TILES 40')
-          h.write_text(hs)
+          h.write_text(h.read_text().replace('#define VFR_MAP_MAX_TILES 32', '#define VFR_MAP_MAX_TILES 40'))
           PY
 
       - name: Apply v1.9.3 dual-model compatibility patch
@@ -94,14 +93,18 @@ jobs:
           grep -q 'CURL_SSLVERSION_TLSv1_2' VitaFlightRadar/src/net.c
           grep -q 'SATELLITE FALLBACK' VitaFlightRadar/src/map.c
 
+      - name: Install firmware-independent TLS backend
+        run: |
+          vdpm install curl-mbedtls mbedtls
+          vdpm info curl-mbedtls
+
       - name: Build Vita-safe Jansson 2.15.1
         run: |
           git clone --depth 1 --branch v2.15.1 https://github.com/akheron/jansson.git jansson-src
           python3 - <<'PY'
           from pathlib import Path
           p=Path('jansson-src/CMakeLists.txt')
-          s=p.read_text().replace('POSITION_INDEPENDENT_CODE true','POSITION_INDEPENDENT_CODE false')
-          p.write_text(s)
+          p.write_text(p.read_text().replace('POSITION_INDEPENDENT_CODE true','POSITION_INDEPENDENT_CODE false'))
           PY
           cmake -S jansson-src -B jansson-build \
             -DCMAKE_TOOLCHAIN_FILE=$VITASDK/share/vita.toolchain.cmake \
@@ -121,6 +124,9 @@ jobs:
           p=Path('VitaFlightRadar/CMakeLists.txt')
           s=p.read_text()
           s=s.replace('set(VITA_VERSION "01.00")','set(VITA_VERSION "01.93")')
+          s=s.replace('find_package(OpenSSL REQUIRED)\n','')
+          s=s.replace('    ${OPENSSL_INCLUDE_DIR}\n','')
+          s=s.replace('    ${OPENSSL_LIBRARIES}\n','')
           s=s.replace('    jansson\n','    ${CMAKE_SOURCE_DIR}/libjansson_vita.a\n')
           s=s.replace('    src/net.c\n)','    src/net.c\n    src/map.c\n    src/route.c\n)')
           s=s.replace('    SceKernelThreadMgr_stub\n','    SceKernelThreadMgr_stub\n    SceRtc_stub\n    SceAppUtil_stub\n    SceIme_stub\n')
