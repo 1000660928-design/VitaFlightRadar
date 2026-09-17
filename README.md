@@ -8,11 +8,13 @@ The project started as a circular radar experiment and evolved into a touch-cont
 
 ## Compatibility notice
 
-> **PS Vita 1000 / FAT users:** v1.9.2 was developed and hardware-tested primarily on a PS Vita 2000 Slim. A first public hardware report indicates that some PS Vita 1000 systems may launch the app and accept coordinates correctly but then show a black satellite-map area with only the tracking-center marker visible. This issue is under active investigation.
+> **PS Vita 1000 / FAT users:** v1.9.2 was developed and hardware-tested primarily on a PS Vita 2000 Slim. A first public hardware report indicates that some PS Vita 1000 systems may launch the app and accept coordinates correctly but then show a black satellite-map area with only the tracking-center marker visible.
 >
 > **PS Vita 2000 Slim users:** v1.9.2 is currently the confirmed working hardware target.
 >
-> A compatibility update is in development with the goal of supporting both PS Vita 1000 and PS Vita 2000 models reliably. If you are using a Vita 1000 and encounter this issue, please include your Vita model, storage setup (official memory card / SD2Vita), and whether aircraft icons appear when reporting it.
+> **Update status:** a v1.9.3 dual-model compatibility test build now compiles and packages successfully. It replaces the satellite/network request path with VitaSDK libcurl using an mbedTLS TLS backend, explicitly creates the app/map-cache directories, and adds automatic lower-resolution satellite fallback when an aggressive HQ tile is unavailable. The build is awaiting real PCH-1000 hardware verification before it replaces v1.9.2 as the recommended public release.
+>
+> If you are testing on a Vita 1000, please include your Vita model, system software version, storage setup (official memory card / SD2Vita), whether the satellite imagery appears after entering coordinates, and whether aircraft icons appear.
 
 ## Download
 
