@@ -6,11 +6,19 @@ VitaFlightRadar is a PS Vita homebrew application that uses Wi-Fi to download li
 
 The project started as a circular radar experiment and evolved into a touch-controlled satellite flight map.
 
+## Compatibility notice
+
+> **PS Vita 1000 / FAT users:** v1.9.2 was developed and hardware-tested primarily on a PS Vita 2000 Slim. A first public hardware report indicates that some PS Vita 1000 systems may launch the app and accept coordinates correctly but then show a black satellite-map area with only the tracking-center marker visible. This issue is under active investigation.
+>
+> **PS Vita 2000 Slim users:** v1.9.2 is currently the confirmed working hardware target.
+>
+> A compatibility update is in development with the goal of supporting both PS Vita 1000 and PS Vita 2000 models reliably. If you are using a Vita 1000 and encounter this issue, please include your Vita model, storage setup (official memory card / SD2Vita), and whether aircraft icons appear when reporting it.
+
 ## Download
 
 ### **[Download VitaFlightRadar v1.9.2 VPK](releases/VitaFlightRadar-v1.9.2.vpk)**
 
-**v1.9.2 is the current recommended build.** See [RELEASES.md](RELEASES.md) and [CHANGELOG.md](CHANGELOG.md) for the complete version history.
+**v1.9.2 is the current recommended build for PS Vita 2000 Slim hardware. PS Vita 1000 users should read the compatibility notice above.** See [RELEASES.md](RELEASES.md) and [CHANGELOG.md](CHANGELOG.md) for the complete version history.
 
 ## v1.9.2: High-Resolution Satellite Hotfix
 
