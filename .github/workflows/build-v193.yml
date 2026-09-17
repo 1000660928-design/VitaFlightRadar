@@ -87,7 +87,8 @@ jobs:
 
       - name: Install firmware-independent TLS backend
         run: |
-          yes | vdpm install curl-mbedtls mbedtls
+          vdpm pacman -- -Rdd --noconfirm curl
+          vdpm pacman -- -S --needed --noconfirm curl-mbedtls mbedtls
           vdpm info curl-mbedtls
 
       - name: Build Vita-safe Jansson 2.15.1
