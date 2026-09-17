@@ -1,0 +1,45 @@
+name: Export v1.9 reconstructed source
+
+on:
+  push:
+    branches: ["v19-build"]
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct source
+        run: |
+          cat source.part1.b64 source.part2.b64 source.part3a.b64 source.part3b.b64 source.part4.b64 source.part5.b64 | base64 -d > base.zip
+          echo "435d57e62e1b8b97011271615d02bd7c9166251fdddb206731fbb2c07626b6a1  base.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('base.zip'); assert z.testzip() is None; z.extractall('.')"
+          cat patches/v12_patch.part1a.b64 patches/v12_patch.part1b.b64 patches/v12_patch.part2.b64 patches/v12_patch.part3.b64 | base64 -d > v12.zip
+          echo "81fd38aa36349286088a9ed04b6b0b5055fda5bf7305d093405fc011a09b4b19  v12.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v12.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          cat patches/v13_patch.part*.b64 | base64 -d > v13.zip
+          echo "9a4c130f4d5ed5b4f0efcae4ec11745f87fc1bba2fcf90f877ce448c278b8487  v13.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v13.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          cat patches/v14_patch.part01.b64 patches/v14_patch.part02.b64 patches/v14_patch.part03.b64 patches/v14_patch.part04.b64 | base64 -d > v14.zip
+          echo "747b1fa093bc3d376e28cab7df717f42206828fc041f55950280c1435cab1edb  v14.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v14.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          cat patches/v15_patch.part01.b64 patches/v15_patch.part02.b64 patches/v15_patch.part03.b64 patches/v15_patch.part04.b64 | base64 -d > v15.zip
+          echo "ab10424241314ce2a7a1bcc4e7bba06e52684ff0e93df5ba81aab752497b8fbb  v15.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v15.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          cat patches/v16_patch.part01a.b64 patches/v16_patch.part01b.b64 patches/v16_patch.part02.b64 patches/v16_patch.part03.b64 | base64 -d > v16.zip
+          echo "f143e973382a345516d66f3ea9c56ddceefec03784407910f8a7d7eab67e050f  v16.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v16.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          echo "c1f7f5c24c25d7113dedee3b8404d746a2cecf57f97f8f2c98f0f9f8984fa08b  patches/v17_patch.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('patches/v17_patch.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          cat patches/v18_patch.part01.b64 patches/v18_patch.part02.b64 patches/v18_patch.part03.b64 patches/v18_patch.part04.b64 patches/v18_patch.part05.b64 | base64 -d > v18.zip
+          echo "c813625aaa9fc8b5745f3639a9dd0d10692bba1ad52aa94d41c643ea09c0213d  v18.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v18.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          cat patches/v19_patch.x00.b64 patches/v19_patch.x01.b64 patches/v19_patch.x02.b64 patches/v19_patch.x03.b64 patches/v19_patch.x04.b64 patches/v19_patch.x05.b64 patches/v19_patch.x06.b64 patches/v19_patch.x07.b64 | base64 -d > v19.zip
+          echo "d9b829c5c32d90878a612a3b670c006f9811a60b02acf6a0ffb351b9b5fb762c  v19.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v19.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          zip -r VitaFlightRadar-v1.9-source.zip VitaFlightRadar/src
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VitaFlightRadar-v1.9-source
+          path: VitaFlightRadar-v1.9-source.zip
+          if-no-files-found: error
