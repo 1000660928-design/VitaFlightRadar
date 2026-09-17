@@ -1,0 +1,125 @@
+name: Build VitaFlightRadar v1.9.1 Satellite Fix
+
+on:
+  push:
+    branches: ["v19-build"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: vitasdk/vitasdk:2026.08-20260813
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reconstruct v1.9 source
+        run: |
+          cat source.part1.b64 source.part2.b64 source.part3a.b64 source.part3b.b64 source.part4.b64 source.part5.b64 | base64 -d > base.zip
+          echo "435d57e62e1b8b97011271615d02bd7c9166251fdddb206731fbb2c07626b6a1  base.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('base.zip'); assert z.testzip() is None; z.extractall('.')"
+          cat patches/v12_patch.part1a.b64 patches/v12_patch.part1b.b64 patches/v12_patch.part2.b64 patches/v12_patch.part3.b64 | base64 -d > v12.zip
+          echo "81fd38aa36349286088a9ed04b6b0b5055fda5bf7305d093405fc011a09b4b19  v12.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v12.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          cat patches/v13_patch.part*.b64 | base64 -d > v13.zip
+          echo "9a4c130f4d5ed5b4f0efcae4ec11745f87fc1bba2fcf90f877ce448c278b8487  v13.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v13.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          cat patches/v14_patch.part01.b64 patches/v14_patch.part02.b64 patches/v14_patch.part03.b64 patches/v14_patch.part04.b64 | base64 -d > v14.zip
+          echo "747b1fa093bc3d376e28cab7df717f42206828fc041f55950280c1435cab1edb  v14.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v14.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          cat patches/v15_patch.part01.b64 patches/v15_patch.part02.b64 patches/v15_patch.part03.b64 patches/v15_patch.part04.b64 | base64 -d > v15.zip
+          echo "ab10424241314ce2a7a1bcc4e7bba06e52684ff0e93df5ba81aab752497b8fbb  v15.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v15.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          cat patches/v16_patch.part01a.b64 patches/v16_patch.part01b.b64 patches/v16_patch.part02.b64 patches/v16_patch.part03.b64 | base64 -d > v16.zip
+          echo "f143e973382a345516d66f3ea9c56ddceefec03784407910f8a7d7eab67e050f  v16.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v16.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          echo "c1f7f5c24c25d7113dedee3b8404d746a2cecf57f97f8f2c98f0f9f8984fa08b  patches/v17_patch.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('patches/v17_patch.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          cat patches/v18_patch.part01.b64 patches/v18_patch.part02.b64 patches/v18_patch.part03.b64 patches/v18_patch.part04.b64 patches/v18_patch.part05.b64 | base64 -d > v18.zip
+          echo "c813625aaa9fc8b5745f3639a9dd0d10692bba1ad52aa94d41c643ea09c0213d  v18.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v18.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          cat patches/v19_patch.x00.b64 patches/v19_patch.x01.b64 patches/v19_patch.x02.b64 patches/v19_patch.x03.b64 patches/v19_patch.x04.b64 patches/v19_patch.x05.b64 patches/v19_patch.x06.b64 patches/v19_patch.x07.b64 | base64 -d > v19.zip
+          echo "d9b829c5c32d90878a612a3b670c006f9811a60b02acf6a0ffb351b9b5fb762c  v19.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v19.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+
+      - name: Apply v1.9.1 satellite stability fix
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('VitaFlightRadar/src/map.c')
+          s=p.read_text()
+          s=s.replace('#define MAP_WORKER_COUNT 2', '#define MAP_WORKER_COUNT 1')
+          old='''    char error[96];\n    int rc = session && session->connection_id >= 0\n        ? vfr_http_session_get(session, url, out, out_size, http_status, error, sizeof(error))\n        : vfr_http_get(url, out, out_size, http_status, error, sizeof(error));'''
+          new='''    char error[96];\n    /* v1.9.1: proven v1.8 HTTPS path, still off the render thread. */\n    (void)session;\n    int rc = vfr_http_get(url, out, out_size, http_status, error, sizeof(error));'''
+          if old not in s: raise SystemExit('HTTP session block not found')
+          s=s.replace(old,new)
+          old='''    VfrHttpSession session;\n    memset(&session, 0, sizeof(session));\n    session.template_id = -1;\n    session.connection_id = -1;\n    char error[96];\n    vfr_http_session_init(&session,\n                          "https://server.arcgisonline.com/",\n                          "VitaFlightRadar/1.9 map-worker",\n                          error, sizeof(error));\n\n    while (g_workers_running) {'''
+          new='''    VfrHttpSession session;\n    memset(&session, 0, sizeof(session));\n    session.template_id = -1;\n    session.connection_id = -1;\n\n    while (g_workers_running) {'''
+          if old not in s: raise SystemExit('session init block not found')
+          s=s.replace(old,new)
+          s=s.replace('''    vfr_http_session_term(&session);\n    return 0;\n}''','''    return 0;\n}''',1)
+          old='''        g_worker_threads[i] = sceKernelCreateThread(name, tile_worker_entry,\n                                                     0x10000120, 0x10000, 0, 0, NULL);\n        if (g_worker_threads[i] >= 0)\n            sceKernelStartThread(g_worker_threads[i], 0, NULL);\n    }\n    return 0;'''
+          new='''        g_worker_threads[i] = sceKernelCreateThread(name, tile_worker_entry,\n                                                     0x10000100, 0x18000, 0, 0, NULL);\n        if (g_worker_threads[i] < 0) { g_workers_running = 0; return g_worker_threads[i]; }\n        int start_rc = sceKernelStartThread(g_worker_threads[i], 0, NULL);\n        if (start_rc < 0) {\n            sceKernelDeleteThread(g_worker_threads[i]);\n            g_worker_threads[i] = -1;\n            g_workers_running = 0;\n            return start_rc;\n        }\n    }\n    return 0;'''
+          if old not in s: raise SystemExit('worker start block not found')
+          s=s.replace(old,new)
+          p.write_text(s)
+
+          p=Path('VitaFlightRadar/src/main.c')
+          s=p.read_text()
+          s=s.replace('#include <psp2/power.h>\n','')
+          power='''    /* v1.9 MAX PERFORMANCE profile. These are the standard maximum userland\n       clocks widely used by Vita homebrew; no overclock plugin is required. */\n    scePowerSetArmClockFrequency(444);\n    scePowerSetBusClockFrequency(222);\n    scePowerSetGpuClockFrequency(222);\n    scePowerSetGpuXbarClockFrequency(166);\n    scePowerSetUsingWireless(SCE_TRUE);\n\n'''
+          s=s.replace(power,'')
+          s=s.replace('''    map_workers_start();\n    if (net_ok >= 0) {''','''    int map_worker_rc = map_workers_start();\n    if (map_worker_rc < 0) snprintf(g_map_status, sizeof(g_map_status), "MAP WORKER ERROR %d", map_worker_rc);\n    if (net_ok >= 0) {''')
+          p.write_text(s)
+          PY
+
+      - name: Build Vita-safe Jansson
+        run: |
+          git clone --depth 1 --branch v2.15.1 https://github.com/akheron/jansson.git jansson-src
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('jansson-src/CMakeLists.txt'); s=p.read_text().replace('POSITION_INDEPENDENT_CODE true','POSITION_INDEPENDENT_CODE false'); p.write_text(s)
+          PY
+          cmake -S jansson-src -B jansson-build -DCMAKE_TOOLCHAIN_FILE=$VITASDK/share/vita.toolchain.cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_POSITION_INDEPENDENT_CODE=OFF -DCMAKE_C_FLAGS='-O3 -fno-pic -fno-pie' -DJANSSON_BUILD_DOCS=OFF -DJANSSON_EXAMPLES=OFF -DJANSSON_WITHOUT_TESTS=ON
+          cmake --build jansson-build --parallel
+          JANSSON_LIB="$(find jansson-build -name libjansson.a -type f | head -n 1)"; test -n "$JANSSON_LIB"; cp "$JANSSON_LIB" VitaFlightRadar/libjansson_vita.a
+
+      - name: Configure v1.9.1
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('VitaFlightRadar/CMakeLists.txt'); s=p.read_text()
+          s=s.replace('set(VITA_VERSION "01.00")','set(VITA_VERSION "01.91")')
+          s=s.replace('find_package(CURL REQUIRED)\n','').replace('find_package(OpenSSL REQUIRED)\n','')
+          s=s.replace('    ${CURL_INCLUDE_DIRS}\n','').replace('    ${OPENSSL_INCLUDE_DIR}\n','')
+          s=s.replace('    ${CURL_LIBRARIES}\n','').replace('    ${OPENSSL_LIBRARIES}\n','')
+          s=s.replace('    jansson\n','    ${CMAKE_SOURCE_DIR}/libjansson_vita.a\n')
+          s=s.replace('    src/net.c\n)','    src/net.c\n    src/map.c\n    src/route.c\n)')
+          s=s.replace('    SceKernelThreadMgr_stub\n','    SceKernelThreadMgr_stub\n    SceRtc_stub\n    SceAppUtil_stub\n    SceIme_stub\n')
+          s=s.replace('set(CMAKE_C_STANDARD_REQUIRED ON)','set(CMAKE_C_STANDARD_REQUIRED ON)\nset(CMAKE_POSITION_INDEPENDENT_CODE OFF)\nadd_compile_options(-O3 -fomit-frame-pointer -fno-pic -fno-pie)\nadd_link_options(-no-pie -Wl,--gc-sections)')
+          s=s.replace('target_include_directories(${PROJECT_NAME} PRIVATE','set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE OFF)\n\ntarget_include_directories(${PROJECT_NAME} PRIVATE')
+          p.write_text(s)
+          PY
+          base64 -d patches/icon_fix.zip.b64 > icon_fix.zip
+          python3 -c "import zipfile; z=zipfile.ZipFile('icon_fix.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/sce_sys')"
+          cmake -S VitaFlightRadar -B VitaFlightRadar/build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build VPK
+        run: cmake --build VitaFlightRadar/build --parallel
+
+      - name: Verify VPK
+        run: |
+          python3 - <<'PY'
+          import zipfile,hashlib
+          p='VitaFlightRadar/build/VitaFlightRadar.vpk'
+          with zipfile.ZipFile(p) as z:
+              assert z.testzip() is None
+              assert hashlib.sha256(z.read('sce_sys/icon0.png')).hexdigest()=='7918a7a0f1323bfa5f00b529578a5d0594ab49c54f357c3170508e650a50023d'
+          print('v1.9.1 VPK verified')
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VitaFlightRadar-v1.9.1-VPK
+          path: VitaFlightRadar/build/VitaFlightRadar.vpk
+          if-no-files-found: error
