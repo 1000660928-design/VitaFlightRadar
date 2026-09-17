@@ -44,8 +44,9 @@ jobs:
           echo "c1f7f5c24c25d7113dedee3b8404d746a2cecf57f97f8f2c98f0f9f8984fa08b  patches/v17_patch.zip" | sha256sum -c -
           python3 -c "import zipfile; z=zipfile.ZipFile('patches/v17_patch.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
 
-          echo "7c6b18d5b37f74eae4ab6cf546909ea20131f3215e2cedf5d8d34845ec048ab5  patches/v18_patch.zip" | sha256sum -c -
-          python3 -c "import zipfile; z=zipfile.ZipFile('patches/v18_patch.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src'); print('v1.8 patch OK')"
+          cat patches/v18_patch.part01.b64 patches/v18_patch.part02.b64 patches/v18_patch.part03.b64 patches/v18_patch.part04.b64 patches/v18_patch.part05.b64 | base64 -d > v18.zip
+          echo "c813625aaa9fc8b5745f3639a9dd0d10692bba1ad52aa94d41c643ea09c0213d  v18.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v18.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src'); print('v1.8 patch OK')"
 
           echo "6e1784d4e27c75f2bd3052078a974dfd931725612a0e716f01326e258a18e14d  patches/icon_fix.zip.b64" | sha256sum -c -
           base64 -d patches/icon_fix.zip.b64 > icon_fix.zip
