@@ -8,34 +8,41 @@ The project started as a circular radar experiment and evolved into a touch-cont
 
 ## Download
 
-### **[Download VitaFlightRadar v1.9.1 VPK](releases/VitaFlightRadar-v1.9.1.vpk)**
+### **[Download VitaFlightRadar v1.9.2 VPK](releases/VitaFlightRadar-v1.9.2.vpk)**
 
-**v1.9.1 is the current recommended build.** See [RELEASES.md](RELEASES.md) and [CHANGELOG.md](CHANGELOG.md) for the complete history.
+**v1.9.2 is the current recommended build.** See [RELEASES.md](RELEASES.md) and [CHANGELOG.md](CHANGELOG.md) for the complete version history.
 
-## v1.9.1: Satellite Map Hotfix
+## v1.9.2: High-Resolution Satellite Hotfix
 
-v1.9.1 fixes a regression introduced in v1.9 where live aircraft still appeared but the satellite imagery could remain completely black.
+v1.9.2 keeps the stable v1.9.1/v1.8 satellite-map renderer and targets the remaining close-zoom blur/pixelation issue without reintroducing the experimental v1.9 async map pipeline.
 
-To prioritize reliability, v1.9.1 restores the exact satellite-map renderer used by v1.8, which was confirmed working on real PS Vita hardware, while retaining safe Release compiler optimization.
+- Raises the app's satellite detail ceiling from zoom level 19 to zoom level 21.
+- Adds a close-zoom **quality cushion**: after a pinch, the renderer requests one complete tile level sharper than the minimum required whenever possible.
+- The extra-detail tile is then downsampled to the Vita screen instead of stretching a lower-resolution tile upward.
+- Keeps lower-detail imagery visible as a fallback until the sharper tile arrives, so the map should not turn black while sharpening.
+- Expands the in-memory map texture cache from 32 to 40 tiles so higher-resolution imagery can remain resident longer.
+- Preserves the proven v1.8/v1.9.1 slippy-map architecture, one-finger pan, touch-and-hold recentering and pinch-controlled aircraft radius.
+- Uses safe Release compiler optimization (`-O3`) with no forced CPU/GPU clocks or overclock requirement.
 
-- Restores the proven v1.8 multi-tile satellite map engine.
-- Removes the experimental v1.9 asynchronous satellite-worker pipeline that caused the black-map regression.
-- Keeps one-finger panning, touch-and-hold recentering, pinch zoom and automatic aircraft-radius behavior.
-- Keeps coordinate search, aircraft filtering, AUTO/MANUAL refresh, route information and touch aircraft selection.
-- Uses optimized Release compilation (`-O3`) without forced CPU/GPU clock changes.
-- Keeps the public build privacy-safe with no creator-specific startup coordinates.
+Satellite source imagery varies by location, so increasing tile zoom cannot invent detail that does not exist in the original imagery. v1.9.2 is designed to avoid unnecessary software-side stretching and use the sharpest available tile level more aggressively.
 
-### v1.9 known issue
+## Version notes
 
-The original v1.9 performance release is preserved for development history, but it is **not recommended**. On real hardware it could display aircraft over a black background because the experimental asynchronous map pipeline failed to deliver satellite tiles to the renderer correctly.
+### v1.9.1
 
-## Map controls
+Stable satellite-map hotfix. It removed the experimental v1.9 asynchronous map pipeline and restored the proven v1.8 renderer after real-hardware testing showed that v1.9 could display planes over a black background.
+
+### v1.9
+
+**Not recommended.** Preserved for development history. The experimental async tile pipeline could fail to deliver satellite imagery to the renderer on real PS Vita hardware.
+
+## Controls
 
 | Control | Action |
 | --- | --- |
 | **One-finger drag** | Pan the satellite map; release to track aircraft around the new center |
 | **Stationary touch-and-hold** | Recenter directly on the point under your finger |
-| **Two-finger pinch** | Zoom map and automatically change the live aircraft search radius |
+| **Two-finger pinch** | Zoom the map and automatically change the live aircraft search radius |
 | **Tap aircraft** | Select aircraft |
 | **Triangle** | Search / enter coordinates |
 | **X** | Confirm / Enter in supported dialogs |
@@ -45,13 +52,13 @@ The original v1.9 performance release is preserved for development history, but 
 | **START** | Manual aircraft refresh |
 | **PS button** | Leave / suspend through the Vita system UI |
 
-There is intentionally no separate hardware map-zoom or aircraft-radius control. The visible map and live-aircraft radius move together with touch zoom.
+There is intentionally no separate hardware zoom or aircraft-radius control. Map zoom and aircraft search radius work together through the touch screen.
 
-## Moving around the world
+## Moving around the map
 
-Drag with one finger to move the map. When the drag ends, the center of the visible map becomes the new aircraft tracking point. Hold one finger still to recenter directly on that geographic point. Pinch with two fingers to zoom.
+Drag with one finger to move the map. When the drag ends, the center of the visible map becomes the new aircraft tracking point. Hold one finger still to recenter directly on that geographic point. Pinch with two fingers to zoom in or out.
 
-The map wraps horizontally around the Earth. The public adsb.fi nearby-aircraft endpoint has a finite point/radius search limit, so a very zoomed-out map does not mean VitaFlightRadar can request every aircraft on Earth at once.
+The map wraps horizontally around the Earth. The public nearby-aircraft API still has a finite point/radius search limit, so a very zoomed-out view does not mean the app can request every aircraft on Earth simultaneously.
 
 ## AUTO vs MANUAL
 
@@ -73,29 +80,29 @@ Confirm with **X**. The app jumps to that point, loads satellite imagery and ret
 
 You need a homebrew-enabled PS Vita with **VitaShell** installed.
 
-1. Download the latest `.vpk` above.
-2. Open VitaShell.
-3. Connect the Vita to your PC using VitaShell USB or FTP mode.
+1. Download the latest `.vpk` using the link above.
+2. Open **VitaShell** on the Vita.
+3. Connect the Vita to your PC using VitaShell **USB** or **FTP** mode.
 4. Copy the VPK to a convenient folder such as `ux0:/data/`.
-5. Navigate to the VPK in VitaShell.
-6. Press **X** and choose **Install**.
-7. Return to the Vita home screen and launch VitaFlightRadar.
+5. In VitaShell, navigate to the VPK.
+6. Press **X** on the file and choose **Install**.
+7. Return to the Vita home screen and launch **VitaFlightRadar**.
 
-If an older build refuses to update cleanly, delete the old VitaFlightRadar bubble and install the new VPK fresh.
+If an older build refuses to update cleanly, delete the old VitaFlightRadar bubble and install the latest VPK fresh.
 
 ## How it works
 
-The Vita itself is **not an ADS-B radio receiver**. VitaFlightRadar uses Wi-Fi to request live nearby aircraft data from the **adsb.fi open-data API**, then plots aircraft relative to the map view.
+The Vita itself is **not an ADS-B radio receiver**. VitaFlightRadar connects through Wi-Fi and requests live nearby aircraft data from the **adsb.fi** open-data API, then plots aircraft relative to the geographic map center currently being viewed.
 
-Satellite imagery is rendered as cached map tiles. v1.9.1 uses the proven v1.8 slippy-map renderer after the experimental v1.9 asynchronous tile pipeline caused a real-hardware black-map regression.
+Satellite imagery is rendered as cached 256x256 map tiles. v1.9.2 keeps the stable multi-tile renderer and requests higher-detail imagery more aggressively at close zoom levels to reduce software-side blur.
 
-Flight route and timetable information is obtained separately because raw ADS-B position data does not reliably contain origin, destination or airline schedule fields. Public aviation data is incomplete, so private/unusual flights can still have missing route or timetable information.
+Flight route and timetable information is obtained separately because raw ADS-B position data does not reliably contain origin, destination or airline schedule fields. Public aviation data is incomplete, so private or unusual flights can still have missing route/timetable information.
 
 Known helicopters, rotorcraft, drones, balloons, gliders and other known non-airplane ADS-B categories are filtered out.
 
 ## Version history
 
-See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELOG.md) for detailed notes from the original prototype through v1.9.1.
+See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELOG.md) for detailed notes from the original proof of concept through v1.9.2.
 
 Historical development/build branches remain in the repository.
 
