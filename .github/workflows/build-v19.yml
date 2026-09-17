@@ -36,9 +36,9 @@ jobs:
           python3 -c "import zipfile; z=zipfile.ZipFile('v16.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
           echo "c1f7f5c24c25d7113dedee3b8404d746a2cecf57f97f8f2c98f0f9f8984fa08b  patches/v17_patch.zip" | sha256sum -c -
           python3 -c "import zipfile; z=zipfile.ZipFile('patches/v17_patch.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
-          cat patches/v18_patch.part*.b64 | base64 -d > v18.zip
-          echo "7c6b18d5b37f74eae4ab6cf546909ea20131f3215e2cedf5d8d34845ec048ab5  v18.zip" | sha256sum -c -
-          python3 -c "import zipfile; z=zipfile.ZipFile('v18.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          cat patches/v18_patch.part01.b64 patches/v18_patch.part02.b64 patches/v18_patch.part03.b64 patches/v18_patch.part04.b64 patches/v18_patch.part05.b64 | base64 -d > v18.zip
+          echo "c813625aaa9fc8b5745f3639a9dd0d10692bba1ad52aa94d41c643ea09c0213d  v18.zip" | sha256sum -c -
+          python3 -c "import zipfile; z=zipfile.ZipFile('v18.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src'); print('v1.8 patch OK')"
           cat patches/v19_patch.x00.b64 patches/v19_patch.x01.b64 patches/v19_patch.x02.b64 patches/v19_patch.x03.b64 patches/v19_patch.x04.b64 patches/v19_patch.x05.b64 patches/v19_patch.x06.b64 patches/v19_patch.x07.b64 | base64 -d > v19.zip
           echo "d9b829c5c32d90878a612a3b670c006f9811a60b02acf6a0ffb351b9b5fb762c  v19.zip" | sha256sum -c -
           python3 -c "import zipfile; z=zipfile.ZipFile('v19.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src'); print('v1.9 performance patch OK')"
