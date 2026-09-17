@@ -2,6 +2,20 @@
 
 This file tracks the major public iterations of VitaFlightRadar.
 
+## v1.9.2
+
+High-resolution satellite hotfix built on the stable v1.9.1/v1.8 renderer.
+
+- Raised the satellite detail ceiling from zoom level 19 to zoom level 21.
+- Added a close-zoom quality cushion: at street-level zooms, the renderer requests one complete tile level sharper than the mathematical minimum whenever possible.
+- The sharper tile is downsampled to the Vita display instead of enlarging a lower-resolution tile, reducing software-side blur and pixelation.
+- Keeps the previous lower-detail imagery visible while sharper tiles arrive, preserving the stable non-black fallback behavior.
+- Increased the in-memory texture cache from 32 to 40 map tiles so higher-resolution imagery can remain resident longer.
+- Kept the proven v1.8/v1.9.1 slippy-map renderer, one-finger panning, touch-and-hold recentering, pinch zoom and automatic aircraft-radius behavior.
+- Kept coordinate search, aircraft filtering, AUTO/MANUAL refresh, route information and touch aircraft selection.
+- Kept safe Release compiler optimization with `-O3` and no forced CPU/GPU clock settings.
+- Public build contains no creator-specific startup coordinates.
+
 ## v1.9.1
 
 Satellite-map stability hotfix.
