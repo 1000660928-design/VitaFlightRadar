@@ -125,7 +125,7 @@ jobs:
           s=s.replace('    SceKernelThreadMgr_stub\n','    SceKernelThreadMgr_stub\n    SceRtc_stub\n    SceAppUtil_stub\n    SceIme_stub\n')
           s=s.replace('set(CMAKE_C_STANDARD_REQUIRED ON)','set(CMAKE_C_STANDARD_REQUIRED ON)\nset(CMAKE_POSITION_INDEPENDENT_CODE OFF)\nadd_compile_options(-O3 -fomit-frame-pointer -fno-pic -fno-pie)\nadd_link_options(-no-pie -Wl,--gc-sections)')
           s=s.replace('target_include_directories(${PROJECT_NAME} PRIVATE','set_target_properties(${PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE OFF)\n\ntarget_include_directories(${PROJECT_NAME} PRIVATE')
-          s += '\n# mbedTLS uses Vita pthread mutexes; keep pthread after the static TLS archives.\ntarget_link_libraries(${PROJECT_NAME} pthread)\n'
+          s += '\n# Vita pthread symbols live in archive members that static linking may otherwise skip.\ntarget_link_libraries(${PROJECT_NAME} -Wl,--whole-archive pthread -Wl,--no-whole-archive)\n'
           p.write_text(s)
           PY
           cmake -S VitaFlightRadar -B VitaFlightRadar/build -DCMAKE_BUILD_TYPE=Release
