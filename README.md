@@ -2,127 +2,112 @@
 
 **Live aircraft tracking on a PlayStation Vita.**
 
-VitaFlightRadar is a PS Vita homebrew application that uses the Vita's Wi-Fi connection to download live ADS-B aircraft data and plot nearby airplanes over satellite imagery. It is designed for the PS Vita Slim and other homebrew-capable Vita systems, including systems without GPS or 3G.
+VitaFlightRadar is a PS Vita homebrew application that uses Wi-Fi to download live ADS-B aircraft data and plot nearby airplanes over satellite imagery. It works on homebrew-capable Vita systems, including Vita Slim models without GPS or 3G.
 
-The project started as a simple circular radar experiment and has evolved into a touch-controlled satellite flight map.
+The project started as a circular radar experiment and evolved into a touch-controlled satellite flight map.
 
 ## Download
 
-### **[Download VitaFlightRadar v1.8 VPK](releases/VitaFlightRadar-v1.8.vpk)**
+### **[Download VitaFlightRadar v1.9 VPK](releases/VitaFlightRadar-v1.9.vpk)**
 
-v1.8 is the current recommended build. See **[RELEASES.md](RELEASES.md)** and **[CHANGELOG.md](CHANGELOG.md)** for the complete version history and patch notes.
+**v1.9 is the current recommended build.** See [RELEASES.md](RELEASES.md) and [CHANGELOG.md](CHANGELOG.md) for the complete history.
 
-## Current version
+## v1.9: Maximum Performance
 
-**v1.8**
+v1.9 keeps the v1.8 interface and focuses almost entirely on responsiveness, loading speed and reducing freezes:
 
-v1.8 upgrades the satellite renderer into a much more map-like experience:
+- Satellite networking moved off the render/UI thread.
+- Two background map workers download tiles in parallel.
+- Persistent HTTP sessions reuse network connections instead of repeating connection setup for every tile.
+- Center and visible tiles are prioritized before surrounding tiles.
+- Neighboring/parent tiles are prefetched to make upcoming pans and zooms more likely to hit cache.
+- In-memory texture cache increased to 48 map tiles with LRU-style reuse.
+- Disk cache reads/writes happen away from the frame loop.
+- Old/cached imagery remains visible while sharper imagery arrives.
+- Texture decoding/upload work is budgeted so the renderer is not flooded by many new tiles in one frame.
+- Aircraft and route-data refreshes run in a separate background worker instead of blocking touch/map rendering.
+- Fast repeated gestures can invalidate stale map requests so the app does not waste time loading an area you already left.
+- Config writes are debounced so dragging/pinching does not constantly write settings to storage.
+- Touch gestures receive priority before background tile work resumes.
+- Release build uses aggressive compiler optimization (`-O3`) and dead-code/data section removal.
+- No forced CPU/GPU clock changes or overclock dependency. The performance work is architectural and is intended to preserve stability and battery/thermal behavior.
 
-- Live aircraft positions refreshed approximately every 4 seconds in AUTO mode
-- Satellite imagery rendered as a multi-tile slippy map instead of one large replaceable image
-- One-finger drag/pan across the map
-- Releasing a drag makes the new map center the live aircraft tracking center
-- Stationary touch-and-hold recenters directly on the geographic point under your finger
-- Two-finger pinch zoom controls both map scale and the live aircraft search radius
-- Zooming in narrows the aircraft area to what is visible
-- Zooming out expands the aircraft area
-- Horizontal world wrapping prevents a hard left/right map edge
-- Cached lower-resolution imagery remains visible while sharper tiles arrive, reducing blank/cut-off regions
-- Missing map tiles are streamed progressively instead of clearing and rebuilding the whole map at once
-- Satellite tiles are cached on Vita storage so revisited areas can load faster
-- Higher map zoom levels are used when zooming in so the map can sharpen again instead of permanently stretching a blurry image
-- Touch gestures get a short priority/grace period before new map downloads begin, improving responsiveness during repeated panning or pinching
-- Smaller UI text was adjusted for cleaner readability
-- Tap an aircraft to inspect it
-- UP / DOWN can also cycle through aircraft
-- Coordinate search lets you jump directly to another location
-- Known helicopters, rotorcraft, drones, balloons, gliders and other non-airplane ADS-B categories are filtered out
-- Flight detail panel can show callsign, aircraft type, origin, destination, schedule/estimate information, altitude, speed, distance and heading when public data is available
-
-## Controls
+## Map controls
 
 | Control | Action |
 | --- | --- |
-| **Touch: one-finger drag** | Pan the satellite map; release to track aircraft around the new map center |
-| **Touch: stationary hold** | Recenter the map/tracking point on the location under your finger |
-| **Touch: two-finger pinch** | Zoom the satellite map and automatically change the live aircraft search radius |
-| **Touch: tap aircraft** | Select aircraft |
+| **One-finger drag** | Pan the satellite map; release to track aircraft around the new center |
+| **Stationary touch-and-hold** | Recenter directly on the point under your finger |
+| **Two-finger pinch** | Zoom map and automatically change the live aircraft search radius |
+| **Tap aircraft** | Select aircraft |
 | **Triangle** | Search / enter coordinates |
-| **X** | Confirm / Enter inside supported dialogs |
-| **Circle** | Cancel / Back inside supported dialogs |
+| **X** | Confirm / Enter in supported dialogs |
+| **Circle** | Cancel / Back in supported dialogs |
 | **Square** | Toggle AUTO / MANUAL aircraft refresh |
 | **UP / DOWN** | Previous / next aircraft |
-| **START** | Refresh aircraft manually |
-| **PS button** | Leave / suspend the app normally through the Vita system UI |
+| **START** | Manual aircraft refresh |
+| **PS button** | Leave / suspend through the Vita system UI |
 
-There is intentionally **no separate aircraft-radius button and no hardware zoom button**. The visible map and live-aircraft radius work together through touch gestures.
+There is intentionally no separate hardware map-zoom or aircraft-radius control. The visible map and live-aircraft radius move together with touch zoom.
 
-## Moving around the map
+## Moving around the world
 
-VitaFlightRadar v1.8 behaves more like a mobile map:
+Drag with one finger to move the map. When the drag ends, the center of the visible map becomes the new aircraft tracking point. Hold one finger still to recenter directly on that geographic point. Pinch with two fingers to zoom.
 
-- Drag with one finger to move the map.
-- Release after dragging and the map center becomes the new live tracking point.
-- Hold one finger still on a point to recenter directly there.
-- Pinch with two fingers to zoom in or out.
-- Aircraft data automatically follows the geographic area you are viewing.
-
-The map wraps horizontally around the Earth. Very wide views are still limited by the public ADS-B point/radius API: adsb.fi allows a maximum nearby-aircraft query radius of roughly **250 nautical miles / 460 km**. A very zoomed-out map therefore does not mean the app can download every aircraft on Earth simultaneously.
+The map wraps horizontally around the Earth. The public adsb.fi nearby-aircraft endpoint has a finite point/radius search limit, so a very zoomed-out map does not mean VitaFlightRadar can request every aircraft on Earth at once.
 
 ## AUTO vs MANUAL
 
-**AUTO** refreshes live aircraft data approximately every **4 seconds**.
+**AUTO** refreshes live aircraft data approximately every 4 seconds.
 
-**MANUAL** freezes automatic aircraft-data refreshes. Press **START** whenever you want a fresh aircraft update.
+**MANUAL** pauses automatic aircraft-data refreshes. Press **START** whenever you want a fresh update.
 
 ## Coordinate search
 
-Press **Triangle** and enter coordinates in decimal format. For example, New York City:
+Press **Triangle** and enter decimal coordinates, for example:
 
 ```text
 40.7128,-74.0060
 ```
 
-Then confirm with **X**. VitaFlightRadar jumps to that location, begins loading its satellite imagery and searches for nearby aircraft based on the current visible map area.
+Confirm with **X**. The app jumps to that point, loads satellite imagery and retrieves aircraft around the visible area.
 
 ## Installing on a PS Vita
 
 You need a homebrew-enabled PS Vita with **VitaShell** installed.
 
-1. Download the latest `.vpk` using the download link above.
-2. Open **VitaShell** on the Vita.
-3. Connect VitaShell to your PC using **USB** or **FTP**.
-4. Copy the `.vpk` to a convenient Vita folder such as `ux0:/data/`.
-5. Disconnect USB/FTP if needed.
-6. In VitaShell, navigate to the `.vpk`.
-7. Press **X** on the file.
-8. Choose **Install**.
-9. Return to the Vita home screen and launch **VitaFlightRadar**.
+1. Download the latest `.vpk` above.
+2. Open VitaShell.
+3. Connect the Vita to your PC using VitaShell USB or FTP mode.
+4. Copy the VPK to a convenient folder such as `ux0:/data/`.
+5. Navigate to the VPK in VitaShell.
+6. Press **X** and choose **Install**.
+7. Return to the Vita home screen and launch VitaFlightRadar.
 
 If an older build refuses to update cleanly, delete the old VitaFlightRadar bubble and install the new VPK fresh.
 
-## How flight tracking works
+## How it works
 
-The Vita itself is **not an ADS-B radio receiver**. VitaFlightRadar connects through Wi-Fi and requests live nearby aircraft information from the **adsb.fi open-data API**. Aircraft positions are then plotted relative to the geographic map center currently being viewed.
+The Vita itself is **not an ADS-B radio receiver**. VitaFlightRadar uses Wi-Fi to request live nearby aircraft data from the **adsb.fi open-data API**, then plots aircraft relative to the map view.
 
-Satellite imagery is loaded as map tiles and rendered directly by the Vita. v1.8 keeps an in-memory tile set plus a persistent tile cache under the app's Vita data folder, allowing cached imagery to be reused while missing/sharper tiles are loaded progressively.
+Satellite imagery is rendered as cached map tiles. v1.9 adds parallel background downloading, connection reuse, priority scheduling and a larger in-memory texture cache on top of the v1.8 slippy-map engine.
 
-Flight-route and schedule information is obtained separately because raw ADS-B position data does not reliably contain origin, destination, scheduled departure or arrival information.
+Flight route and timetable information is obtained separately because raw ADS-B position data does not reliably contain origin, destination or airline schedule fields. Public aviation data is incomplete, so private/unusual flights can still have missing route or timetable information.
 
-Public aviation data is incomplete by nature. Private flights, unusual callsigns, military aircraft and flights without a public schedule may legitimately have missing route or timetable fields.
+Known helicopters, rotorcraft, drones, balloons, gliders and other known non-airplane ADS-B categories are filtered out.
 
 ## Version history
 
-See **[RELEASES.md](RELEASES.md)** for the release index and **[CHANGELOG.md](CHANGELOG.md)** for the detailed history from the first prototype through v1.8.
+See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELOG.md) for detailed notes from the original prototype through v1.9.
 
-The repository also keeps historical build branches so development and older implementations remain inspectable.
+Historical development/build branches remain in the repository.
 
-## Project credits
+## Credits
 
 ### Creator
 
 **George Ultra**  
-Created by George Ultra with help from **ChatGPT / OpenAI** for software development, debugging, VitaSDK integration, UI iteration and build automation.
+Created by George Ultra with help from **ChatGPT / OpenAI** for software development, debugging, VitaSDK integration, UI iteration, research and build automation.
 
 ### Technical / Emotional Support
 
@@ -131,18 +116,16 @@ Created by George Ultra with help from **ChatGPT / OpenAI** for software develop
 
 ## Feedback, ideas and contact
 
-Have an idea, bug report, review or feature request?
-
-Contact **George Ultra** on Reddit:  
+Contact **George Ultra** on Reddit for ideas, feedback, reviews or bug reports:  
 https://www.reddit.com/user/Diligent_Peace_1618/
 
-Feedback from real PS Vita hardware testing has been a major part of how the project has developed.
+Real PS Vita hardware testing has been a major part of the development process.
 
 ## Development
 
-VitaFlightRadar is written in C for **VitaSDK** and uses Vita2D for rendering. GitHub Actions builds the project inside a VitaSDK container and produces the installable VPK.
+VitaFlightRadar is written in C for **VitaSDK** and uses Vita2D for rendering. GitHub Actions builds and validates the installable VPK.
 
-The source/build history contains several compatibility fixes specific to PS Vita homebrew, including Vita-native networking, HTTPS handling, static-library relocation fixes, Vita-safe PNG packaging, map-tile caching and LiveArea/VPK validation.
+The project includes Vita-native networking, HTTPS handling, map caching, asynchronous worker threads, static-library relocation fixes, Vita-safe icon/VPK packaging and LiveArea validation.
 
 ## Disclaimer
 
