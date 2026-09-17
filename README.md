@@ -6,6 +6,12 @@ VitaFlightRadar is a PS Vita homebrew application that uses the Vita's Wi-Fi con
 
 The project started as a simple circular radar experiment and has evolved into a touch-controlled satellite flight map.
 
+## Download
+
+### **[Download VitaFlightRadar v1.7 VPK](releases/VitaFlightRadar-v1.7.vpk)**
+
+v1.7 is the current recommended build. See **[RELEASES.md](RELEASES.md)** and **[CHANGELOG.md](CHANGELOG.md)** for the complete version history and patch notes.
+
 ## Current version
 
 **v1.7**
@@ -49,10 +55,10 @@ There is intentionally **no separate radius button and no separate hardware zoom
 
 ## Coordinate search
 
-Press **Triangle** and enter coordinates in decimal format:
+Press **Triangle** and enter coordinates in decimal format. For example, JFK Airport:
 
 ```text
-31.971269,34.803787
+40.6413,-73.7781
 ```
 
 Then confirm with **X**. VitaFlightRadar jumps to that location, loads its satellite imagery and searches for nearby aircraft based on the current visible map area.
@@ -61,7 +67,7 @@ Then confirm with **X**. VitaFlightRadar jumps to that location, loads its satel
 
 You need a homebrew-enabled PS Vita with **VitaShell** installed.
 
-1. Download the latest `.vpk` from this repository.
+1. Download the latest `.vpk` using the download link above.
 2. Open **VitaShell** on the Vita.
 3. Connect VitaShell to your PC using **USB** or **FTP**.
 4. Copy the `.vpk` to a convenient Vita folder such as `ux0:/data/`.
@@ -83,7 +89,7 @@ Public aviation data is incomplete by nature. Private flights, unusual callsigns
 
 ## Version history
 
-See **[CHANGELOG.md](CHANGELOG.md)** for the complete history from the first prototype through v1.7.
+See **[RELEASES.md](RELEASES.md)** for the release index and **[CHANGELOG.md](CHANGELOG.md)** for the detailed history from the first prototype through v1.7.
 
 The repository also keeps historical build branches so development and older implementations remain inspectable.
 
