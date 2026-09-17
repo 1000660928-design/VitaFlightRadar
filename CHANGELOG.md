@@ -2,6 +2,28 @@
 
 This file tracks the major public iterations of VitaFlightRadar.
 
+## v1.9
+
+Performance-focused release built on the v1.8 feature set.
+
+- Moved satellite tile network I/O off the render/UI thread.
+- Added two background satellite-tile worker threads.
+- Added persistent HTTP sessions so map workers can reuse network connections rather than repeating setup for every tile.
+- Added priority tile scheduling so the map center and immediately visible tiles load before less important surrounding tiles.
+- Added neighboring/parent-tile prefetching for smoother future pans and zooms.
+- Increased the in-memory map texture cache to 48 tiles with LRU-style reuse.
+- Moved disk tile-cache reads and writes away from the frame loop.
+- Kept cached/older imagery visible while sharper map tiles arrive.
+- Limited texture decode/upload work per frame to reduce frame spikes.
+- Added stale-request invalidation so abandoned map locations do not keep consuming download time after a fast pan/zoom.
+- Moved aircraft and route-data refresh work to a separate background worker.
+- Added debounced configuration persistence to avoid repeated file writes during map gestures.
+- Preserved the gesture grace period so active touch interaction gets priority over background map loading.
+- Added aggressive Release compiler optimization (`-O3`, function/data sections and linker garbage collection).
+- Removed experimental forced CPU/GPU clock changes before release; v1.9 does not require overclocking and prioritizes stability.
+- Preserved all v1.8 controls, panning, touch-and-hold recentering, pinch/radius behavior, coordinate search, airplane filtering and flight information.
+- Public build remains privacy-safe and does not contain the creator's private startup-location file.
+
 ## v1.8
 
 - Rebuilt the satellite renderer as a multi-tile slippy-map system instead of replacing one large map image after every view change.
