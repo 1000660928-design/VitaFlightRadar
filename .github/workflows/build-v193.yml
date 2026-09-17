@@ -120,6 +120,7 @@ jobs:
           s=s.replace('find_package(OpenSSL REQUIRED)\n','')
           s=s.replace('    ${OPENSSL_INCLUDE_DIR}\n','')
           s=s.replace('    ${OPENSSL_LIBRARIES}\n','')
+          s=s.replace('    ${CURL_LIBRARIES}\n','    ${CURL_LIBRARIES}\n    pthread\n')
           s=s.replace('    jansson\n','    ${CMAKE_SOURCE_DIR}/libjansson_vita.a\n')
           s=s.replace('    src/net.c\n)','    src/net.c\n    src/map.c\n    src/route.c\n)')
           s=s.replace('    SceKernelThreadMgr_stub\n','    SceKernelThreadMgr_stub\n    SceRtc_stub\n    SceAppUtil_stub\n    SceIme_stub\n')
