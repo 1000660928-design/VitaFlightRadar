@@ -1,0 +1,58 @@
+name: Publish VitaFlightRadar v1.8
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["v18-build"]
+    paths:
+      - ".github/workflows/publish-v18.yml"
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download verified v1.8 build artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          curl -L --fail \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/1000660928-design/VitaFlightRadar/actions/artifacts/10497189428/zip" \
+            -o v18-artifact.zip
+          unzip -q v18-artifact.zip -d v18-artifact
+          test -f v18-artifact/VitaFlightRadar.vpk
+
+      - name: Verify VPK before publishing
+        run: |
+          python3 - <<'PY'
+          import zipfile, hashlib
+          p='v18-artifact/VitaFlightRadar.vpk'
+          with zipfile.ZipFile(p) as z:
+              assert z.testzip() is None
+              assert hashlib.sha256(z.read('sce_sys/icon0.png')).hexdigest() == '7918a7a0f1323bfa5f00b529578a5d0594ab49c54f357c3170508e650a50023d'
+              assert 'default_location.txt' not in z.namelist()
+          raw=open(p,'rb').read()
+          assert b'31.971269' not in raw and b'34.803787' not in raw
+          print('Verified public VitaFlightRadar v1.8 VPK')
+          PY
+
+      - name: Publish permanent download to main
+        run: |
+          mkdir -p releases
+          cp v18-artifact/VitaFlightRadar.vpk releases/VitaFlightRadar-v1.8.vpk
+          git config user.name "VitaFlightRadar Builder"
+          git config user.email "actions@users.noreply.github.com"
+          git add releases/VitaFlightRadar-v1.8.vpk
+          git commit -m "Publish VitaFlightRadar v1.8 VPK" || exit 0
+          git push origin main
