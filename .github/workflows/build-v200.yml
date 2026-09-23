@@ -8,6 +8,9 @@ on:
       - ".github/workflows/build-v200.yml"
       - "patches/v200_patch.part*.b64"
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -176,3 +179,23 @@ jobs:
           name: VitaFlightRadar-v2.0-Slim-VPK
           path: VitaFlightRadar/build/VitaFlightRadar.vpk
           if-no-files-found: error
+
+
+      - name: Publish Slim V2 VPK to main downloads
+        shell: bash
+        run: |
+          set -e
+          cp VitaFlightRadar/build/VitaFlightRadar.vpk /tmp/VitaFlightRadar-v2.0-Slim.vpk
+          git config user.name "VitaFlightRadar Build Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+          mkdir -p releases
+          cp /tmp/VitaFlightRadar-v2.0-Slim.vpk releases/VitaFlightRadar-v2.0-Slim.vpk
+          git add releases/VitaFlightRadar-v2.0-Slim.vpk
+          if git diff --cached --quiet; then
+            echo "V2.0 Slim VPK already published"
+          else
+            git commit -m "Publish VitaFlightRadar v2.0 Slim VPK"
+            git push origin main
+          fi
