@@ -2,6 +2,23 @@
 
 This file tracks the major public iterations of VitaFlightRadar.
 
+## v1.9.3-PCH1000
+
+Dedicated PS Vita 1000 FAT/OLED compatibility build based on the v1.9.2 feature set.
+
+- Created a separate public PCH-1000 release instead of modifying the proven PCH-2000 Slim package.
+- Replaced the compatibility build's HTTPS path with VitaSDK libcurl using an mbedTLS backend and explicit TLS 1.2 behavior.
+- Avoids depending on firmware-native HTTPS behavior for satellite/network requests.
+- Explicitly creates the application and map-cache directory hierarchy before cache use.
+- Added automatic satellite parent/lower-zoom fallback so an unavailable high-resolution tile does not leave the map permanently black.
+- Retains the v1.9.2 high-resolution satellite changes: maximum zoom level 21, close-zoom extra-detail requests and 40 cached textures.
+- Retains the stable v1.8-derived map renderer, one-finger panning, touch-and-hold recentering, pinch zoom and automatic aircraft-radius behavior.
+- Retains coordinate search, aircraft filtering, AUTO/MANUAL refresh, route information and touch aircraft selection.
+- Links the Vita pthread implementation needed by the mbedTLS static libraries.
+- Passed VitaSDK compilation, linking, VPK generation, package integrity and Vita icon validation.
+- Public build contains no creator-specific startup coordinates.
+- Real PCH-1000 hardware confirmation is still requested before calling the compatibility issue universally resolved.
+
 ## v1.9.2
 
 High-resolution satellite hotfix built on the stable v1.9.1/v1.8 renderer.
