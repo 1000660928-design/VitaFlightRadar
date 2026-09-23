@@ -4,55 +4,40 @@
 
 VitaFlightRadar is a PS Vita homebrew application that uses Wi-Fi to download live ADS-B aircraft data and plot nearby airplanes over satellite imagery. The project started as a circular radar experiment and evolved into a touch-controlled satellite flight map with panning, pinch zoom, coordinate search, aircraft selection and route information.
 
-## Download — choose your PS Vita model
-
-VitaFlightRadar now has **separate public builds for the two Vita hardware families**. Download the build that matches your console.
+## Download
 
 ### PS Vita 2000 Slim — PCH-20xx
 
-**Hardware-tested / recommended Slim build: v1.9.2**
+**Current feature release: VitaFlightRadar v2.0 Slim**
 
-### **[Download VitaFlightRadar v1.9.2 — PCH-2000 Slim](releases/VitaFlightRadar-v1.9.2.vpk)**
+### **[Download VitaFlightRadar v2.0 — PCH-2000 Slim](releases/VitaFlightRadar-v2.0-Slim.vpk)**
 
-This is the build developed and repeatedly tested on the project creator's PS Vita 2000 Slim. It includes the stable slippy satellite map, high-resolution close zoom, touch controls and the complete current feature set.
+V2.0 is the current main project build and is developed for the **PS Vita Slim / PCH-2000**. It adds the new Search Hub, live flight-number search and following, three saved recent coordinate searches, touch + button menu navigation, and permanent 4-second live aircraft refresh.
 
 ### PS Vita 1000 FAT / OLED — PCH-10xx / PCH-11xx
 
-**Dedicated FAT compatibility build: v1.9.3-PCH1000**
+**Legacy compatibility build: v1.9.3-PCH1000**
 
 ### **[Download VitaFlightRadar v1.9.3 — PCH-1000 FAT/OLED](releases/VitaFlightRadar-v1.9.3-PCH1000.vpk)**
 
-This build keeps the same application, interface and feature set as v1.9.2, but replaces the network/map compatibility layer that caused a reported black satellite map on a PCH-1000.
+The FAT/OLED edition is currently frozen at v1.9.3 while feature development focuses exclusively on the PCH-2000 Slim. After the Slim feature set is complete and thoroughly tested, the finished application can be ported back to the PCH-1000 compatibility path.
 
-PCH-1000-specific changes:
-
-- Uses VitaSDK **libcurl with an mbedTLS backend** for HTTPS/TLS instead of relying on the console firmware's native HTTPS behavior.
-- Explicitly creates the application and satellite-cache directory structure.
-- Automatically falls back through lower satellite tile levels if an aggressive high-resolution tile is unavailable instead of leaving the map black.
-- Retains the v1.9.2 high-resolution satellite system, including zoom levels up to 21 and the larger 40-tile texture cache.
-- Built with the same stable v1.8-derived map renderer rather than the broken experimental v1.9 async renderer.
-- Public package contains no creator-specific startup coordinates.
-
-The PCH-1000 package has passed VitaSDK compilation, linking, VPK integrity and installer-asset validation. **Real PCH-1000 hardware confirmation is still requested**, because the project creator's own test console is a PCH-2000. If you test the FAT/OLED build, please report your exact Vita model, system software version, storage setup (official memory card / SD2Vita), whether satellite imagery appears after coordinate entry, and whether aircraft icons appear.
-
-See [RELEASES.md](RELEASES.md) for the model-specific release index and [CHANGELOG.md](CHANGELOG.md) for the complete development history.
+See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELOG.md) for the complete development history.
 
 ## Current feature set
 
 - Live nearby aircraft positions over satellite imagery.
-- One-finger map panning.
-- Stationary touch-and-hold recentering.
-- Two-finger pinch zoom.
-- Aircraft search radius automatically follows the visible map area.
-- Tap aircraft to select them.
-- UP / DOWN aircraft cycling.
-- Coordinate search using the Vita on-screen keyboard.
-- AUTO / MANUAL live refresh modes.
-- Manual refresh with START.
-- Selected-flight information including altitude, speed, heading, distance and route/timetable data when public data is available.
+- One-finger map panning, touch-and-hold recentering and two-finger pinch zoom.
+- Tap aircraft to select them, or use UP / DOWN to cycle through aircraft.
+- **Triangle Search Hub** with coordinate search and flight-number search.
+- Search menus work with the **front touchscreen** or **D-pad + X**.
+- Coordinate search remembers the **three most recent coordinates** across launches.
+- Flight-number/callsign search accepts entries such as `ELY5230`, finds the live aircraft and moves the map to it.
+- **FOLLOW mode** keeps the map centered on a searched aircraft as new live positions arrive.
+- Aircraft data refresh is **always automatic every 4 seconds**.
+- Selected-flight information includes altitude, speed, heading, distance and route/timetable data when public data is available.
 - Known helicopters, rotorcraft, drones, balloons, gliders and other known non-airplane ADS-B categories are filtered out.
-- Persistent satellite tile caching.
-- High-resolution satellite sharpening at close zoom levels.
+- Persistent satellite tile caching and high-resolution satellite sharpening at close zoom levels.
 
 ## Controls
 
@@ -61,13 +46,13 @@ See [RELEASES.md](RELEASES.md) for the model-specific release index and [CHANGEL
 | **One-finger drag** | Pan the satellite map; release to track aircraft around the new center |
 | **Stationary touch-and-hold** | Recenter directly on the point under your finger |
 | **Two-finger pinch** | Zoom the map and automatically change the live aircraft search radius |
-| **Tap aircraft** | Select aircraft |
-| **Triangle** | Search / enter coordinates |
-| **X** | Confirm / Enter in supported dialogs |
-| **Circle** | Cancel / Back in supported dialogs |
-| **Square** | Toggle AUTO / MANUAL aircraft refresh |
-| **UP / DOWN** | Previous / next aircraft |
-| **START** | Manual aircraft refresh |
+| **Tap aircraft** | Select aircraft and leave flight-follow mode |
+| **Triangle** | Open the Search Hub |
+| **UP / DOWN** | Navigate menus or cycle aircraft |
+| **X** | Confirm / Enter |
+| **Circle** | Cancel / Back |
+| **Square** | Unused in v2.0 |
+| **START** | Unused in v2.0 |
 | **PS button** | Leave / suspend through the Vita system UI |
 
 There is intentionally no separate hardware zoom or aircraft-radius control. Map zoom and aircraft search radius work together through the touch screen.
@@ -78,21 +63,37 @@ Drag with one finger to move the map. When the drag ends, the center of the visi
 
 The map wraps horizontally around the Earth. The public nearby-aircraft API still has a finite point/radius search limit, so a very zoomed-out view does not mean the app can request every aircraft on Earth simultaneously.
 
-## AUTO vs MANUAL
+## Automatic refresh and flight following
 
-**AUTO** refreshes live aircraft data approximately every 4 seconds.
+V2.0 no longer has AUTO/MANUAL modes. Live aircraft refresh is always enabled and runs approximately every **4 seconds**.
 
-**MANUAL** pauses automatic aircraft-data refreshes. Press **START** whenever you want a fresh update.
+When a flight is found through flight-number search, VitaFlightRadar enters **FOLLOW mode**. Each live refresh updates the aircraft and recenters the map on its newest reported position while its signal remains available.
 
-## Coordinate search
+## Search Hub
 
-Press **Triangle** and enter decimal coordinates, for example:
+Press **Triangle** to open the Search Hub.
+
+### Coordinate search
+
+Choose **Enter Coordinates** and type decimal coordinates such as:
 
 ```text
 40.7128,-74.0060
 ```
 
-Confirm with **X**. The app jumps to that point, loads satellite imagery and retrieves aircraft around the visible area.
+The app jumps to that location and saves it in the recent-search list. The latest **three** coordinate searches appear in the coordinate menu and can be selected without typing them again.
+
+### Flight-number search
+
+Choose **Search Flight Number** and enter a live callsign/flight number such as:
+
+```text
+ELY5230
+```
+
+Spaces and letter case are normalized automatically. If the flight is currently present in the live ADS-B feed, the map jumps to the aircraft, selects it and begins following its live position.
+
+Both search menus can be controlled with the **front touchscreen** or **D-pad + X**. Use **Circle** to go back.
 
 ## Installing on a PS Vita
 
@@ -118,12 +119,12 @@ Flight route and timetable information is obtained separately because raw ADS-B 
 
 ## Model-specific builds
 
-The PCH-1000 and PCH-2000 editions are the **same VitaFlightRadar application**. The split exists so compatibility changes for one hardware/firmware/storage environment do not risk breaking the proven build for the other.
+V2 feature development currently targets the **PCH-2000 Slim only**.
 
-- **PCH-2000:** v1.9.2 remains the hardware-tested Slim build.
-- **PCH-1000:** v1.9.3-PCH1000 uses the dedicated TLS/cache/satellite-fallback compatibility path.
+- **PCH-2000 Slim:** v2.0 is the current feature release.
+- **PCH-1000 FAT/OLED:** v1.9.3-PCH1000 remains available as the existing compatibility build.
 
-Future feature updates can be carried to both editions while preserving separate model-specific packages when necessary.
+The PCH-1000 version will be revisited after the Slim application reaches the final feature set, so the finished Slim software can be carried over as one complete port rather than maintaining two moving targets during active development.
 
 ## Version history
 
@@ -156,7 +157,7 @@ VitaFlightRadar is written in C for **VitaSDK** and uses Vita2D for rendering. G
 
 The project includes Vita networking, HTTPS/TLS handling, map caching, static-library relocation/link fixes, Vita-safe icon/VPK packaging and LiveArea validation.
 
-The dedicated PCH-1000 build is maintained on the `pch1000-build` development branch and is built separately from the proven PCH-2000 release.
+Current feature development is maintained on the `v200-build` branch for the PCH-2000 Slim. The PCH-1000 compatibility branch is intentionally paused until the Slim feature set is complete.
 
 ## Disclaimer
 

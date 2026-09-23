@@ -2,6 +2,23 @@
 
 This file tracks the major public iterations of VitaFlightRadar.
 
+## v2.0 Slim
+
+Major search and live-flight-following update for the PS Vita Slim / PCH-2000.
+
+- V2 development now targets the PCH-2000 Slim exclusively; the PCH-1000 compatibility edition is paused at v1.9.3 until the Slim feature set is complete.
+- Triangle now opens a Search Hub instead of jumping directly to coordinate entry.
+- Added **Enter Coordinates** and **Search Flight Number** choices.
+- Search menus support front-touch selection and D-pad UP/DOWN + X.
+- Added persistent storage for the three most recent coordinate searches.
+- Added live flight-number/callsign search.
+- A successful flight search centers the map on the aircraft, selects it and displays its data.
+- Added FOLLOW mode so the map recenters on the searched aircraft as new live positions arrive.
+- Removed the Square AUTO/MANUAL refresh toggle.
+- START is intentionally unused in v2.0.
+- Aircraft refresh is permanently automatic at approximately four seconds.
+- Built successfully with VitaSDK and passed VPK integrity validation.
+
 ## v1.9.3-PCH1000
 
 Dedicated PS Vita 1000 FAT/OLED compatibility build based on the v1.9.2 feature set.
