@@ -5,8 +5,8 @@ on:
   push:
     branches: ["v200-build"]
     paths:
-      - ".github/workflows/build-v193.yml"
-      - "patches/v193_patch.part*.b64"
+      - ".github/workflows/build-v200.yml"
+      - "patches/v200_patch.part*.b64"
 
 jobs:
   build:
