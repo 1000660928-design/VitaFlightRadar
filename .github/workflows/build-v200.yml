@@ -185,6 +185,7 @@ jobs:
         shell: bash
         run: |
           set -e
+          cd "$GITHUB_WORKSPACE"
           cp VitaFlightRadar/build/VitaFlightRadar.vpk /tmp/VitaFlightRadar-v2.0-Slim.vpk
           git config user.name "VitaFlightRadar Build Bot"
           git config user.email "actions@users.noreply.github.com"
