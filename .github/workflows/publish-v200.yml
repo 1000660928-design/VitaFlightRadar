@@ -1,0 +1,229 @@
+name: Publish VitaFlightRadar v2.0 Slim
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["v200-build"]
+    paths:
+      - ".github/workflows/publish-v200.yml"
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out public main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download verified V2 Slim VPK
+        uses: actions/download-artifact@v4
+        with:
+          name: VitaFlightRadar-v2.0-Slim-VPK
+          path: release_artifact
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 35889681417
+
+      - name: Publish VPK and update public documentation
+        shell: bash
+        run: |
+          set -e
+          mkdir -p releases
+          cp release_artifact/VitaFlightRadar.vpk releases/VitaFlightRadar-v2.0-Slim.vpk
+
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def between(s, a, b, replacement):
+              i=s.index(a)
+              j=s.index(b, i+len(a))
+              return s[:i] + replacement + s[j:]
+
+          p=Path("README.md")
+          s=p.read_text()
+          s=between(s, "## Download — choose your PS Vita model\n", "## Current feature set\n", """## Download
+
+          ### PS Vita 2000 Slim — PCH-20xx
+
+          **Current feature release: VitaFlightRadar v2.0 Slim**
+
+          ### **[Download VitaFlightRadar v2.0 — PCH-2000 Slim](releases/VitaFlightRadar-v2.0-Slim.vpk)**
+
+          V2.0 is the current main project build and is developed for the **PS Vita Slim / PCH-2000**. It adds the new Search Hub, live flight-number search and following, three saved recent coordinate searches, touch + button menu navigation, and permanent 4-second live aircraft refresh.
+
+          ### PS Vita 1000 FAT / OLED — PCH-10xx / PCH-11xx
+
+          **Legacy compatibility build: v1.9.3-PCH1000**
+
+          ### **[Download VitaFlightRadar v1.9.3 — PCH-1000 FAT/OLED](releases/VitaFlightRadar-v1.9.3-PCH1000.vpk)**
+
+          The FAT/OLED edition is currently frozen at v1.9.3 while feature development focuses exclusively on the PCH-2000 Slim. After the Slim feature set is complete and thoroughly tested, the finished application can be ported back to the PCH-1000 compatibility path.
+
+          See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELOG.md) for the complete development history.
+
+          """.replace("          ",""))
+          s=between(s, "## Current feature set\n", "## Controls\n", """## Current feature set
+
+          - Live nearby aircraft positions over satellite imagery.
+          - One-finger map panning, touch-and-hold recentering and two-finger pinch zoom.
+          - Tap aircraft to select them, or use UP / DOWN to cycle through aircraft.
+          - **Triangle Search Hub** with coordinate search and flight-number search.
+          - Search menus work with the **front touchscreen** or **D-pad + X**.
+          - Coordinate search remembers the **three most recent coordinates** across launches.
+          - Flight-number/callsign search accepts entries such as `ELY5230`, finds the live aircraft and moves the map to it.
+          - **FOLLOW mode** keeps the map centered on a searched aircraft as new live positions arrive.
+          - Aircraft data refresh is **always automatic every 4 seconds**.
+          - Selected-flight information includes altitude, speed, heading, distance and route/timetable data when public data is available.
+          - Known helicopters, rotorcraft, drones, balloons, gliders and other known non-airplane ADS-B categories are filtered out.
+          - Persistent satellite tile caching and high-resolution satellite sharpening at close zoom levels.
+
+          """.replace("          ",""))
+          s=between(s, "## Controls\n", "There is intentionally no separate hardware zoom or aircraft-radius control.", """## Controls
+
+          | Control | Action |
+          | --- | --- |
+          | **One-finger drag** | Pan the satellite map; release to track aircraft around the new center |
+          | **Stationary touch-and-hold** | Recenter directly on the point under your finger |
+          | **Two-finger pinch** | Zoom the map and automatically change the live aircraft search radius |
+          | **Tap aircraft** | Select aircraft and leave flight-follow mode |
+          | **Triangle** | Open the Search Hub |
+          | **UP / DOWN** | Navigate menus or cycle aircraft |
+          | **X** | Confirm / Enter |
+          | **Circle** | Cancel / Back |
+          | **Square** | Unused in v2.0 |
+          | **START** | Unused in v2.0 |
+          | **PS button** | Leave / suspend through the Vita system UI |
+
+          """.replace("          ",""))
+          s=between(s, "## AUTO vs MANUAL\n", "## Coordinate search\n", """## Automatic refresh and flight following
+
+          V2.0 no longer has AUTO/MANUAL modes. Live aircraft refresh is always enabled and runs approximately every **4 seconds**.
+
+          When a flight is found through flight-number search, VitaFlightRadar enters **FOLLOW mode**. Each live refresh updates the aircraft and recenters the map on its newest reported position while its signal remains available.
+
+          """.replace("          ",""))
+          s=between(s, "## Coordinate search\n", "## Installing on a PS Vita\n", """## Search Hub
+
+          Press **Triangle** to open the Search Hub.
+
+          ### Coordinate search
+
+          Choose **Enter Coordinates** and type decimal coordinates such as:
+
+          ```text
+          40.7128,-74.0060
+          ```
+
+          The app jumps to that location and saves it in the recent-search list. The latest **three** coordinate searches appear in the coordinate menu and can be selected without typing them again.
+
+          ### Flight-number search
+
+          Choose **Search Flight Number** and enter a live callsign/flight number such as:
+
+          ```text
+          ELY5230
+          ```
+
+          Spaces and letter case are normalized automatically. If the flight is currently present in the live ADS-B feed, the map jumps to the aircraft, selects it and begins following its live position.
+
+          Both search menus can be controlled with the **front touchscreen** or **D-pad + X**. Use **Circle** to go back.
+
+          """.replace("          ",""))
+          s=between(s, "## Model-specific builds\n", "## Version history\n", """## Model-specific builds
+
+          V2 feature development currently targets the **PCH-2000 Slim only**.
+
+          - **PCH-2000 Slim:** v2.0 is the current feature release.
+          - **PCH-1000 FAT/OLED:** v1.9.3-PCH1000 remains available as the existing compatibility build.
+
+          The PCH-1000 version will be revisited after the Slim application reaches the final feature set, so the finished Slim software can be carried over as one complete port rather than maintaining two moving targets during active development.
+
+          """.replace("          ",""))
+          s=s.replace("The dedicated PCH-1000 build is maintained on the `pch1000-build` development branch and is built separately from the proven PCH-2000 release.",
+                      "Current feature development is maintained on the `v200-build` branch for the PCH-2000 Slim. The PCH-1000 compatibility branch is intentionally paused until the Slim feature set is complete.")
+          p.write_text(s)
+
+          p=Path("CHANGELOG.md")
+          s=p.read_text()
+          if "## v2.0 Slim" not in s:
+              block="""## v2.0 Slim
+
+          Major search and live-flight-following update for the PS Vita Slim / PCH-2000.
+
+          - V2 development now targets the PCH-2000 Slim exclusively; the PCH-1000 compatibility edition is paused at v1.9.3 until the Slim feature set is complete.
+          - Triangle now opens a Search Hub instead of jumping directly to coordinate entry.
+          - Added **Enter Coordinates** and **Search Flight Number** choices.
+          - Search menus support front-touch selection and D-pad UP/DOWN + X.
+          - Added persistent storage for the three most recent coordinate searches.
+          - Added live flight-number/callsign search.
+          - A successful flight search centers the map on the aircraft, selects it and displays its data.
+          - Added FOLLOW mode so the map recenters on the searched aircraft as new live positions arrive.
+          - Removed the Square AUTO/MANUAL refresh toggle.
+          - START is intentionally unused in v2.0.
+          - Aircraft refresh is permanently automatic at approximately four seconds.
+          - Built successfully with VitaSDK and passed VPK integrity validation.
+
+          """.replace("          ","")
+              s=s.replace("## v1.9.3-PCH1000", block+"## v1.9.3-PCH1000")
+          p.write_text(s)
+
+          Path("RELEASES.md").write_text("""# VitaFlightRadar Releases
+
+          ## PS Vita 2000 Slim — PCH-20xx
+
+          **Current release: v2.0 Slim**
+
+          ### [Download VitaFlightRadar v2.0 Slim](releases/VitaFlightRadar-v2.0-Slim.vpk)
+
+          V2.0 is the current main development release for the **PS Vita Slim / PCH-2000**.
+
+          Highlights:
+
+          - Triangle Search Hub
+          - Coordinate search plus three recent saved coordinate searches
+          - Live flight-number/callsign search
+          - Automatic jump to a searched aircraft
+          - Continuous FOLLOW mode
+          - Touchscreen or D-pad + X menu control
+          - Permanent 4-second aircraft refresh
+          - Square and START intentionally unused
+          - Existing satellite map, pan, pinch zoom, aircraft selection, route data, filtering and tile caching retained
+          - Passed VitaSDK compilation and VPK integrity validation
+
+          ## PS Vita 1000 FAT / OLED — PCH-10xx / PCH-11xx
+
+          **Current compatibility build: v1.9.3-PCH1000**
+
+          ### [Download VitaFlightRadar v1.9.3 PCH-1000](releases/VitaFlightRadar-v1.9.3-PCH1000.vpk)
+
+          The PCH-1000 edition is currently paused while V2 development focuses on the Slim. The plan is to port the completed Slim feature set back to the PCH-1000 after the Slim application reaches its final form.
+
+          ## Historical versions
+
+          Detailed notes are in [CHANGELOG.md](CHANGELOG.md).
+
+          | Version | Status | Major milestone |
+          | --- | --- | --- |
+          | **v2.0 Slim** | **Current PCH-2000 release** | Search Hub, saved coordinate history, flight search, continuous follow, always-on 4-second refresh |
+          | **v1.9.3-PCH1000** | PCH-1000 compatibility build | mbedTLS networking, cache-directory hardening, satellite fallback |
+          | **v1.9.2** | Previous PCH-2000 release | Higher-detail satellite zoom and larger texture cache |
+          | **v1.9.1** | Historical | Stable map hotfix |
+          | **v1.9** | Historical / Known map regression | Experimental async performance engine |
+          | **v1.8** | Historical | Slippy satellite map, pan and progressive cached tiles |
+          | **v1.7 and earlier** | Historical | Earlier VitaFlightRadar development |
+
+          Historical development/build branches remain in the repository.
+          """.replace("          ",""))
+          PY
+
+          git config user.name "VitaFlightRadar Build Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add README.md CHANGELOG.md RELEASES.md releases/VitaFlightRadar-v2.0-Slim.vpk
+          git commit -m "Publish VitaFlightRadar v2.0 Slim"
+          git push origin main
