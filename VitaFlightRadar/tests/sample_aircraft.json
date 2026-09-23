@@ -1,0 +1,25 @@
+{
+  "ac": [
+    {
+      "hex": "461E1A",
+      "flight": "TEST123 ",
+      "r": "N123AB",
+      "t": "B738",
+      "alt_baro": 31000,
+      "gs": 447.2,
+      "track": 274.0,
+      "lat": 32.2,
+      "lon": 34.9
+    },
+    {
+      "hex": "4ACA0B",
+      "flight": "GROUND1 ",
+      "alt_baro": "ground",
+      "gs": 12.0,
+      "track": 90.0,
+      "lat": 32.09,
+      "lon": 34.79
+    }
+  ],
+  "total": 2
+}

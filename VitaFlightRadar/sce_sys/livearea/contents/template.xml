@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<livearea style="psmobile" format-ver="01.00" content-rev="1">
+  <livearea-background>
+    <image>bg.png</image>
+  </livearea-background>
+  <gate>
+    <startup-image>startup.png</startup-image>
+  </gate>
+  <frame id="frame1">
+    <liveitem>
+      <lang>en</lang>
+      <text valign="top" align="left" text-align="left" text-valign="top" line-space="1" ellipsis="on">
+        <str size="24" bold="on" shadow="on">Live aircraft around your selected location.</str>
+      </text>
+    </liveitem>
+  </frame>
+</livearea>

@@ -1,0 +1,12 @@
+VitaFlightRadar build status
+
+This folder is a complete VitaSDK source project with LiveArea assets and build automation.
+
+A real PS Vita VPK must be produced by the VitaSDK ARM toolchain. The workspace used to prepare this package does not contain arm-vita-eabi-gcc or vita-pack-vpk, so no fake or unverified .vpk is included.
+
+Build with:
+- build_vita.sh / build_windows.ps1 and VitaSDK, or
+- .github/workflows/build.yml with the VitaSDK 2026.08 container.
+
+Expected output:
+build/VitaFlightRadar.vpk

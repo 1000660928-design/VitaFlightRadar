@@ -1,0 +1,29 @@
+name: Build VitaFlightRadar VPK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main", "master"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: vitasdk/vitasdk:2026.08-20260813
+
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build VPK
+        run: cmake --build build --parallel
+
+      - name: Upload VPK
+        uses: actions/upload-artifact@v4
+        with:
+          name: VitaFlightRadar-VPK
+          path: build/VitaFlightRadar.vpk
+          if-no-files-found: error

@@ -1,0 +1,14 @@
+VitaFlightRadar validation summary
+
+PASS: Flight distance, bearing and distance-sort C unit test compiled and ran on the host toolchain.
+PASS: Aircraft JSON parser compiled against host Jansson ABI declarations and parsed tests/sample_aircraft.json correctly.
+PASS: LiveArea images are indexed PNG files, use the expected 128x128 / 840x500 / 280x158 dimensions, and are well below VitaSDK's 420 KB image limit.
+PASS: LiveArea template is UTF-8 XML with CRLF line endings.
+PASS: Current adsb.fi documentation was checked for the /api/v3/lat/{lat}/lon/{lon}/dist/{dist} endpoint, 250 NM maximum, 1 request/second public limit, and personal non-commercial terms.
+PASS: Current official VitaSDK libcurl sample was checked for CURL + OpenSSL linking and TLS 1.2 compatibility.
+PASS: Project links the Vita stubs required by the headers used, including SceProcessmgr_stub and SceKernelThreadMgr_stub.
+
+NOT RUN: A real arm-vita-eabi cross-build. The preparation workspace does not contain the VitaSDK compiler or vita-pack-vpk, and outbound container downloads are unavailable. No fake .vpk has been substituted.
+
+Reproducible VPK builder included:
+.github/workflows/build.yml uses the frozen official image vitasdk/vitasdk:2026.08-20260813.
