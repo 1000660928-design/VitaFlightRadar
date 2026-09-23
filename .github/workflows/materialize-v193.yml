@@ -1,0 +1,74 @@
+name: Materialize v1.9.3 source for v2 development
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["v200-build"]
+    paths:
+      - ".github/workflows/materialize-v193.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reconstruct full v1.9.3 source
+        run: |
+          cat source.part1.b64 source.part2.b64 source.part3a.b64 source.part3b.b64 source.part4.b64 source.part5.b64 | base64 -d > base.zip
+          python3 -c "import zipfile; z=zipfile.ZipFile('base.zip'); assert z.testzip() is None; z.extractall('.')"
+          cat patches/v12_patch.part1a.b64 patches/v12_patch.part1b.b64 patches/v12_patch.part2.b64 patches/v12_patch.part3.b64 | base64 -d > v12.zip
+          python3 -c "import zipfile; z=zipfile.ZipFile('v12.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          cat patches/v13_patch.part*.b64 | base64 -d > v13.zip
+          python3 -c "import zipfile; z=zipfile.ZipFile('v13.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          cat patches/v14_patch.part01.b64 patches/v14_patch.part02.b64 patches/v14_patch.part03.b64 patches/v14_patch.part04.b64 | base64 -d > v14.zip
+          python3 -c "import zipfile; z=zipfile.ZipFile('v14.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          cat patches/v15_patch.part01.b64 patches/v15_patch.part02.b64 patches/v15_patch.part03.b64 patches/v15_patch.part04.b64 | base64 -d > v15.zip
+          python3 -c "import zipfile; z=zipfile.ZipFile('v15.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          cat patches/v16_patch.part01a.b64 patches/v16_patch.part01b.b64 patches/v16_patch.part02.b64 patches/v16_patch.part03.b64 | base64 -d > v16.zip
+          python3 -c "import zipfile; z=zipfile.ZipFile('v16.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          python3 -c "import zipfile; z=zipfile.ZipFile('patches/v17_patch.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          cat patches/v18_patch.part01.b64 patches/v18_patch.part02.b64 patches/v18_patch.part03.b64 patches/v18_patch.part04.b64 patches/v18_patch.part05.b64 | base64 -d > v18.zip
+          python3 -c "import zipfile; z=zipfile.ZipFile('v18.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('VitaFlightRadar/src/map.c')
+          s=p.read_text()
+          s=s.replace('#define MAX_ZOOM 19', '#define MAX_ZOOM 21')
+          old='''    int target_zoom = (int)ceil(effective_zoom - 0.000001);
+    if (target_zoom < MIN_ZOOM) target_zoom = MIN_ZOOM;
+    if (target_zoom > MAX_ZOOM) target_zoom = MAX_ZOOM;
+
+    /* ceil() intentionally biases toward the sharper tile level. Residual
+       scaling is therefore <= 1, so the newly loaded imagery is downscaled
+       rather than enlarged and pixelated. */
+    double residual = pow(2.0, effective_zoom - (double)target_zoom);
+    if (residual < 0.50) residual = 0.50;
+    if (residual > 1.00) residual = 1.00;
+'''
+          new='''    int target_zoom = (int)ceil(effective_zoom - 0.000001);
+    if (target_zoom < MIN_ZOOM) target_zoom = MIN_ZOOM;
+    if (effective_zoom >= 14.0 && target_zoom < MAX_ZOOM) target_zoom++;
+    if (target_zoom > MAX_ZOOM) target_zoom = MAX_ZOOM;
+    double residual = pow(2.0, effective_zoom - (double)target_zoom);
+    if (residual < 0.24) residual = 0.24;
+    if (residual > 1.00) residual = 1.00;
+'''
+          if old in s: s=s.replace(old,new)
+          s=s.replace('"SATELLITE SHARPENING Z%d"', '"HQ SATELLITE Z%d"')
+          p.write_text(s)
+          h=Path('VitaFlightRadar/src/map.h')
+          h.write_text(h.read_text().replace('#define VFR_MAP_MAX_TILES 32','#define VFR_MAP_MAX_TILES 40'))
+          PY
+          cat patches/v193_patch.part00.b64 patches/v193_patch.part01.b64 patches/v193_patch.part02.b64 patches/v193_patch.part03.b64 | base64 -d > v193.zip
+          python3 -c "import zipfile; z=zipfile.ZipFile('v193.zip'); assert z.testzip() is None; z.extractall('VitaFlightRadar/src')"
+          rm -f base.zip v12.zip v13.zip v14.zip v15.zip v16.zip v18.zip v193.zip
+      - name: Commit reconstructed source
+        run: |
+          git config user.name "VitaFlightRadar Build Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add VitaFlightRadar
+          git commit -m "Materialize v1.9.3 source for v2.0 development"
+          git push
