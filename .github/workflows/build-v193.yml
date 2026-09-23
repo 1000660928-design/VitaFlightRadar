@@ -148,13 +148,22 @@ jobs:
           print('v1.9.3 PCH-1000 VPK integrity OK')
           PY
 
+      - name: Upload VPK
+        uses: actions/upload-artifact@v4
+        with:
+          name: VitaFlightRadar-v1.9.3-PCH1000-VPK
+          path: VitaFlightRadar/build/VitaFlightRadar.vpk
+          if-no-files-found: error
+
       - name: Publish PCH-1000 VPK to main
         run: |
           cp VitaFlightRadar/build/VitaFlightRadar.vpk /tmp/VitaFlightRadar-v1.9.3-PCH1000.vpk
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          cd "$GITHUB_WORKSPACE"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin main
-          git checkout main
+          git checkout -B main origin/main
           mkdir -p releases
           cp /tmp/VitaFlightRadar-v1.9.3-PCH1000.vpk releases/VitaFlightRadar-v1.9.3-PCH1000.vpk
           git add releases/VitaFlightRadar-v1.9.3-PCH1000.vpk
@@ -164,10 +173,3 @@ jobs:
             git commit -m "Publish PCH-1000 compatibility build [skip ci]"
             git push origin main
           fi
-
-      - name: Upload VPK
-        uses: actions/upload-artifact@v4
-        with:
-          name: VitaFlightRadar-v1.9.3-PCH1000-VPK
-          path: VitaFlightRadar/build/VitaFlightRadar.vpk
-          if-no-files-found: error
