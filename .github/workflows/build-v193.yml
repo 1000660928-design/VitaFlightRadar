@@ -1,4 +1,4 @@
-name: Reconstruct VitaFlightRadar v1.9.3 Source for v2.0
+name: Build VitaFlightRadar v2.0 Slim
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     branches: ["v200-build"]
     paths:
       - ".github/workflows/build-v193.yml"
-      - "patches/v193_patch.part*.b64"
+      - "patches/v193_patch.part*.b64"\n      - "patches/v200_patch.part*.b64"
 
 jobs:
   build:
@@ -85,6 +85,24 @@ jobs:
           grep -q 'CURL_SSLVERSION_TLSv1_2' VitaFlightRadar/src/net.c
           grep -q 'SATELLITE FALLBACK' VitaFlightRadar/src/map.c
 
+
+      - name: Apply v2.0 Slim search and follow patch
+        run: |
+          cat patches/v200_patch.part00.b64 patches/v200_patch.part01.b64 patches/v200_patch.part02.b64 patches/v200_patch.part03.b64 patches/v200_patch.part04.b64 patches/v200_patch.part05.b64 | base64 -d > v200.zip
+          echo "7b46a30565f5e3208b34ba6944765831429bae529fd6f23229078c6c736b4737  v200.zip" | sha256sum -c -
+          python3 - <<'PY'
+          import zipfile
+          z=zipfile.ZipFile('v200.zip')
+          assert z.testzip() is None
+          z.extractall('VitaFlightRadar/src')
+          print('v2.0 Slim feature patch OK')
+          PY
+          grep -q 'SEARCH FLIGHT NUMBER' VitaFlightRadar/src/main.c
+          grep -q '/api/v2/callsign/' VitaFlightRadar/src/main.c
+          grep -q '4000000ULL' VitaFlightRadar/src/main.c
+          grep -q 'recent%d=' VitaFlightRadar/src/app_config.c
+          grep -q 'VitaFlightRadar/2.0 (PS Vita Slim PCH-2000 homebrew)' VitaFlightRadar/src/net.c
+
       - name: Install firmware-independent TLS backend
         run: |
           vdpm pacman -- -Rdd --noconfirm curl
@@ -110,20 +128,20 @@ jobs:
           test -n "$JANSSON_LIB"
           cp "$JANSSON_LIB" VitaFlightRadar/libjansson_vita.a
 
-      - name: Upload reconstructed v1.9.3 source
+      - name: Upload reconstructed v2.0 Slim source
         uses: actions/upload-artifact@v4
         with:
-          name: VitaFlightRadar-v1.9.3-source
+          name: VitaFlightRadar-v2.0-Slim-source
           path: VitaFlightRadar
           if-no-files-found: error
 
-      - name: Configure v1.9.3
+      - name: Configure v2.0 Slim
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('VitaFlightRadar/CMakeLists.txt')
           s=p.read_text()
-          s=s.replace('set(VITA_VERSION "01.00")','set(VITA_VERSION "01.93")')
+          s=s.replace('set(VITA_VERSION "01.00")','set(VITA_VERSION "02.00")')
           s=s.replace('find_package(OpenSSL REQUIRED)\n','')
           s=s.replace('    ${OPENSSL_INCLUDE_DIR}\n','')
           s=s.replace('    ${OPENSSL_LIBRARIES}\n','')
@@ -149,12 +167,12 @@ jobs:
               assert z.testzip() is None
               assert hashlib.sha256(z.read('sce_sys/icon0.png')).hexdigest()=='7918a7a0f1323bfa5f00b529578a5d0594ab49c54f357c3170508e650a50023d'
               assert 'default_location.txt' not in z.namelist()
-          print('v1.9.3 dual-model VPK integrity OK')
+          print('v2.0 Slim VPK integrity OK')
           PY
 
       - name: Upload VPK
         uses: actions/upload-artifact@v4
         with:
-          name: VitaFlightRadar-v1.9.3-VPK
+          name: VitaFlightRadar-v2.0-Slim-VPK
           path: VitaFlightRadar/build/VitaFlightRadar.vpk
           if-no-files-found: error
