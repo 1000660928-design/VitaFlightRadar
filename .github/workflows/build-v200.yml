@@ -10,6 +10,7 @@ on:
       - "patches/v21diff.part*.b64"
       - "patches/v22_patch.part*.b64"
       - "patches/v23diff.part*.b64"
+      - "patches/v23fix.part*.b64"
 
 permissions:
   contents: write
@@ -161,6 +162,17 @@ jobs:
           grep -q 'sceCtrlPeekBufferPositive' VitaFlightRadar/src/main.c
           grep -q 'VitaFlightRadar/2.3' VitaFlightRadar/src/net.c
           grep -q '300L, 500L' VitaFlightRadar/src/map.c
+
+      - name: Apply v2.3 compiler fix
+        run: |
+          cat patches/v23fix.part*.b64 | base64 -d > v23fix.diff.gz
+          echo "6bf9ed07cdfb64d7ae51f8339ab8a80f991a69b61ad3afab21fcde1ad98dc085  v23fix.diff.gz" | sha256sum -c -
+          gzip -dc v23fix.diff.gz > v23fix.diff
+          echo "23919c70d13bd5b8d9560418b264ca462cb6208cbc4cb6bb5671acd6818c175d  v23fix.diff" | sha256sum -c -
+          cd VitaFlightRadar
+          patch -p1 < ../v23fix.diff
+          cd ..
+          grep -q 'static int select_from_touch' VitaFlightRadar/src/main.c
 
       - name: Install firmware-independent TLS backend
         run: |
