@@ -1,12 +1,13 @@
-name: Build VitaFlightRadar v2.0 Slim
+name: Build VitaFlightRadar v2.1 Slim
 
 on:
   workflow_dispatch:
   push:
-    branches: ["v200-build"]
+    branches: ["v210-build"]
     paths:
       - ".github/workflows/build-v200.yml"
       - "patches/v200_patch.part*.b64"
+      - "patches/v21_patch.part*.b64"
 
 permissions:
   contents: write
@@ -89,7 +90,7 @@ jobs:
           grep -q 'SATELLITE FALLBACK' VitaFlightRadar/src/map.c
 
 
-      - name: Apply v2.0 Slim search and follow patch
+      - name: Apply v2.1 Slim search and follow patch
         run: |
           cat patches/v200_patch.part00.b64 patches/v200_patch.part01.b64 patches/v200_patch.part02.b64 patches/v200_patch.part03.b64 patches/v200_patch.part04.b64 patches/v200_patch.part05.b64 | base64 -d > v200.zip
           echo "7b46a30565f5e3208b34ba6944765831429bae529fd6f23229078c6c736b4737  v200.zip" | sha256sum -c -
@@ -98,13 +99,33 @@ jobs:
           z=zipfile.ZipFile('v200.zip')
           assert z.testzip() is None
           z.extractall('VitaFlightRadar/src')
-          print('v2.0 Slim feature patch OK')
+          print('v2.1 Slim feature patch OK')
           PY
           grep -q 'SEARCH FLIGHT NUMBER' VitaFlightRadar/src/main.c
           grep -q '/api/v2/callsign/' VitaFlightRadar/src/main.c
           grep -q '4000000ULL' VitaFlightRadar/src/main.c
           grep -q 'recent%d=' VitaFlightRadar/src/app_config.c
           grep -q 'VitaFlightRadar/2.0 (PS Vita Slim PCH-2000 homebrew)' VitaFlightRadar/src/net.c
+
+
+      - name: Apply v2.1 performance and flight-search fixes
+        run: |
+          cat patches/v21_patch.part00.b64 patches/v21_patch.part01.b64 patches/v21_patch.part02.b64 patches/v21_patch.part03.b64 | base64 -d > v21.zip
+          echo "420f1337b3c7af7bd9cc3bb94ffa366d04b53a32aef5f770648899d5488668d1  v21.zip" | sha256sum -c -
+          python3 - <<'PY'
+          import zipfile
+          z=zipfile.ZipFile('v21.zip')
+          assert z.testzip() is None
+          z.extractall('VitaFlightRadar/src')
+          print('v2.1 performance/search patch OK')
+          PY
+          grep -q '#define DEFAULT_VIEW_RANGE_KM 5' VitaFlightRadar/src/main.c
+          grep -q '#define SEARCH_FOCUS_RANGE_KM 10' VitaFlightRadar/src/main.c
+          grep -q 'FLIGHT NOT FOUND' VitaFlightRadar/src/main.c
+          grep -q 'vfr_http_get_timeout' VitaFlightRadar/src/net.c
+          grep -q 'VitaFlightRadar/2.1 (PS Vita Slim PCH-2000 homebrew)' VitaFlightRadar/src/net.c
+          grep -q '1200, 2600' VitaFlightRadar/src/map.c
+          grep -q '1200, 2800' VitaFlightRadar/src/route.c
 
       - name: Install firmware-independent TLS backend
         run: |
@@ -131,20 +152,20 @@ jobs:
           test -n "$JANSSON_LIB"
           cp "$JANSSON_LIB" VitaFlightRadar/libjansson_vita.a
 
-      - name: Upload reconstructed v2.0 Slim source
+      - name: Upload reconstructed v2.1 Slim source
         uses: actions/upload-artifact@v4
         with:
-          name: VitaFlightRadar-v2.0-Slim-source
+          name: VitaFlightRadar-v2.1-Slim-source
           path: VitaFlightRadar
           if-no-files-found: error
 
-      - name: Configure v2.0 Slim
+      - name: Configure v2.1 Slim
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('VitaFlightRadar/CMakeLists.txt')
           s=p.read_text()
-          s=s.replace('set(VITA_VERSION "01.00")','set(VITA_VERSION "02.00")')
+          s=s.replace('set(VITA_VERSION "01.00")','set(VITA_VERSION "02.10")')
           s=s.replace('find_package(OpenSSL REQUIRED)\n','')
           s=s.replace('    ${OPENSSL_INCLUDE_DIR}\n','')
           s=s.replace('    ${OPENSSL_LIBRARIES}\n','')
@@ -170,220 +191,14 @@ jobs:
               assert z.testzip() is None
               assert hashlib.sha256(z.read('sce_sys/icon0.png')).hexdigest()=='7918a7a0f1323bfa5f00b529578a5d0594ab49c54f357c3170508e650a50023d'
               assert 'default_location.txt' not in z.namelist()
-          print('v2.0 Slim VPK integrity OK')
+          print('v2.1 Slim VPK integrity OK')
           PY
 
       - name: Upload VPK
         uses: actions/upload-artifact@v4
         with:
-          name: VitaFlightRadar-v2.0-Slim-VPK
+          name: VitaFlightRadar-v2.1-Slim-VPK
           path: VitaFlightRadar/build/VitaFlightRadar.vpk
           if-no-files-found: error
 
 
-      - name: Publish Slim V2 VPK and docs to main
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          python3 - <<'PY'
-          import os, json, base64, urllib.request, urllib.error
-          from pathlib import Path
-
-          token=os.environ["GH_TOKEN"]
-          repo=os.environ["GITHUB_REPOSITORY"]
-          api="https://api.github.com/repos/"+repo+"/contents/"
-
-          def request(method, path, payload=None):
-              url=api+path
-              data=None if payload is None else json.dumps(payload).encode()
-              req=urllib.request.Request(url, data=data, method=method)
-              req.add_header("Authorization","Bearer "+token)
-              req.add_header("Accept","application/vnd.github+json")
-              req.add_header("X-GitHub-Api-Version","2022-11-28")
-              req.add_header("User-Agent","VitaFlightRadar-build")
-              try:
-                  with urllib.request.urlopen(req) as r:
-                      return json.loads(r.read().decode())
-              except urllib.error.HTTPError as e:
-                  if e.code==404: return None
-                  raise
-
-          def get_text(path):
-              obj=request("GET",path+"?ref=main")
-              if not obj: raise RuntimeError("missing "+path)
-              return base64.b64decode(obj["content"]).decode(), obj["sha"]
-
-          def put_bytes(path, raw, message, sha=None):
-              payload={"message":message,"content":base64.b64encode(raw).decode(),"branch":"main"}
-              if sha: payload["sha"]=sha
-              return request("PUT",path,payload)
-
-          def put_text(path, text, message, sha):
-              return put_bytes(path,text.encode(),message,sha)
-
-          def between(s,a,b,repl):
-              i=s.index(a); j=s.index(b,i+len(a))
-              return s[:i]+repl+s[j:]
-
-          vpk=Path("VitaFlightRadar/build/VitaFlightRadar.vpk").read_bytes()
-          existing=request("GET","releases/VitaFlightRadar-v2.0-Slim.vpk?ref=main")
-          put_bytes("releases/VitaFlightRadar-v2.0-Slim.vpk",vpk,
-                    "Publish VitaFlightRadar v2.0 Slim VPK",
-                    existing["sha"] if existing else None)
-
-          readme,sha=get_text("README.md")
-          readme=between(readme,"## Download — choose your PS Vita model\n","## Current feature set\n","""## Download
-
-### PS Vita 2000 Slim — PCH-20xx
-
-**Current feature release: VitaFlightRadar v2.0 Slim**
-
-### **[Download VitaFlightRadar v2.0 — PCH-2000 Slim](releases/VitaFlightRadar-v2.0-Slim.vpk)**
-
-V2.0 is the current main project build and is developed for the **PS Vita Slim / PCH-2000**. It adds the new Search Hub, live flight-number search and following, three saved recent coordinate searches, touch + button menu navigation, and permanent 4-second live aircraft refresh.
-
-### PS Vita 1000 FAT / OLED — PCH-10xx / PCH-11xx
-
-**Legacy compatibility build: v1.9.3-PCH1000**
-
-### **[Download VitaFlightRadar v1.9.3 — PCH-1000 FAT/OLED](releases/VitaFlightRadar-v1.9.3-PCH1000.vpk)**
-
-The FAT/OLED edition is currently frozen at v1.9.3 while feature development focuses exclusively on the PCH-2000 Slim. After the Slim feature set is complete and thoroughly tested, the finished application can be ported back to the PCH-1000 compatibility path.
-
-See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELOG.md) for the complete development history.
-
-""")
-          readme=between(readme,"## Current feature set\n","## Controls\n","""## Current feature set
-
-- Live nearby aircraft positions over satellite imagery.
-- One-finger map panning, touch-and-hold recentering and two-finger pinch zoom.
-- Tap aircraft to select them, or use UP / DOWN to cycle through aircraft.
-- **Triangle Search Hub** with coordinate search and flight-number search.
-- Search menus work with the **front touchscreen** or **D-pad + X**.
-- Coordinate search remembers the **three most recent coordinates** across launches.
-- Flight-number/callsign search accepts entries such as `ELY5230`, finds the live aircraft and moves the map to it.
-- **FOLLOW mode** keeps the map centered on a searched aircraft as new live positions arrive.
-- Aircraft data refresh is **always automatic every 4 seconds**.
-- Selected-flight information includes altitude, speed, heading, distance and route/timetable data when public data is available.
-- Persistent satellite tile caching and high-resolution satellite sharpening at close zoom levels.
-
-""")
-          readme=between(readme,"## Controls\n","There is intentionally no separate hardware zoom or aircraft-radius control.","""## Controls
-
-| Control | Action |
-| --- | --- |
-| **One-finger drag** | Pan the satellite map |
-| **Stationary touch-and-hold** | Recenter under your finger |
-| **Two-finger pinch** | Zoom map and adjust aircraft search radius |
-| **Tap aircraft** | Select aircraft and leave FOLLOW mode |
-| **Triangle** | Open the Search Hub |
-| **UP / DOWN** | Navigate menus or cycle aircraft |
-| **X** | Confirm / Enter |
-| **Circle** | Cancel / Back |
-| **Square** | Unused in v2.0 |
-| **START** | Unused in v2.0 |
-| **PS button** | Leave / suspend through Vita system UI |
-
-""")
-          readme=between(readme,"## AUTO vs MANUAL\n","## Coordinate search\n","""## Automatic refresh and flight following
-
-V2.0 no longer has AUTO/MANUAL modes. Live aircraft refresh is always enabled and runs approximately every **4 seconds**.
-
-When a flight is found through flight-number search, VitaFlightRadar enters **FOLLOW mode** and recenters on its newest reported position while the aircraft remains available in the live feed.
-
-""")
-          readme=between(readme,"## Coordinate search\n","## Installing on a PS Vita\n","""## Search Hub
-
-Press **Triangle** to choose **Enter Coordinates** or **Search Flight Number**.
-
-Coordinate search accepts decimal coordinates such as `40.7128,-74.0060` and remembers the latest **three** searches across launches.
-
-Flight search accepts a live callsign/flight number such as `ELY5230`. Spaces and letter case are normalized automatically. When found, the map jumps to the aircraft, selects it and enters FOLLOW mode.
-
-The menus work with either the **front touchscreen** or **D-pad + X**. Use **Circle** to go back.
-
-""")
-          readme=between(readme,"## Model-specific builds\n","## Version history\n","""## Model-specific builds
-
-V2 feature development currently targets the **PCH-2000 Slim only**.
-
-- **PCH-2000 Slim:** v2.0 is the current feature release.
-- **PCH-1000 FAT/OLED:** v1.9.3-PCH1000 remains available as the existing compatibility build.
-
-The PCH-1000 version will be revisited after the Slim application reaches the final feature set.
-
-""")
-          readme=readme.replace(
-              "The dedicated PCH-1000 build is maintained on the `pch1000-build` development branch and is built separately from the proven PCH-2000 release.",
-              "Current feature development is maintained on the `v200-build` branch for the PCH-2000 Slim. The PCH-1000 compatibility branch is intentionally paused until the Slim feature set is complete.")
-          put_text("README.md",readme,"Document VitaFlightRadar v2.0 Slim",sha)
-
-          changelog,sha=get_text("CHANGELOG.md")
-          if "## v2.0 Slim" not in changelog:
-              block="""## v2.0 Slim
-
-Major search and live-flight-following update for the PS Vita Slim / PCH-2000.
-
-- Triangle now opens a Search Hub with coordinate search and flight-number search.
-- Search menus support front-touch selection and D-pad UP/DOWN + X.
-- Added persistent storage for the three most recent coordinate searches.
-- Added live flight-number/callsign search and automatic map jump to the aircraft.
-- Added FOLLOW mode so the map recenters as new live aircraft positions arrive.
-- Removed the Square AUTO/MANUAL toggle.
-- START is intentionally unused in v2.0.
-- Aircraft refresh is permanently automatic at approximately four seconds.
-- V2 feature development currently targets PCH-2000 Slim only.
-- Built successfully with VitaSDK and passed VPK integrity validation.
-
-"""
-              changelog=changelog.replace("## v1.9.3-PCH1000",block+"## v1.9.3-PCH1000")
-          put_text("CHANGELOG.md",changelog,"Add v2.0 Slim changelog",sha)
-
-          releases,sha=get_text("RELEASES.md")
-          releases="""# VitaFlightRadar Releases
-
-## PS Vita 2000 Slim — PCH-20xx
-
-**Current release: v2.0 Slim**
-
-### [Download VitaFlightRadar v2.0 Slim](releases/VitaFlightRadar-v2.0-Slim.vpk)
-
-V2.0 is the current main release for the **PS Vita Slim / PCH-2000**.
-
-Highlights:
-
-- Triangle Search Hub
-- Coordinate search plus three recent saved coordinate searches
-- Live flight-number/callsign search
-- Automatic jump to a searched aircraft
-- Continuous FOLLOW mode
-- Touchscreen or D-pad + X menu control
-- Permanent 4-second aircraft refresh
-- Square and START intentionally unused
-- Existing satellite map, pan, pinch zoom, aircraft selection, route data and tile caching retained
-- Passed VitaSDK compilation and VPK integrity validation
-
-## PS Vita 1000 FAT / OLED — PCH-10xx / PCH-11xx
-
-**Current compatibility build: v1.9.3-PCH1000**
-
-### [Download VitaFlightRadar v1.9.3 PCH-1000](releases/VitaFlightRadar-v1.9.3-PCH1000.vpk)
-
-The PCH-1000 edition is paused while active feature development focuses on the Slim. The completed Slim feature set can be ported back after the Slim application reaches its final form.
-
-## Historical versions
-
-See [CHANGELOG.md](CHANGELOG.md) for the complete development history.
-
-| Version | Status | Major milestone |
-| --- | --- | --- |
-| **v2.0 Slim** | **Current PCH-2000 release** | Search Hub, saved coordinates, flight search, FOLLOW mode, always-on 4-second refresh |
-| **v1.9.3-PCH1000** | PCH-1000 compatibility build | Dedicated FAT networking/cache/satellite compatibility |
-| **v1.9.2** | Previous PCH-2000 release | High-resolution satellite improvements |
-| **v1.9.1 and earlier** | Historical | Previous VitaFlightRadar development |
-"""
-          put_text("RELEASES.md",releases,"Make v2.0 Slim the current release",sha)
-
-          print("Published V2 Slim VPK and public docs to main")
-          PY
