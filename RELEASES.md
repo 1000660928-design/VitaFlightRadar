@@ -2,14 +2,20 @@
 
 ## PS Vita 2000 Slim — PCH-20xx
 
-**Current release: v2.1 Slim**
+**Current release: v2.2 Slim**
 
-### [Download VitaFlightRadar v2.1 Slim](releases/VitaFlightRadar-v2.1-Slim.vpk)
+### [Download VitaFlightRadar v2.2 Slim](releases/VitaFlightRadar-v2.2-Slim.vpk)
 
-V2.1 is the current main release for the **PS Vita Slim / PCH-2000**, focused on speed, exact flight matching and consistent map zoom behavior.
+V2.2 is the current main release for the **PS Vita Slim / PCH-2000**, focused on broader live-flight coverage, stronger route/time data and explicit user-controlled flight tracking.
 
 Highlights:
 
+- Multi-feed live aircraft coverage
+- More tolerant flight-number/callsign matching
+- Route + schedule fallback merging
+- HexDB route fallback
+- Explicit on-screen TRACK FLIGHT toggle
+- Tracked-aircraft recovery if a feed temporarily loses the plane
 - Faster startup and satellite loading
 - Faster flight search path
 - Strict exact callsign matching
@@ -40,7 +46,8 @@ Detailed notes are in [CHANGELOG.md](CHANGELOG.md).
 
 | Version | Status | Major milestone |
 | --- | --- | --- |
-| **v2.1 Slim** | **Current PCH-2000 release** | Performance update, exact flight matching, launch zoom reset, focused flight search |
+| **v2.2 Slim** | **Current PCH-2000 release** | Multi-feed flight coverage, route/time fixes, explicit tracking button |
+| **v2.1 Slim** | Previous PCH-2000 release | Performance update, exact flight matching, launch zoom reset, focused flight search |
 | **v2.0 Slim** | Previous PCH-2000 release | Search Hub, saved coordinate history, flight search, continuous follow, always-on 4-second refresh |
 | **v1.9.3-PCH1000** | PCH-1000 compatibility build | mbedTLS networking, cache-directory hardening, satellite fallback |
 | **v1.9.2** | Previous PCH-2000 release | Higher-detail satellite zoom and larger texture cache |
