@@ -11,6 +11,7 @@ on:
       - "patches/v22_patch.part*.b64"
       - "patches/v23diff.part*.b64"
       - "patches/v23fix.part*.b64"
+      - "patches/v23opensky.b64"
 
 permissions:
   contents: write
@@ -173,6 +174,19 @@ jobs:
           patch -p1 < ../v23fix.diff
           cd ..
           grep -q 'static int select_from_touch' VitaFlightRadar/src/main.c
+
+      - name: Apply v2.3 OpenSky fallback
+        run: |
+          base64 -d patches/v23opensky.b64 > v23opensky.diff.gz
+          echo "653cb871b5642c9e1d13c565123e3be4d8ac1562c1ec075cce73ced3363c50d6  v23opensky.diff.gz" | sha256sum -c -
+          gzip -dc v23opensky.diff.gz > v23opensky.diff
+          echo "da39bb000b936a433cd869a424d52d5f3d158e5e1306b9665eefa3809341b07a  v23opensky.diff" | sha256sum -c -
+          cd VitaFlightRadar
+          patch -p1 < ../v23opensky.diff
+          cd ..
+          grep -q 'try_opensky_global_callsign' VitaFlightRadar/src/main.c
+          grep -q 'opensky-network.org/api/states/all' VitaFlightRadar/src/main.c
+          grep -q 'SEARCHING GLOBAL BACKUP' VitaFlightRadar/src/main.c
 
       - name: Install firmware-independent TLS backend
         run: |
