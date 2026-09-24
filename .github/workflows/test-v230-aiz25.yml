@@ -1,0 +1,69 @@
+name: Smoke Test V2.3 AIZ25 Resolver
+
+on:
+  push:
+    branches: ["v230-build"]
+    paths:
+      - ".github/workflows/test-v230-aiz25.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve AIZ25 through live flight search
+        shell: bash
+        run: |
+          set -e
+          curl -fsSL --connect-timeout 3 --max-time 8             -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/153 Safari/537.36'             -H 'Referer: https://www.flightradar24.com/'             'https://www.flightradar24.com/v1/search/web/find?query=AIZ25&limit=20'             -o /tmp/search.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/search.json'))
+          results=d.get('results',d if isinstance(d,list) else [])
+          if isinstance(results,dict):
+              results=results.get('results',[])
+          matches=[]
+          for r in results or []:
+              if not isinstance(r,dict): continue
+              t=str(r.get('type','')).lower()
+              label=' '.join(str(r.get(k,'')) for k in ('label','name','detail','description','id'))
+              if 'live' in t or 'AIZ25' in label.upper() or 'IZ25' in label.upper():
+                  matches.append(r)
+          print('matching results:', len(matches))
+          for r in matches[:5]:
+              print({k:r.get(k) for k in ('id','type','label','name','detail')})
+          assert matches, 'AIZ25/IZ25 did not resolve to a live/search result'
+          live=next((r for r in matches if 'live' in str(r.get('type','')).lower()), matches[0])
+          fid=str(live.get('id',''))
+          assert fid, 'resolved result has no flight id'
+          open('/tmp/flight_id','w').write(fid)
+          print('flight id:',fid)
+          PY
+
+      - name: Resolve live aircraft behind flight ID
+        shell: bash
+        run: |
+          set -e
+          FID="$(cat /tmp/flight_id)"
+          if curl -fsSL --connect-timeout 3 --max-time 8               -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/153 Safari/537.36'               -H 'Referer: https://www.flightradar24.com/'               "https://data-live.flightradar24.com/clickhandler/?version=1.5&flight=$FID"               -o /tmp/detail.json; then
+            python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/detail.json'))
+          trail=d.get('trail') or []
+          print('clickhandler callsign:', ((d.get('identification') or {}).get('callsign')))
+          print('trail points:',len(trail))
+          assert trail, 'clickhandler returned no live trail'
+          print('latest point:',{k:trail[0].get(k) for k in ('lat','lng','alt','spd','hd')})
+          PY
+          else
+            NOW="$(date +%s000)"
+            curl -fsSL --connect-timeout 3 --max-time 8               -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/153 Safari/537.36'               -H 'Referer: https://www.flightradar24.com/'               "https://data-live.flightradar24.com/zones/fcgi/feed.js?faa=1&mlat=1&flarm=1&adsb=1&gnd=1&air=1&vehicles=1&estimated=1&maxage=60&gliders=1&time=$NOW&filter_info=1&selected=$FID&ems=1&limit=0"               -o /tmp/feed.json
+            python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/feed.json'))
+          rows=[(k,v) for k,v in d.items() if isinstance(v,list) and len(v)>5]
+          print('selected feed aircraft rows:',len(rows))
+          assert rows, 'selected feed returned no aircraft'
+          print('first aircraft:',rows[0][0],rows[0][1][:17])
+          PY
+          fi
