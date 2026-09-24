@@ -30,82 +30,77 @@ jobs:
           repository: ${{ github.repository }}
           run-id: 36010279673
 
-      - name: Publish V2.1 and update docs
-        shell: bash
+      - name: Publish VPK
         run: |
-          set -e
           mkdir -p releases
           cp release_artifact/VitaFlightRadar.vpk releases/VitaFlightRadar-v2.1-Slim.vpk
 
+      - name: Update public documentation
+        run: |
           python3 - <<'PY'
           from pathlib import Path
-
-          p=Path("README.md")
-          s=p.read_text()
-          s=s.replace("**Current feature release: VitaFlightRadar v2.0 Slim**",
-                      "**Current feature release: VitaFlightRadar v2.1 Slim**")
-          s=s.replace("[Download VitaFlightRadar v2.0 — PCH-2000 Slim](releases/VitaFlightRadar-v2.0-Slim.vpk)",
-                      "[Download VitaFlightRadar v2.1 — PCH-2000 Slim](releases/VitaFlightRadar-v2.1-Slim.vpk)")
-          s=s.replace("V2.0 is the current main project build and is developed for the **PS Vita Slim / PCH-2000**. It adds the new Search Hub, live flight-number search and following, three saved recent coordinate searches, touch + button menu navigation, and permanent 4-second live aircraft refresh.",
-                      "V2.1 is the current PS Vita Slim / PCH-2000 build. It keeps the V2 Search Hub and FOLLOW mode, while substantially reducing startup, satellite-map and flight-search waiting times. Fresh launches reset to the default zoom, flight searches use strict callsign matching, and found flights automatically open at a useful focused zoom.")
-          s=s.replace("## Current feature set\n", """## V2.1 performance update
-
-- Faster perceived startup: the interface appears before live aircraft and route requests finish.
-- Reuses the network connection instead of rebuilding HTTPS/TLS for every request.
-- Shorter network timeouts so unavailable services fail quickly instead of freezing the app.
-- Satellite tiles load progressively with fewer off-screen requests and without long chains of fallback downloads.
-- Flight-number search returns the aircraft first; route/timetable details fill in afterward.
-- Flight-number search now requires an exact normalized callsign match and no longer accepts an unrelated first result.
-- Every completely fresh app launch resets to the default 5 km view.
-- A found flight automatically focuses to a 10 km view, keeping the tracked aircraft prominent while surrounding traffic remains visible.
-
-## Current feature set
-""")
-          s=s.replace("V2.0 no longer has AUTO/MANUAL modes.", "V2.1 has no AUTO/MANUAL modes.")
-          s=s.replace("Square** | Unused in v2.0", "Square** | Unused in v2.1")
-          s=s.replace("START** | Unused in v2.0", "START** | Unused in v2.1")
-          s=s.replace("- **PCH-2000 Slim:** v2.0 is the current feature release.",
-                      "- **PCH-2000 Slim:** v2.1 is the current feature release.")
+          
+          p = Path("README.md")
+          s = p.read_text()
+          s = s.replace("**Current feature release: VitaFlightRadar v2.0 Slim**", "**Current feature release: VitaFlightRadar v2.1 Slim**")
+          s = s.replace("[Download VitaFlightRadar v2.0 — PCH-2000 Slim](releases/VitaFlightRadar-v2.0-Slim.vpk)", "[Download VitaFlightRadar v2.1 — PCH-2000 Slim](releases/VitaFlightRadar-v2.1-Slim.vpk)")
+          s = s.replace("V2.0 is the current main project build and is developed for the **PS Vita Slim / PCH-2000**. It adds the new Search Hub, live flight-number search and following, three saved recent coordinate searches, touch + button menu navigation, and permanent 4-second live aircraft refresh.", "V2.1 is the current PS Vita Slim / PCH-2000 build. It keeps the V2 Search Hub and FOLLOW mode while substantially reducing startup, satellite-map and flight-search waiting times. Fresh launches reset to the default zoom, flight searches use strict callsign matching, and found flights automatically open at a useful focused zoom.")
+          if "## V2.1 performance update" not in s:
+              s = s.replace("## Current feature set\n", """## V2.1 performance update
+          
+          - Faster perceived startup: the interface appears before live aircraft and route requests finish.
+          - Reuses network/DNS/TLS state between requests.
+          - Shorter network timeouts so unavailable services fail quickly instead of freezing the app.
+          - Satellite tiles prioritize the visible area and avoid long fallback-download chains.
+          - Flight-number search shows the aircraft before optional route/timetable details finish.
+          - Flight search requires an exact normalized callsign match.
+          - Every fresh launch resets to the default 5 km view.
+          - Found flights automatically focus to a 10 km view while keeping nearby traffic visible.
+          
+          ## Current feature set
+          """)
+          s = s.replace("V2.0 no longer has AUTO/MANUAL modes.", "V2.1 has no AUTO/MANUAL modes.")
+          s = s.replace("Unused in v2.0", "Unused in v2.1")
+          s = s.replace("- **PCH-2000 Slim:** v2.0 is the current feature release.", "- **PCH-2000 Slim:** v2.1 is the current feature release.")
           p.write_text(s)
-
-          p=Path("CHANGELOG.md")
-          s=p.read_text()
+          
+          p = Path("CHANGELOG.md")
+          s = p.read_text()
           if "## v2.1 Slim" not in s:
-              block="""## v2.1 Slim
-
-Performance, flight-search correctness and map-focus update for the PS Vita Slim / PCH-2000.
-
-- Changed startup so the UI is rendered before live aircraft and route/timetable network work.
-- Made Vita IME/search keyboard modules load only when a search is actually opened.
-- Reused the libcurl connection/DNS/TLS state between requests instead of recreating it every time.
-- Reduced network connect/total timeouts for aircraft, map and route requests.
-- Reduced satellite prefetch margin so visible tiles are prioritized.
-- Removed repeated multi-level online satellite fallback chains; cached parents are preferred and only one emergency lower-resolution network fallback is attempted when the screen has no imagery.
-- Deferred route/timetable lookup until after the searched aircraft is already visible.
-- Simplified route lookup to a faster callsign-first path with one fallback.
-- Fixed flight search correctness: a result is accepted only when its normalized callsign exactly matches the requested flight; the old first-result fallback is removed.
-- Fresh app launches always reset to the default 5 km view.
-- Successful flight searches automatically focus to a 10 km view, keeping the flight prominent without hiding nearby traffic.
-- Retains 4-second automatic aircraft refresh and FOLLOW mode.
-- Passed VitaSDK compilation, VPK generation and package-integrity validation.
-
-"""
-              s=s.replace("## v2.0 Slim", block+"## v2.0 Slim")
+              block = """## v2.1 Slim
+          
+          Performance, flight-search correctness and map-focus update for the PS Vita Slim / PCH-2000.
+          
+          - Shows the UI before live aircraft and route network work, reducing startup waiting.
+          - Loads the Vita search keyboard only when a search is opened.
+          - Reuses the libcurl connection/DNS/TLS state between requests.
+          - Uses shorter aircraft, map and route network timeouts.
+          - Prioritizes visible satellite tiles and removes long multi-level fallback download chains.
+          - Defers route/timetable lookup until after the searched aircraft is visible.
+          - Uses strict normalized callsign matching and removes the unrelated-first-result fallback.
+          - Fresh launches reset to the default 5 km view.
+          - Successful flight searches focus to a 10 km view.
+          - Retains 4-second automatic aircraft refresh and FOLLOW mode.
+          - Passed VitaSDK compilation, VPK generation and package-integrity validation.
+          
+          """
+              s = s.replace("## v2.0 Slim", block + "## v2.0 Slim")
           p.write_text(s)
-
-          p=Path("RELEASES.md")
-          s=p.read_text()
-          s=s.replace("**Current release: v2.0 Slim**","**Current release: v2.1 Slim**")
-          s=s.replace("[Download VitaFlightRadar v2.0 Slim](releases/VitaFlightRadar-v2.0-Slim.vpk)",
-                      "[Download VitaFlightRadar v2.1 Slim](releases/VitaFlightRadar-v2.1-Slim.vpk)")
-          s=s.replace("V2.0 is the current main development release for the **PS Vita Slim / PCH-2000**.",
-                      "V2.1 is the current main release for the **PS Vita Slim / PCH-2000**, focused on speed, exact flight matching and consistent map zoom behavior.")
-          s=s.replace("- Triangle Search Hub", "- Faster startup and satellite loading\n- Much faster flight search path\n- Strict exact callsign matching\n- Fresh-launch default zoom reset\n- Automatic 10 km focus when a searched flight is found\n- Triangle Search Hub",1)
-          s=s.replace("| **v2.0 Slim** | **Current PCH-2000 release** | Search Hub, saved coordinate history, flight search, continuous follow, always-on 4-second refresh |",
-                      "| **v2.1 Slim** | **Current PCH-2000 release** | Performance update, exact flight matching, launch zoom reset, focused flight search |\n| **v2.0 Slim** | Previous PCH-2000 release | Search Hub, saved coordinate history, flight search, continuous follow, always-on 4-second refresh |")
+          
+          p = Path("RELEASES.md")
+          s = p.read_text()
+          s = s.replace("**Current release: v2.0 Slim**", "**Current release: v2.1 Slim**")
+          s = s.replace("[Download VitaFlightRadar v2.0 Slim](releases/VitaFlightRadar-v2.0-Slim.vpk)", "[Download VitaFlightRadar v2.1 Slim](releases/VitaFlightRadar-v2.1-Slim.vpk)")
+          s = s.replace("V2.0 is the current main development release for the **PS Vita Slim / PCH-2000**.", "V2.1 is the current main release for the **PS Vita Slim / PCH-2000**, focused on speed, exact flight matching and consistent map zoom behavior.")
+          if "- Faster startup and satellite loading" not in s:
+              s = s.replace("- Triangle Search Hub", "- Faster startup and satellite loading\n- Faster flight search path\n- Strict exact callsign matching\n- Fresh-launch default zoom reset\n- Automatic 10 km flight focus\n- Triangle Search Hub", 1)
+          s = s.replace("| **v2.0 Slim** | **Current PCH-2000 release** | Search Hub, saved coordinate history, flight search, continuous follow, always-on 4-second refresh |", "| **v2.1 Slim** | **Current PCH-2000 release** | Performance update, exact flight matching, launch zoom reset, focused flight search |\n| **v2.0 Slim** | Previous PCH-2000 release | Search Hub, saved coordinate history, flight search, continuous follow, always-on 4-second refresh |")
           p.write_text(s)
+          
           PY
 
+      - name: Commit public V2.1 release
+        run: |
           git config user.name "VitaFlightRadar Build Bot"
           git config user.email "actions@users.noreply.github.com"
           git add README.md CHANGELOG.md RELEASES.md releases/VitaFlightRadar-v2.1-Slim.vpk
