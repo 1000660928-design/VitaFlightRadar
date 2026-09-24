@@ -1,0 +1,118 @@
+name: Publish VitaFlightRadar v2.2 Slim
+
+on:
+  push:
+    branches: ["v220-build"]
+    paths:
+      - ".github/workflows/publish-v220.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out public main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download verified V2.2 Slim VPK
+        uses: actions/download-artifact@v4
+        with:
+          name: VitaFlightRadar-v2.2-Slim-VPK
+          path: release_artifact
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 36030858043
+
+      - name: Publish VPK
+        run: |
+          mkdir -p releases
+          cp release_artifact/VitaFlightRadar.vpk releases/VitaFlightRadar-v2.2-Slim.vpk
+
+      - name: Update public documentation
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p=Path("README.md")
+          s=p.read_text()
+          s=s.replace("**Current feature release: VitaFlightRadar v2.1 Slim**","**Current feature release: VitaFlightRadar v2.2 Slim**")
+          s=s.replace("[Download VitaFlightRadar v2.1 — PCH-2000 Slim](releases/VitaFlightRadar-v2.1-Slim.vpk)","[Download VitaFlightRadar v2.2 — PCH-2000 Slim](releases/VitaFlightRadar-v2.2-Slim.vpk)")
+          old="V2.1 is the current PS Vita Slim / PCH-2000 build. It keeps the V2 Search Hub and FOLLOW mode while substantially reducing startup, satellite-map and flight-search waiting times. Fresh launches reset to the default zoom, flight searches use strict callsign matching, and found flights automatically open at a useful focused zoom."
+          new="V2.2 is the current PS Vita Slim / PCH-2000 build. It expands live-flight coverage across multiple ADS-B feeds, accepts equivalent flight-number/callsign formats, repairs route and time enrichment with multiple fallbacks, and adds an explicit on-screen TRACK FLIGHT button so following is controlled by the user."
+          s=s.replace(old,new)
+          if "## V2.2 live coverage, route data and tracking" not in s:
+              block="""## V2.2 live coverage, route data and tracking
+
+- Live radar data is merged from adsb.fi and ADSB.lol instead of relying on one feed.
+- Flight search tries multiple live providers and equivalent callsign forms, including leading-zero variants.
+- Selected tracked flights receive a direct callsign recovery attempt if they temporarily disappear from the area feed.
+- Route information is merged from multiple public aviation sources instead of being erased when one source fails.
+- Route lookup can fall back to HexDB when the primary route source has no result.
+- Schedule lookup retries using the IATA flight number learned from route data, improving cases such as AIZ25 / IZ25.
+- Route/schedule enrichment retries automatically when information is incomplete.
+- Added an on-screen **TRACK FLIGHT** button with a target icon.
+- Tracking is now explicitly controlled by the user: tap once to follow the selected aircraft, tap again to stop.
+- While tracking is enabled, the map recenters on the aircraft as fresh positions arrive.
+- If public scheduled times are unavailable but a route is known, the app can show clearly labeled UTC live estimates rather than leaving every time field blank.
+
+"""
+              s=s.replace("## V2.1 performance update\n",block+"## V2.1 performance update\n")
+          s=s.replace("- Flight-number/callsign search accepts entries such as `ELY5230`, finds the live aircraft and moves the map to it.","- Flight-number/callsign search accepts entries such as `ELY5230`, tries equivalent callsign formats across multiple live feeds, finds the aircraft and moves the map to it.")
+          if "- **TRACK FLIGHT button**" not in s:
+              s=s.replace("- **FOLLOW mode** keeps the map centered on a searched aircraft as new live positions arrive.","- **TRACK FLIGHT button** on the selected-flight panel explicitly turns live map following on or off.\n- **FOLLOW mode** keeps the map centered on the tracked aircraft as new live positions arrive.")
+          s=s.replace("V2.1 has no AUTO/MANUAL modes.","V2.2 has no AUTO/MANUAL modes.")
+          s=s.replace("- **PCH-2000 Slim:** v2.1 is the current feature release.","- **PCH-2000 Slim:** v2.2 is the current feature release.")
+          p.write_text(s)
+
+          p=Path("CHANGELOG.md")
+          s=p.read_text()
+          if "## v2.2 Slim" not in s:
+              block="""## v2.2 Slim
+
+Live-coverage, route-data and explicit tracking update for the PS Vita Slim / PCH-2000.
+
+- Merges nearby aircraft from adsb.fi and ADSB.lol every automatic refresh.
+- Flight search now tries multiple live ADS-B providers.
+- Callsign matching accepts equivalent leading-zero forms such as AIZ25 and AIZ025.
+- Adds direct tracked-flight recovery when a followed aircraft temporarily drops out of the nearby feed.
+- Route lookup now merges data instead of replacing good fields when another provider fails.
+- Uses the ADSBdb combined aircraft + callsign route endpoint where possible.
+- Adds HexDB route and airport fallback.
+- Retries schedule lookup with the IATA callsign learned from route data, improving ICAO/IATA mismatches such as AIZ25 / IZ25.
+- Retries incomplete route/schedule enrichment automatically.
+- Adds clearly labeled UTC live time estimates when route data exists but a public schedule is unavailable.
+- Adds an on-screen TRACK FLIGHT target button.
+- Tracking is explicitly user-controlled and can be toggled on/off from the selected-flight panel.
+- While tracking is on, the map follows the selected aircraft as new positions arrive.
+- Retains v2.1 startup, network, map-loading and zoom performance improvements.
+- Passed VitaSDK compilation, VPK generation and package-integrity validation.
+
+"""
+              s=s.replace("## v2.1 Slim",block+"## v2.1 Slim")
+          p.write_text(s)
+
+          p=Path("RELEASES.md")
+          s=p.read_text()
+          s=s.replace("**Current release: v2.1 Slim**","**Current release: v2.2 Slim**")
+          s=s.replace("[Download VitaFlightRadar v2.1 Slim](releases/VitaFlightRadar-v2.1-Slim.vpk)","[Download VitaFlightRadar v2.2 Slim](releases/VitaFlightRadar-v2.2-Slim.vpk)")
+          s=s.replace("V2.1 is the current main release for the **PS Vita Slim / PCH-2000**, focused on speed, exact flight matching and consistent map zoom behavior.","V2.2 is the current main release for the **PS Vita Slim / PCH-2000**, focused on broader live-flight coverage, stronger route/time data and explicit user-controlled flight tracking.")
+          if "- Multi-feed live aircraft coverage" not in s:
+              s=s.replace("- Faster startup and satellite loading","- Multi-feed live aircraft coverage\n- More tolerant flight-number/callsign matching\n- Route + schedule fallback merging\n- HexDB route fallback\n- Explicit on-screen TRACK FLIGHT toggle\n- Tracked-aircraft recovery if a feed temporarily loses the plane\n- Faster startup and satellite loading",1)
+          s=s.replace("| **v2.1 Slim** | **Current PCH-2000 release** | Performance update, exact flight matching, launch zoom reset, focused flight search |","| **v2.2 Slim** | **Current PCH-2000 release** | Multi-feed flight coverage, route/time fixes, explicit tracking button |\n| **v2.1 Slim** | Previous PCH-2000 release | Performance update, exact flight matching, launch zoom reset, focused flight search |")
+          p.write_text(s)
+          PY
+
+      - name: Commit public V2.2 release
+        run: |
+          git config user.name "VitaFlightRadar Build Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add README.md CHANGELOG.md RELEASES.md releases/VitaFlightRadar-v2.2-Slim.vpk
+          git commit -m "Publish VitaFlightRadar v2.2 Slim"
+          git push origin main
