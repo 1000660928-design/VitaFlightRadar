@@ -2,6 +2,22 @@
 
 This file tracks the major public iterations of VitaFlightRadar.
 
+## v2.1 Slim
+
+Performance, flight-search correctness and map-focus update for the PS Vita Slim / PCH-2000.
+
+- Shows the UI before live aircraft and route network work, reducing startup waiting.
+- Loads the Vita search keyboard only when a search is opened.
+- Reuses the libcurl connection/DNS/TLS state between requests.
+- Uses shorter aircraft, map and route network timeouts.
+- Prioritizes visible satellite tiles and removes long multi-level fallback download chains.
+- Defers route/timetable lookup until after the searched aircraft is visible.
+- Uses strict normalized callsign matching and removes the unrelated-first-result fallback.
+- Fresh launches reset to the default 5 km view.
+- Successful flight searches focus to a 10 km view.
+- Retains 4-second automatic aircraft refresh and FOLLOW mode.
+- Passed VitaSDK compilation, VPK generation and package-integrity validation.
+
 ## v2.0 Slim
 
 Major search and live-flight-following update for the PS Vita Slim / PCH-2000.

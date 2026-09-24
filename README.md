@@ -8,11 +8,11 @@ VitaFlightRadar is a PS Vita homebrew application that uses Wi-Fi to download li
 
 ### PS Vita 2000 Slim — PCH-20xx
 
-**Current feature release: VitaFlightRadar v2.0 Slim**
+**Current feature release: VitaFlightRadar v2.1 Slim**
 
-### **[Download VitaFlightRadar v2.0 — PCH-2000 Slim](releases/VitaFlightRadar-v2.0-Slim.vpk)**
+### **[Download VitaFlightRadar v2.1 — PCH-2000 Slim](releases/VitaFlightRadar-v2.1-Slim.vpk)**
 
-V2.0 is the current main project build and is developed for the **PS Vita Slim / PCH-2000**. It adds the new Search Hub, live flight-number search and following, three saved recent coordinate searches, touch + button menu navigation, and permanent 4-second live aircraft refresh.
+V2.1 is the current PS Vita Slim / PCH-2000 build. It keeps the V2 Search Hub and FOLLOW mode while substantially reducing startup, satellite-map and flight-search waiting times. Fresh launches reset to the default zoom, flight searches use strict callsign matching, and found flights automatically open at a useful focused zoom.
 
 ### PS Vita 1000 FAT / OLED — PCH-10xx / PCH-11xx
 
@@ -23,6 +23,17 @@ V2.0 is the current main project build and is developed for the **PS Vita Slim /
 The FAT/OLED edition is currently frozen at v1.9.3 while feature development focuses exclusively on the PCH-2000 Slim. After the Slim feature set is complete and thoroughly tested, the finished application can be ported back to the PCH-1000 compatibility path.
 
 See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELOG.md) for the complete development history.
+
+## V2.1 performance update
+
+- Faster perceived startup: the interface appears before live aircraft and route requests finish.
+- Reuses network/DNS/TLS state between requests.
+- Shorter network timeouts so unavailable services fail quickly instead of freezing the app.
+- Satellite tiles prioritize the visible area and avoid long fallback-download chains.
+- Flight-number search shows the aircraft before optional route/timetable details finish.
+- Flight search requires an exact normalized callsign match.
+- Every fresh launch resets to the default 5 km view.
+- Found flights automatically focus to a 10 km view while keeping nearby traffic visible.
 
 ## Current feature set
 
@@ -51,8 +62,8 @@ See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELO
 | **UP / DOWN** | Navigate menus or cycle aircraft |
 | **X** | Confirm / Enter |
 | **Circle** | Cancel / Back |
-| **Square** | Unused in v2.0 |
-| **START** | Unused in v2.0 |
+| **Square** | Unused in v2.1 |
+| **START** | Unused in v2.1 |
 | **PS button** | Leave / suspend through the Vita system UI |
 
 There is intentionally no separate hardware zoom or aircraft-radius control. Map zoom and aircraft search radius work together through the touch screen.
@@ -65,7 +76,7 @@ The map wraps horizontally around the Earth. The public nearby-aircraft API stil
 
 ## Automatic refresh and flight following
 
-V2.0 no longer has AUTO/MANUAL modes. Live aircraft refresh is always enabled and runs approximately every **4 seconds**.
+V2.1 has no AUTO/MANUAL modes. Live aircraft refresh is always enabled and runs approximately every **4 seconds**.
 
 When a flight is found through flight-number search, VitaFlightRadar enters **FOLLOW mode**. Each live refresh updates the aircraft and recenters the map on its newest reported position while its signal remains available.
 
@@ -121,7 +132,7 @@ Flight route and timetable information is obtained separately because raw ADS-B 
 
 V2 feature development currently targets the **PCH-2000 Slim only**.
 
-- **PCH-2000 Slim:** v2.0 is the current feature release.
+- **PCH-2000 Slim:** v2.1 is the current feature release.
 - **PCH-1000 FAT/OLED:** v1.9.3-PCH1000 remains available as the existing compatibility build.
 
 The PCH-1000 version will be revisited after the Slim application reaches the final feature set, so the finished Slim software can be carried over as one complete port rather than maintaining two moving targets during active development.
