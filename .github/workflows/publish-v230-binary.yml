@@ -28,7 +28,7 @@ jobs:
           path: release_artifact
           github-token: ${{ github.token }}
           repository: ${{ github.repository }}
-          run-id: 36036350335
+          run-id: 36038301760
 
       - name: Publish VPK to main
         run: |
