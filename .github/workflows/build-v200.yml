@@ -123,8 +123,8 @@ jobs:
           grep -q 'FLIGHT NOT FOUND' VitaFlightRadar/src/main.c
           grep -q 'vfr_http_get_timeout' VitaFlightRadar/src/net.c
           grep -q 'VitaFlightRadar/2.1 (PS Vita Slim PCH-2000 homebrew)' VitaFlightRadar/src/net.c
-          grep -q '1200, 2600' VitaFlightRadar/src/map.c
-          grep -q '1200, 2800' VitaFlightRadar/src/route.c
+          grep -q '1200L, 2600L' VitaFlightRadar/src/map.c
+          grep -q '1200L, 2800L' VitaFlightRadar/src/route.c
 
       - name: Install firmware-independent TLS backend
         run: |
