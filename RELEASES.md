@@ -2,14 +2,20 @@
 
 ## PS Vita 2000 Slim — PCH-20xx
 
-**Current release: v2.2 Slim**
+**Current release: v2.3 Slim**
 
-### [Download VitaFlightRadar v2.2 Slim](releases/VitaFlightRadar-v2.2-Slim.vpk)
+### [Download VitaFlightRadar v2.3 Slim](releases/VitaFlightRadar-v2.3-Slim.vpk)
 
-V2.2 is the current main release for the **PS Vita Slim / PCH-2000**, focused on broader live-flight coverage, stronger route/time data and explicit user-controlled flight tracking.
+V2.3 is the current main release for the **PS Vita Slim / PCH-2000**, focused on resolving real commercial flight numbers correctly and restoring fast, non-blocking map/search interaction.
 
 Highlights:
 
+- Commercial flight-number resolver
+- Flightradar24 live-flight-ID fallback for cases where the radio callsign differs from the typed flight number
+- Background aircraft refresh and route/timetable enrichment
+- Immediate plane selection while details load asynchronously
+- Buffered Triangle/controller input
+- Shorter satellite tile blocking time
 - Multi-feed live aircraft coverage
 - More tolerant flight-number/callsign matching
 - Route + schedule fallback merging
@@ -46,7 +52,8 @@ Detailed notes are in [CHANGELOG.md](CHANGELOG.md).
 
 | Version | Status | Major milestone |
 | --- | --- | --- |
-| **v2.2 Slim** | **Current PCH-2000 release** | Multi-feed flight coverage, route/time fixes, explicit tracking button |
+| **v2.3 Slim** | **Current PCH-2000 release** | Commercial flight resolver, background data worker, responsive selection/Search Hub |
+| **v2.2 Slim** | Previous PCH-2000 release | Multi-feed flight coverage, route/time fixes, explicit tracking button |
 | **v2.1 Slim** | Previous PCH-2000 release | Performance update, exact flight matching, launch zoom reset, focused flight search |
 | **v2.0 Slim** | Previous PCH-2000 release | Search Hub, saved coordinate history, flight search, continuous follow, always-on 4-second refresh |
 | **v1.9.3-PCH1000** | PCH-1000 compatibility build | mbedTLS networking, cache-directory hardening, satellite fallback |
