@@ -77,8 +77,8 @@ See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELO
 | **UP / DOWN** | Navigate menus or cycle aircraft |
 | **X** | Confirm / Enter |
 | **Circle** | Cancel / Back |
-| **Square** | Unused in v2.1 |
-| **START** | Unused in v2.1 |
+| **Square** | Unused in v2.2 |
+| **START** | Unused in v2.2 |
 | **PS button** | Leave / suspend through the Vita system UI |
 
 There is intentionally no separate hardware zoom or aircraft-radius control. Map zoom and aircraft search radius work together through the touch screen.
