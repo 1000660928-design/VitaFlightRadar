@@ -1,13 +1,14 @@
-name: Build VitaFlightRadar v2.1 Slim
+name: Build VitaFlightRadar v2.2 Slim
 
 on:
   workflow_dispatch:
   push:
-    branches: ["v210-build"]
+    branches: ["v220-build"]
     paths:
       - ".github/workflows/build-v200.yml"
       - "patches/v200_patch.part*.b64"
       - "patches/v21diff.part*.b64"
+      - "patches/v22_patch.part*.b64"
 
 permissions:
   contents: write
@@ -126,6 +127,23 @@ jobs:
           grep -q '1200L, 2600L' VitaFlightRadar/src/map.c
           grep -q '1200L, 2800L' VitaFlightRadar/src/route.c
 
+      - name: Apply v2.2 route/live-tracking fixes
+        run: |
+          cat patches/v22_patch.part00.b64 patches/v22_patch.part01.b64 patches/v22_patch.part02.b64 patches/v22_patch.part03.b64 | base64 -d > v22.zip
+          echo "0b36f9392203729b7b2df611e814a25dbc05bfb135b1e3a3db151278942751ef  v22.zip" | sha256sum -c -
+          python3 - <<'PY'
+          import zipfile
+          z=zipfile.ZipFile('v22.zip')
+          assert z.testzip() is None
+          z.extractall('VitaFlightRadar/src')
+          print('v2.2 Slim route/search/tracking patch OK')
+          PY
+          grep -q 'TRACK FLIGHT' VitaFlightRadar/src/main.c
+          grep -q 'api.adsb.lol/v2/callsign' VitaFlightRadar/src/main.c
+          grep -q 'api.adsbdb.com/v0/aircraft' VitaFlightRadar/src/route.c
+          grep -q 'hexdb.io/api/v1/route/icao' VitaFlightRadar/src/route.c
+          grep -q 'VitaFlightRadar/2.2' VitaFlightRadar/src/net.c
+
       - name: Install firmware-independent TLS backend
         run: |
           vdpm pacman -- -Rdd --noconfirm curl
@@ -151,20 +169,20 @@ jobs:
           test -n "$JANSSON_LIB"
           cp "$JANSSON_LIB" VitaFlightRadar/libjansson_vita.a
 
-      - name: Upload reconstructed v2.1 Slim source
+      - name: Upload reconstructed v2.2 Slim source
         uses: actions/upload-artifact@v4
         with:
-          name: VitaFlightRadar-v2.1-Slim-source
+          name: VitaFlightRadar-v2.2-Slim-source
           path: VitaFlightRadar
           if-no-files-found: error
 
-      - name: Configure v2.1 Slim
+      - name: Configure v2.2 Slim
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('VitaFlightRadar/CMakeLists.txt')
           s=p.read_text()
-          s=s.replace('set(VITA_VERSION "01.00")','set(VITA_VERSION "02.10")')
+          s=s.replace('set(VITA_VERSION "01.00")','set(VITA_VERSION "02.20")')
           s=s.replace('find_package(OpenSSL REQUIRED)\n','')
           s=s.replace('    ${OPENSSL_INCLUDE_DIR}\n','')
           s=s.replace('    ${OPENSSL_LIBRARIES}\n','')
@@ -190,13 +208,13 @@ jobs:
               assert z.testzip() is None
               assert hashlib.sha256(z.read('sce_sys/icon0.png')).hexdigest()=='7918a7a0f1323bfa5f00b529578a5d0594ab49c54f357c3170508e650a50023d'
               assert 'default_location.txt' not in z.namelist()
-          print('v2.1 Slim VPK integrity OK')
+          print('v2.2 Slim VPK integrity OK')
           PY
 
       - name: Upload VPK
         uses: actions/upload-artifact@v4
         with:
-          name: VitaFlightRadar-v2.1-Slim-VPK
+          name: VitaFlightRadar-v2.2-Slim-VPK
           path: VitaFlightRadar/build/VitaFlightRadar.vpk
           if-no-files-found: error
 
