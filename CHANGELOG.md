@@ -2,6 +2,26 @@
 
 This file tracks the major public iterations of VitaFlightRadar.
 
+## v2.2 Slim
+
+Live-coverage, route-data and explicit tracking update for the PS Vita Slim / PCH-2000.
+
+- Merges nearby aircraft from adsb.fi and ADSB.lol every automatic refresh.
+- Flight search now tries multiple live ADS-B providers.
+- Callsign matching accepts equivalent leading-zero forms such as AIZ25 and AIZ025.
+- Adds direct tracked-flight recovery when a followed aircraft temporarily drops out of the nearby feed.
+- Route lookup now merges data instead of replacing good fields when another provider fails.
+- Uses the ADSBdb combined aircraft + callsign route endpoint where possible.
+- Adds HexDB route and airport fallback.
+- Retries schedule lookup with the IATA callsign learned from route data, improving ICAO/IATA mismatches such as AIZ25 / IZ25.
+- Retries incomplete route/schedule enrichment automatically.
+- Adds clearly labeled UTC live time estimates when route data exists but a public schedule is unavailable.
+- Adds an on-screen TRACK FLIGHT target button.
+- Tracking is explicitly user-controlled and can be toggled on/off from the selected-flight panel.
+- While tracking is on, the map follows the selected aircraft as new positions arrive.
+- Retains v2.1 startup, network, map-loading and zoom performance improvements.
+- Passed VitaSDK compilation, VPK generation and package-integrity validation.
+
 ## v2.1 Slim
 
 Performance, flight-search correctness and map-focus update for the PS Vita Slim / PCH-2000.
