@@ -1,0 +1,41 @@
+name: Publish V2.3 Slim VPK
+
+on:
+  push:
+    branches: ["v230-build"]
+    paths:
+      - ".github/workflows/publish-v230-binary.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download verified V2.3 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: VitaFlightRadar-v2.3-Slim-VPK
+          path: release_artifact
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 36036350335
+
+      - name: Publish VPK to main
+        run: |
+          mkdir -p releases
+          cp release_artifact/VitaFlightRadar.vpk releases/VitaFlightRadar-v2.3-Slim.vpk
+          git config user.name "VitaFlightRadar Build Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add releases/VitaFlightRadar-v2.3-Slim.vpk
+          git commit -m "Publish VitaFlightRadar v2.3 Slim VPK"
+          git push origin main
