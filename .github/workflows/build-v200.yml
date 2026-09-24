@@ -129,7 +129,7 @@ jobs:
 
       - name: Apply v2.2 route/live-tracking fixes
         run: |
-          cat patches/v22_patch.part00.b64 patches/v22_patch.part01.b64 patches/v22_patch.part02.b64 patches/v22_patch.part03.b64 | base64 -d > v22.zip
+          { head -c 8000 patches/v22_patch.part00.b64; cat patches/v22_patch.part01.b64 patches/v22_patch.part02.b64 patches/v22_patch.part03.b64; } | base64 -d > v22.zip
           echo "0b36f9392203729b7b2df611e814a25dbc05bfb135b1e3a3db151278942751ef  v22.zip" | sha256sum -c -
           python3 - <<'PY'
           import zipfile
