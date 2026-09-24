@@ -110,6 +110,7 @@ jobs:
 
       - name: Apply v2.1 performance and flight-search fixes
         run: |
+          sha256sum patches/v21diff000.part0.b64 patches/v21diff000.part1.b64 patches/v21diff.part01.b64 patches/v21diff.part02.b64 patches/v21diff.part03.b64
           cat patches/v21diff000.part0.b64 patches/v21diff000.part1.b64 patches/v21diff.part01.b64 patches/v21diff.part02.b64 patches/v21diff.part03.b64 | base64 -d > v21.diff.gz
           echo "14bd6a2464ac16d8572ca7dbf20edc974961e1e402a03f6519668e501eef7fd0  v21.diff.gz" | sha256sum -c -
           gzip -dc v21.diff.gz > v21.diff
