@@ -2,6 +2,24 @@
 
 This file tracks the major public iterations of VitaFlightRadar.
 
+## v2.3 Slim
+
+Commercial-flight resolution and UI responsiveness update for the PS Vita Slim / PCH-2000.
+
+- Reworked flight search so the passenger-facing commercial flight number is resolved before relying on the aircraft's ADS-B callsign.
+- Added Flightradar24 live search as a final resolver: commercial query -> live flight ID -> live aircraft position/callsign.
+- Added a selected-flight feed fallback if the richer live-detail endpoint is unavailable.
+- Retains adsb.fi, ADSB.lol and Airplanes.live as live ADS-B search/position fallbacks.
+- Improves handling of equivalent forms such as IZ25, AIZ25 and AIZ025.
+- Moved automatic aircraft refresh off the UI thread into a background data worker.
+- Moved selected-aircraft route/timetable enrichment off the UI thread.
+- Plane taps now update selection immediately while details populate asynchronously.
+- Added a second persistent HTTP handle for background network work.
+- Buffered controller samples so quick Triangle presses are less likely to be lost during short map requests.
+- Reduced satellite-tile blocking by attempting one tile host per frame with shorter request timeouts.
+- Keeps the explicit TRACK FLIGHT button and 4-second automatic aircraft refresh.
+- Passed VitaSDK compilation, VPK generation and package-integrity validation.
+
 ## v2.2 Slim
 
 Live-coverage, route-data and explicit tracking update for the PS Vita Slim / PCH-2000.
