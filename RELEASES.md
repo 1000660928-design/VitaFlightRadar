@@ -18,7 +18,7 @@ Highlights:
 - Tracked-aircraft recovery if a feed temporarily loses the plane
 - Faster startup and satellite loading
 - Faster flight search path
-- Strict exact callsign matching
+- Equivalent ICAO/IATA-style callsign variants and leading-zero matching
 - Fresh-launch default zoom reset
 - Automatic 10 km flight focus
 - Triangle Search Hub
