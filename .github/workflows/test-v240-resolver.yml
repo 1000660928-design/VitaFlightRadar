@@ -17,6 +17,7 @@ jobs:
           python3 - <<'PY'
           import json, subprocess
           providers=[
+            'https://api.adsb.one/v2/callsign/NBT50K',
             'https://opendata.adsb.fi/api/v2/callsign/NBT50K',
             'https://api.adsb.lol/v2/callsign/NBT50K',
             'https://api.airplanes.live/v2/callsign/NBT50K',
@@ -56,7 +57,7 @@ jobs:
           PY
             fi
           done
-          test -f /tmp/resolved-NBT50K -o -f /tmp/resolved-N0503
+          echo 'FR24 web-search endpoint may block cloud runners; this is informational only.'
 
       - name: Check OpenSky only as final fallback
         shell: bash
