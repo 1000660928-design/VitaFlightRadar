@@ -1,9 +1,9 @@
-name: Build VitaFlightRadar v2.3 Slim
+name: Build VitaFlightRadar v2.4 Slim
 
 on:
   workflow_dispatch:
   push:
-    branches: ["v230-build"]
+    branches: ["v240-build"]
     paths:
       - ".github/workflows/build-v200.yml"
       - "patches/v200_patch.part*.b64"
@@ -12,6 +12,7 @@ on:
       - "patches/v23diff.part*.b64"
       - "patches/v23fix.part*.b64"
       - "patches/v23opensky.b64"
+      - "patches/v24diff.part*.b64"
 
 permissions:
   contents: write
@@ -188,6 +189,22 @@ jobs:
           grep -q 'opensky-network.org/api/states/all' VitaFlightRadar/src/main.c
           grep -q 'SEARCHING GLOBAL BACKUP' VitaFlightRadar/src/main.c
 
+      - name: Apply v2.4 async search and zoom continuity patch
+        run: |
+          cat patches/v24diff.part*.b64 | base64 -d > v24.diff.gz
+          echo "527d9a60eafc5bd31314190cd8901d9ed558aa992c7abc1e4f3e83322529c998  v24.diff.gz" | sha256sum -c -
+          gzip -dc v24.diff.gz > v24.diff
+          echo "8d2d3aa598f108854cf7ae689c938bd14997c7bcbb062767becb3c90d0ca569b  v24.diff" | sha256sum -c -
+          cd VitaFlightRadar
+          patch -p1 < ../v24.diff
+          cd ..
+          grep -q 'WORKER_SEARCH' VitaFlightRadar/src/main.c
+          grep -q 'SEARCHING LIVE FLIGHT' VitaFlightRadar/src/main.c
+          grep -q 'try_opensky_global_variants' VitaFlightRadar/src/main.c
+          grep -q 'MAP PREVIEW Z' VitaFlightRadar/src/map.c
+          grep -q 'map->zoom + 6' VitaFlightRadar/src/map.c
+          grep -q 'VitaFlightRadar/2.4' VitaFlightRadar/src/net.c
+
       - name: Install firmware-independent TLS backend
         run: |
           vdpm pacman -- -Rdd --noconfirm curl
@@ -213,20 +230,20 @@ jobs:
           test -n "$JANSSON_LIB"
           cp "$JANSSON_LIB" VitaFlightRadar/libjansson_vita.a
 
-      - name: Upload reconstructed v2.3 Slim source
+      - name: Upload reconstructed v2.4 Slim source
         uses: actions/upload-artifact@v4
         with:
-          name: VitaFlightRadar-v2.3-Slim-source
+          name: VitaFlightRadar-v2.4-Slim-source
           path: VitaFlightRadar
           if-no-files-found: error
 
-      - name: Configure v2.3 Slim
+      - name: Configure v2.4 Slim
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('VitaFlightRadar/CMakeLists.txt')
           s=p.read_text()
-          s=s.replace('set(VITA_VERSION "01.00")','set(VITA_VERSION "02.30")')
+          s=s.replace('set(VITA_VERSION "01.00")','set(VITA_VERSION "02.40")')
           s=s.replace('find_package(OpenSSL REQUIRED)\n','')
           s=s.replace('    ${OPENSSL_INCLUDE_DIR}\n','')
           s=s.replace('    ${OPENSSL_LIBRARIES}\n','')
@@ -252,13 +269,13 @@ jobs:
               assert z.testzip() is None
               assert hashlib.sha256(z.read('sce_sys/icon0.png')).hexdigest()=='7918a7a0f1323bfa5f00b529578a5d0594ab49c54f357c3170508e650a50023d'
               assert 'default_location.txt' not in z.namelist()
-          print('v2.3 Slim VPK integrity OK')
+          print('v2.4 Slim VPK integrity OK')
           PY
 
       - name: Upload VPK
         uses: actions/upload-artifact@v4
         with:
-          name: VitaFlightRadar-v2.3-Slim-VPK
+          name: VitaFlightRadar-v2.4-Slim-VPK
           path: VitaFlightRadar/build/VitaFlightRadar.vpk
           if-no-files-found: error
 
