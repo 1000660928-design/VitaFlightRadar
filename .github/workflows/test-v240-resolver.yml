@@ -1,0 +1,54 @@
+name: Smoke Test V2.4 Generic Flight Resolver
+
+on:
+  push:
+    branches: ["v240-build"]
+    paths:
+      - ".github/workflows/test-v240-resolver.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify live radio callsign without special cases
+        shell: bash
+        run: |
+          set -e
+          curl -fsSL --connect-timeout 4 --max-time 15             'https://opensky-network.org/api/states/all' -o /tmp/states.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/states.json'))
+          wanted='NBT50K'
+          hits=[]
+          for row in d.get('states') or []:
+              if not isinstance(row,list) or len(row)<11: continue
+              cs=str(row[1] or '').strip().upper().replace(' ','')
+              if cs==wanted:
+                  hits.append({
+                    'hex':row[0], 'callsign':cs, 'lon':row[5], 'lat':row[6],
+                    'alt_m':row[7], 'speed_mps':row[9], 'heading':row[10]
+                  })
+          print('OpenSky NBT50K matches:',hits)
+          assert hits, 'NBT50K not currently visible in OpenSky snapshot'
+          PY
+
+      - name: Verify commercial number resolves through live search
+        shell: bash
+        run: |
+          set -e
+          for q in NBT50K N0503; do
+            echo "=== $q ==="
+            curl -fsSL --connect-timeout 4 --max-time 10               -A 'Mozilla/5.0'               "https://www.flightradar24.com/v1/search/web/find?query=$q&limit=20"               -o "/tmp/$q.json"
+            python3 - "$q" <<'PY'
+          import json,sys
+          q=sys.argv[1]
+          d=json.load(open('/tmp/'+q+'.json'))
+          rows=d.get('results') or []
+          live=[r for r in rows if 'live' in str(r.get('type','')).lower()]
+          print(q,'results',len(rows),'live',len(live))
+          for r in live[:5]:
+              print({'id':r.get('id'),'label':r.get('label'),'name':r.get('name'),'detail':r.get('detail')})
+          assert live, q+' produced no live result'
+          PY
+          done
