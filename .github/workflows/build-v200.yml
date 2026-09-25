@@ -14,6 +14,7 @@ on:
       - "patches/v23fix.part*.b64"
       - "patches/v23opensky.b64"
       - "patches/v24diff.part*.b64"
+      - "patches/v24bubble.b64"
 
 permissions:
   contents: write
@@ -205,6 +206,18 @@ jobs:
           grep -q 'MAP PREVIEW Z' VitaFlightRadar/src/map.c
           grep -q 'map->zoom + 6' VitaFlightRadar/src/map.c
           grep -q 'VitaFlightRadar/2.4' VitaFlightRadar/src/net.c
+
+      - name: Apply v2.4 local traffic bubble
+        run: |
+          base64 -d patches/v24bubble.b64 > v24bubble.diff.gz
+          echo "e9d6579cb98da670b91fc7d7f9f421e979fb41cb419f6c6fd8b482a1861472f6  v24bubble.diff.gz" | sha256sum -c -
+          gzip -dc v24bubble.diff.gz > v24bubble.diff
+          echo "8aea90b70cdee8c51ee615671b39c1608a83947adc4fc0536257eac75840ecd3  v24bubble.diff" | sha256sum -c -
+          cd VitaFlightRadar
+          patch -p1 < ../v24bubble.diff
+          cd ..
+          grep -q 'small local bubble' VitaFlightRadar/src/main.c
+          grep -q 'g_refresh_requested = 1' VitaFlightRadar/src/main.c
 
       - name: Install firmware-independent TLS backend
         run: |
