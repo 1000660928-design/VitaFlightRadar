@@ -8,11 +8,11 @@ VitaFlightRadar is a PS Vita homebrew application that uses Wi-Fi to download li
 
 ### PS Vita 2000 Slim — PCH-20xx
 
-**Current feature release: VitaFlightRadar v2.3 Slim**
+**Current feature release: VitaFlightRadar v2.4 Slim**
 
-### **[Download VitaFlightRadar v2.3 — PCH-2000 Slim](releases/VitaFlightRadar-v2.3-Slim.vpk)**
+### **[Download VitaFlightRadar v2.4 — PCH-2000 Slim](releases/VitaFlightRadar-v2.4-Slim.vpk)**
 
-V2.3 is the current PS Vita Slim / PCH-2000 build. It fixes commercial-flight-number resolution, adds a live OpenSky search fallback, and moves aircraft refresh plus route/timetable loading off the UI thread so map interaction and plane selection stay responsive.
+V2.4 is the current PS Vita Slim / PCH-2000 build. Flight search is fully non-blocking, uses multiple live-data fallbacks and generic identifier resolution, then switches to a focused local traffic bubble around the aircraft it finds. Zoom transitions keep cached/parent satellite imagery visible while the correct tiles load.
 
 ### PS Vita 1000 FAT / OLED — PCH-10xx / PCH-11xx
 
@@ -23,6 +23,17 @@ V2.3 is the current PS Vita Slim / PCH-2000 build. It fixes commercial-flight-nu
 The FAT/OLED edition is currently frozen at v1.9.3 while feature development focuses exclusively on the PCH-2000 Slim. After the Slim feature set is complete and thoroughly tested, the finished application can be ported back to the PCH-1000 compatibility path.
 
 See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELOG.md) for the complete development history.
+
+## V2.4 global search and map continuity update
+
+- Flight search runs entirely in the background, so the map and controls remain responsive while providers are checked.
+- Search is generic, not airline-specific: callsigns, commercial flight numbers, padded variants and resolved aircraft identities are tried through multiple sources where supported.
+- Global fallback data is downloaded at most once per search instead of repeatedly for every spelling variant.
+- After a global match, the map centers on the aircraft at the focused 10 km view and immediately requests only the nearby traffic bubble instead of attempting to render worldwide traffic.
+- Added ADSB One as an additional search-only fallback without slowing the normal 4-second nearby refresh.
+- When zooming out, cached sharper tiles remain on screen and a coarse preview tile is requested first, reducing blank-map transitions while the proper tiles arrive.
+- Keeps the asynchronous plane-selection, route/timetable loading and TRACK FLIGHT behavior from v2.3.
+- A live position still depends on at least one connected data source actually reporting the aircraft; the app does not invent missing positions.
 
 ## V2.3 flight-search and responsiveness update
 
@@ -89,8 +100,8 @@ See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELO
 | **UP / DOWN** | Navigate menus or cycle aircraft |
 | **X** | Confirm / Enter |
 | **Circle** | Cancel / Back |
-| **Square** | Unused in v2.3 |
-| **START** | Unused in v2.3 |
+| **Square** | Unused in v2.4 |
+| **START** | Unused in v2.4 |
 | **PS button** | Leave / suspend through the Vita system UI |
 
 There is intentionally no separate hardware zoom or aircraft-radius control. Map zoom and aircraft search radius work together through the touch screen.
@@ -103,7 +114,7 @@ The map wraps horizontally around the Earth. The public nearby-aircraft API stil
 
 ## Automatic refresh and flight following
 
-V2.3 has no AUTO/MANUAL modes. Live aircraft refresh is always enabled and runs approximately every **4 seconds**.
+V2.4 has no AUTO/MANUAL modes. Live aircraft refresh is always enabled and runs approximately every **4 seconds**.
 
 When a flight is found through flight-number search, VitaFlightRadar enters **FOLLOW mode**. Each live refresh updates the aircraft and recenters the map on its newest reported position while its signal remains available.
 
@@ -149,7 +160,7 @@ If an older build refuses to update cleanly, delete the old VitaFlightRadar bubb
 
 ## How it works
 
-The Vita itself is **not an ADS-B radio receiver**. VitaFlightRadar connects through Wi-Fi and requests live nearby aircraft data from the **adsb.fi** open-data API, then plots aircraft relative to the geographic map center currently being viewed.
+The Vita itself is **not an ADS-B radio receiver**. VitaFlightRadar connects through Wi-Fi and uses public live-aircraft data services. Normal radar updates request only aircraft near the map center; global flight search uses additional search fallbacks and then returns to a focused local area.
 
 Satellite imagery is rendered as cached 256x256 map tiles. The current renderer aggressively requests higher-detail imagery at close zoom levels to reduce software-side blur while keeping lower-detail tiles available as a fallback.
 
@@ -159,7 +170,7 @@ Flight route and timetable information is obtained separately because raw ADS-B 
 
 V2 feature development currently targets the **PCH-2000 Slim only**.
 
-- **PCH-2000 Slim:** v2.3 is the current feature release.
+- **PCH-2000 Slim:** v2.4 is the current feature release.
 - **PCH-1000 FAT/OLED:** v1.9.3-PCH1000 remains available as the existing compatibility build.
 
 The PCH-1000 version will be revisited after the Slim application reaches the final feature set, so the finished Slim software can be carried over as one complete port rather than maintaining two moving targets during active development.
@@ -195,7 +206,7 @@ VitaFlightRadar is written in C for **VitaSDK** and uses Vita2D for rendering. G
 
 The project includes Vita networking, HTTPS/TLS handling, map caching, static-library relocation/link fixes, Vita-safe icon/VPK packaging and LiveArea validation.
 
-Current feature development is maintained on the `v200-build` branch for the PCH-2000 Slim. The PCH-1000 compatibility branch is intentionally paused until the Slim feature set is complete.
+Current feature development is maintained on the `v240-build` branch for the PCH-2000 Slim. The PCH-1000 compatibility branch is intentionally paused until the Slim feature set is complete.
 
 ## Disclaimer
 
