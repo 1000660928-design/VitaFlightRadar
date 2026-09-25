@@ -1,4 +1,5 @@
 name: Build VitaFlightRadar v2.4 Slim
+# v2.4 trigger
 
 on:
   workflow_dispatch:
