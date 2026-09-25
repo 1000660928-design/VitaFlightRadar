@@ -15,6 +15,7 @@ on:
       - "patches/v23opensky.b64"
       - "patches/v24diff.part*.b64"
       - "patches/v24bubble.b64"
+      - "patches/v24adsbone.b64"
 
 permissions:
   contents: write
@@ -218,6 +219,17 @@ jobs:
           cd ..
           grep -q 'small local bubble' VitaFlightRadar/src/main.c
           grep -q 'g_refresh_requested = 1' VitaFlightRadar/src/main.c
+
+      - name: Apply v2.4 ADSB One search fallback
+        run: |
+          base64 -d patches/v24adsbone.b64 > v24adsbone.diff.gz
+          echo "d7ef43240d1bbf6df2efe2992a8b518f8f261e09fc446bca9dcb080b4d0f0f38  v24adsbone.diff.gz" | sha256sum -c -
+          gzip -dc v24adsbone.diff.gz > v24adsbone.diff
+          echo "4225328d8e65f00af16194e4fb6368b4ed88ef89d80515b7280f8700d65bd133  v24adsbone.diff" | sha256sum -c -
+          cd VitaFlightRadar
+          patch -p1 < ../v24adsbone.diff
+          cd ..
+          grep -q 'api.adsb.one/v2/callsign' VitaFlightRadar/src/main.c
 
       - name: Install firmware-independent TLS backend
         run: |
