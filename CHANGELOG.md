@@ -2,6 +2,23 @@
 
 This file tracks the major public iterations of VitaFlightRadar.
 
+## v2.4 Slim
+
+Generic global-flight search, non-blocking lookup and map-continuity update for the PS Vita Slim / PCH-2000.
+
+- Moved the entire live-flight lookup chain to the background worker so failed/slow global searches no longer freeze the map or controller input.
+- Uses generic identifier resolution rather than airline-specific fixes.
+- Supports direct radio callsign lookup, commercial-flight resolution, equivalent/padded forms and aircraft identity fallbacks where public sources expose them.
+- Adds ADSB One as an additional search-only provider alongside the existing public fallbacks.
+- OpenSky global state data is downloaded at most once per search and all candidate callsigns are checked against the same snapshot.
+- After a global match, the app centers on the aircraft at the focused 10 km view and immediately refreshes only nearby traffic around that point.
+- Keeps normal live radar refresh local and automatic at approximately four seconds.
+- Keeps existing cached satellite tiles visible through larger zoom changes.
+- Requests a lower-resolution preview tile first after zoom changes so the map can remain visually populated while sharper tiles arrive.
+- Keeps v2.3 asynchronous route/timetable enrichment, immediate plane selection, controller buffering and explicit TRACK FLIGHT control.
+- Does not synthesize a live aircraft position when none of the connected public sources report one.
+- Passed VitaSDK compilation, VPK generation and package-integrity validation.
+
 ## v2.3 Slim
 
 Commercial-flight resolution and UI responsiveness update for the PS Vita Slim / PCH-2000.
