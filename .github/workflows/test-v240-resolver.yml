@@ -59,6 +59,16 @@ jobs:
           done
           echo 'FR24 web-search endpoint may block cloud runners; this is informational only.'
 
+      - name: Probe AirNav anonymous flight lookup
+        shell: bash
+        run: |
+          set +e
+          for q in NBT50K N0503; do
+            echo "=== AirNav $q ==="
+            curl -sS --connect-timeout 4 --max-time 10               -H 'Content-Type: application/json'               -X POST 'https://api.airnavradar.com/flight-data-rt/scheduledFlights'               --data "{\"flightNumber\":\"$q\"}"               -w "\nHTTP:%{http_code}\n" | head -c 5000
+            echo
+          done
+
       - name: Check OpenSky only as final fallback
         shell: bash
         run: |
