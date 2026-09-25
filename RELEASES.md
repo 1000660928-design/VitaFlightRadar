@@ -2,14 +2,21 @@
 
 ## PS Vita 2000 Slim — PCH-20xx
 
-**Current release: v2.3 Slim**
+**Current release: v2.4 Slim**
 
-### [Download VitaFlightRadar v2.3 Slim](releases/VitaFlightRadar-v2.3-Slim.vpk)
+### [Download VitaFlightRadar v2.4 Slim](releases/VitaFlightRadar-v2.4-Slim.vpk)
 
-V2.3 is the current main release for the **PS Vita Slim / PCH-2000**, focused on resolving real commercial flight numbers correctly and restoring fast, non-blocking map/search interaction.
+V2.4 is the current main release for the **PS Vita Slim / PCH-2000**, focused on generic global flight resolution, non-blocking search, local traffic bubbles after a match, and smoother satellite-map zoom transitions.
 
 Highlights:
 
+- Fully background global flight search that does not freeze map controls
+- Generic callsign/commercial-number/variant resolution rather than airline-specific fixes
+- Multi-source search fallbacks including ADSB One
+- One global snapshot per search instead of repeated large downloads
+- Global find followed by a focused 10 km local traffic bubble
+- Cached satellite imagery retained while zoomed-out tiles load
+- Coarse preview imagery requested first during zoom transitions
 - Commercial flight-number resolver
 - Flightradar24 live-flight-ID fallback for cases where the radio callsign differs from the typed flight number
 - Background aircraft refresh and route/timetable enrichment
@@ -52,7 +59,8 @@ Detailed notes are in [CHANGELOG.md](CHANGELOG.md).
 
 | Version | Status | Major milestone |
 | --- | --- | --- |
-| **v2.3 Slim** | **Current PCH-2000 release** | Commercial flight resolver, background data worker, responsive selection/Search Hub |
+| **v2.4 Slim** | **Current PCH-2000 release** | Generic global search, local traffic bubble, non-blocking lookup, zoom continuity |
+| **v2.3 Slim** | Previous PCH-2000 release | Commercial flight resolver, background data worker, responsive selection/Search Hub |
 | **v2.2 Slim** | Previous PCH-2000 release | Multi-feed flight coverage, route/time fixes, explicit tracking button |
 | **v2.1 Slim** | Previous PCH-2000 release | Performance update, exact flight matching, launch zoom reset, focused flight search |
 | **v2.0 Slim** | Previous PCH-2000 release | Search Hub, saved coordinate history, flight search, continuous follow, always-on 4-second refresh |
