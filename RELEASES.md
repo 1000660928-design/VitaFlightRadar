@@ -2,48 +2,30 @@
 
 ## PS Vita 2000 Slim — PCH-20xx
 
-**Current release: v2.4 Slim**
+**Current stable release: v2.0 Slim**
 
-### [Download VitaFlightRadar v2.4 Slim](releases/VitaFlightRadar-v2.4-Slim.vpk)
+### [Download VitaFlightRadar v2.0 Slim](releases/VitaFlightRadar-v2.0-Slim.vpk)
 
-V2.4 is the current main release for the **PS Vita Slim / PCH-2000**, focused on generic global flight resolution, non-blocking search, local traffic bubbles after a match, and smoother satellite-map zoom transitions.
+V2.0 is the current stable public release for the **PS Vita Slim / PCH-2000**. It is the last build confirmed through real Vita testing to provide the stable, responsive baseline we want. V2.1–V2.4 have been withdrawn from public download while the next release is rebuilt and tested.
 
 Highlights:
 
-- Fully background global flight search that does not freeze map controls
-- Generic callsign/commercial-number/variant resolution rather than airline-specific fixes
-- Multi-source search fallbacks including ADSB One
-- One global snapshot per search instead of repeated large downloads
-- Global find followed by a focused 10 km local traffic bubble
-- Cached satellite imagery retained while zoomed-out tiles load
-- Coarse preview imagery requested first during zoom transitions
-- Commercial flight-number resolver
-- Flightradar24 live-flight-ID fallback for cases where the radio callsign differs from the typed flight number
-- Background aircraft refresh and route/timetable enrichment
-- Immediate plane selection while details load asynchronously
-- Buffered Triangle/controller input
-- Shorter satellite tile blocking time
-- Multi-feed live aircraft coverage
-- More tolerant flight-number/callsign matching
-- Route + schedule fallback merging
-- HexDB route fallback
-- Explicit on-screen TRACK FLIGHT toggle
-- Tracked-aircraft recovery if a feed temporarily loses the plane
-- Faster startup and satellite loading
-- Faster flight search path
-- Equivalent ICAO/IATA-style callsign variants and leading-zero matching
-- Fresh-launch default zoom reset
-- Automatic 10 km flight focus
 - Triangle Search Hub
-- Coordinate search plus three recent saved coordinate searches
+- Coordinate search with three recent saved coordinate searches
 - Live flight-number/callsign search
 - Automatic jump to a searched aircraft
-- Continuous FOLLOW mode
-- Touchscreen or D-pad + X menu control
+- FOLLOW mode
 - Permanent 4-second aircraft refresh
+- Touchscreen or D-pad + X menu control
+- Satellite map, panning, pinch zoom and aircraft selection
+- Route/timetable information when public data is available
 - Square and START intentionally unused
-- Existing satellite map, pan, pinch zoom, aircraft selection, route data, filtering and tile caching retained
 - Passed VitaSDK compilation and VPK integrity validation
+- Confirmed as the current real-hardware stable baseline
+
+### Development builds
+
+V2.1, V2.2, V2.3 and V2.4 are retained in project history for development/reference only. Their public VPK downloads have been withdrawn because real Vita testing exposed regressions. A later version will become public only after it is tested and ready.
 
 ## PS Vita 1000 FAT / OLED — PCH-10xx / PCH-11xx
 
@@ -59,11 +41,11 @@ Detailed notes are in [CHANGELOG.md](CHANGELOG.md).
 
 | Version | Status | Major milestone |
 | --- | --- | --- |
-| **v2.4 Slim** | **Current PCH-2000 release** | Generic global search, local traffic bubble, non-blocking lookup, zoom continuity |
-| **v2.3 Slim** | Previous PCH-2000 release | Commercial flight resolver, background data worker, responsive selection/Search Hub |
-| **v2.2 Slim** | Previous PCH-2000 release | Multi-feed flight coverage, route/time fixes, explicit tracking button |
-| **v2.1 Slim** | Previous PCH-2000 release | Performance update, exact flight matching, launch zoom reset, focused flight search |
-| **v2.0 Slim** | Previous PCH-2000 release | Search Hub, saved coordinate history, flight search, continuous follow, always-on 4-second refresh |
+| **v2.4 Slim** | Development / withdrawn | Experimental global search and map-continuity work |
+| **v2.3 Slim** | Development / withdrawn | Experimental commercial resolver and background-worker work |
+| **v2.2 Slim** | Development / withdrawn | Experimental multi-feed, route/time and tracking work |
+| **v2.1 Slim** | Development / withdrawn | Experimental performance and search changes |
+| **v2.0 Slim** | **Current stable PCH-2000 release** | Search Hub, saved coordinate history, flight search, continuous follow, always-on 4-second refresh |
 | **v1.9.3-PCH1000** | PCH-1000 compatibility build | mbedTLS networking, cache-directory hardening, satellite fallback |
 | **v1.9.2** | Previous PCH-2000 release | Higher-detail satellite zoom and larger texture cache |
 | **v1.9.1** | Historical | Stable map hotfix |
