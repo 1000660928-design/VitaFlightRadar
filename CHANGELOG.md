@@ -2,6 +2,10 @@
 
 This file tracks the major public iterations of VitaFlightRadar.
 
+## Public release status
+
+**V2.0 Slim is the current recommended public PCH-2000 release.** V2.1 through V2.4 are preserved below as development history, but their public VPK downloads have been withdrawn after real-hardware testing exposed regressions. A newer build will replace V2.0 only after it is tested and considered ready.
+
 ## v2.4 Slim
 
 Generic global-flight search, non-blocking lookup and map-continuity update for the PS Vita Slim / PCH-2000.
