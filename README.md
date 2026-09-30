@@ -8,11 +8,11 @@ VitaFlightRadar is a PS Vita homebrew application that uses Wi-Fi to download li
 
 ### PS Vita 2000 Slim — PCH-20xx
 
-**Current feature release: VitaFlightRadar v2.4 Slim**
+**Current stable release: VitaFlightRadar v2.0 Slim**
 
-### **[Download VitaFlightRadar v2.4 — PCH-2000 Slim](releases/VitaFlightRadar-v2.4-Slim.vpk)**
+### **[Download VitaFlightRadar v2.0 — PCH-2000 Slim](releases/VitaFlightRadar-v2.0-Slim.vpk)**
 
-V2.4 is the current PS Vita Slim / PCH-2000 build. Flight search is fully non-blocking, uses multiple live-data fallbacks and generic identifier resolution, then switches to a focused local traffic bubble around the aircraft it finds. Zoom transitions keep cached/parent satellite imagery visible while the correct tiles load.
+V2.0 is the current public PS Vita Slim / PCH-2000 release. It is the last version confirmed through real Vita testing to have the stable, responsive map interaction we want. Later V2.1–V2.4 builds are development/testing versions and are not offered as public downloads while the next stable release is being rebuilt and tested.
 
 ### PS Vita 1000 FAT / OLED — PCH-10xx / PCH-11xx
 
@@ -24,55 +24,13 @@ The FAT/OLED edition is currently frozen at v1.9.3 while feature development foc
 
 See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELOG.md) for the complete development history.
 
-## V2.4 global search and map continuity update
+## Development status
 
-- Flight search runs entirely in the background, so the map and controls remain responsive while providers are checked.
-- Search is generic, not airline-specific: callsigns, commercial flight numbers, padded variants and resolved aircraft identities are tried through multiple sources where supported.
-- Global fallback data is downloaded at most once per search instead of repeatedly for every spelling variant.
-- After a global match, the map centers on the aircraft at the focused 10 km view and immediately requests only the nearby traffic bubble instead of attempting to render worldwide traffic.
-- Added ADSB One as an additional search-only fallback without slowing the normal 4-second nearby refresh.
-- When zooming out, cached sharper tiles remain on screen and a coarse preview tile is requested first, reducing blank-map transitions while the proper tiles arrive.
-- Keeps the asynchronous plane-selection, route/timetable loading and TRACK FLIGHT behavior from v2.3.
-- A live position still depends on at least one connected data source actually reporting the aircraft; the app does not invent missing positions.
+V2.1 through V2.4 were experimental development builds created after V2.0 while testing faster loading, broader flight search, route/timetable recovery and flight tracking. Real Vita testing exposed regressions in those builds, so they have been withdrawn from the public download page.
 
-## V2.3 flight-search and responsiveness update
+Development will continue from the proven V2.0 baseline. A newer version will replace V2.0 here only after it is tested on real hardware and considered ready for normal users.
 
-- Commercial flight search now understands passenger-facing IATA numbers and ICAO radio callsigns as the same flight where possible, including forms such as `IZ25`, `AIZ25` and zero-padded variants.
-- Adds a commercial live-flight resolver for cases where the aircraft broadcasts a callsign different from the number typed by the passenger.
-- Adds OpenSky as a global search-only fallback after the smaller direct callsign APIs.
-- Keeps adsb.fi, ADSB.lol and Airplanes.live as live aircraft search sources.
-- Aircraft refresh and route/timetable enrichment run on a background data worker instead of blocking the map controls.
-- Tapping a plane changes selection immediately; route/timetable information fills in afterward.
-- Controller input is buffered so a quick Triangle press is not lost during a short satellite-tile request.
-- Satellite tile requests use a much shorter blocking window.
-- The explicit **TRACK FLIGHT** button remains user-controlled.
-
-## V2.2 live coverage, route data and tracking
-
-- Live radar data is merged from adsb.fi and ADSB.lol instead of relying on one feed.
-- Flight search tries multiple live providers and equivalent callsign forms, including leading-zero variants.
-- Tracked flights receive a direct callsign recovery attempt if they temporarily disappear from the nearby feed.
-- Route information is merged from multiple public aviation sources instead of being erased when one source fails.
-- Schedule lookup retries using the IATA flight number learned from route data.
-- HexDB is available as an additional route fallback.
-- Incomplete route/schedule enrichment retries automatically.
-- Added an on-screen **TRACK FLIGHT** target button.
-- Tap the button once to follow the selected aircraft and again to stop.
-- While tracking is on, the map recenters on the aircraft as fresh positions arrive.
-- If a public scheduled time is unavailable but a route is known, clearly labeled UTC live estimates can fill the time panel instead of leaving every field blank.
-
-## V2.1 performance update
-
-- Faster perceived startup: the interface appears before live aircraft and route requests finish.
-- Reuses network/DNS/TLS state between requests.
-- Shorter network timeouts so unavailable services fail quickly instead of freezing the app.
-- Satellite tiles prioritize the visible area and avoid long fallback-download chains.
-- Flight-number search shows the aircraft before optional route/timetable details finish.
-- Flight search requires an exact normalized callsign match.
-- Every fresh launch resets to the default 5 km view.
-- Found flights automatically focus to a 10 km view while keeping nearby traffic visible.
-
-## Current feature set
+## Current stable feature set
 
 - Live nearby aircraft positions over satellite imagery.
 - One-finger map panning, touch-and-hold recentering and two-finger pinch zoom.
@@ -80,13 +38,12 @@ See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELO
 - **Triangle Search Hub** with coordinate search and flight-number search.
 - Search menus work with the **front touchscreen** or **D-pad + X**.
 - Coordinate search remembers the **three most recent coordinates** across launches.
-- Flight-number/callsign search accepts entries such as `ELY5230`, tries equivalent callsign formats across multiple live feeds, finds the aircraft and moves the map to it.
-- **TRACK FLIGHT button** explicitly turns map following on or off for the selected aircraft.
-- **FOLLOW mode** keeps the map centered on the tracked aircraft as new live positions arrive.
+- Flight-number/callsign search accepts normalized entries such as `ELY5230`, jumps to a live aircraft when found and begins FOLLOW mode.
+- **FOLLOW mode** keeps the map centered on the searched aircraft as new live positions arrive.
 - Aircraft data refresh is **always automatic every 4 seconds**.
-- Selected-flight information includes altitude, speed, heading, distance and route/timetable data when public data is available.
+- Selected-flight information includes aircraft metrics plus route/timetable data when public data is available.
 - Known helicopters, rotorcraft, drones, balloons, gliders and other known non-airplane ADS-B categories are filtered out.
-- Persistent satellite tile caching and high-resolution satellite sharpening at close zoom levels.
+- Persistent satellite tile caching and the existing satellite-map renderer.
 
 ## Controls
 
@@ -100,8 +57,8 @@ See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELO
 | **UP / DOWN** | Navigate menus or cycle aircraft |
 | **X** | Confirm / Enter |
 | **Circle** | Cancel / Back |
-| **Square** | Unused in v2.4 |
-| **START** | Unused in v2.4 |
+| **Square** | Unused in v2.0 |
+| **START** | Unused in v2.0 |
 | **PS button** | Leave / suspend through the Vita system UI |
 
 There is intentionally no separate hardware zoom or aircraft-radius control. Map zoom and aircraft search radius work together through the touch screen.
@@ -114,7 +71,7 @@ The map wraps horizontally around the Earth. The public nearby-aircraft API stil
 
 ## Automatic refresh and flight following
 
-V2.4 has no AUTO/MANUAL modes. Live aircraft refresh is always enabled and runs approximately every **4 seconds**.
+V2.0 has no AUTO/MANUAL modes. Live aircraft refresh is always enabled and runs approximately every **4 seconds**.
 
 When a flight is found through flight-number search, VitaFlightRadar enters **FOLLOW mode**. Each live refresh updates the aircraft and recenters the map on its newest reported position while its signal remains available.
 
@@ -140,7 +97,7 @@ Choose **Search Flight Number** and enter a live callsign/flight number such as:
 ELY5230
 ```
 
-Spaces and letter case are normalized automatically. If the flight can be resolved on one of the connected live networks, the map jumps to the aircraft and selects it. Use the on-screen **TRACK FLIGHT** button when you want the map to follow it continuously.
+Spaces and letter case are normalized automatically. If the flight is found in the live aircraft feed, the map jumps to the aircraft, selects it and enters FOLLOW mode.
 
 Both search menus can be controlled with the **front touchscreen** or **D-pad + X**. Use **Circle** to go back.
 
@@ -160,7 +117,7 @@ If an older build refuses to update cleanly, delete the old VitaFlightRadar bubb
 
 ## How it works
 
-The Vita itself is **not an ADS-B radio receiver**. VitaFlightRadar connects through Wi-Fi and uses public live-aircraft data services. Normal radar updates request only aircraft near the map center; global flight search uses additional search fallbacks and then returns to a focused local area.
+The Vita itself is **not an ADS-B radio receiver**. VitaFlightRadar connects through Wi-Fi and requests live aircraft data from public ADS-B services, then plots aircraft relative to the geographic map center being viewed.
 
 Satellite imagery is rendered as cached 256x256 map tiles. The current renderer aggressively requests higher-detail imagery at close zoom levels to reduce software-side blur while keeping lower-detail tiles available as a fallback.
 
@@ -170,7 +127,7 @@ Flight route and timetable information is obtained separately because raw ADS-B 
 
 V2 feature development currently targets the **PCH-2000 Slim only**.
 
-- **PCH-2000 Slim:** v2.4 is the current feature release.
+- **PCH-2000 Slim:** v2.0 is the current stable public release.
 - **PCH-1000 FAT/OLED:** v1.9.3-PCH1000 remains available as the existing compatibility build.
 
 The PCH-1000 version will be revisited after the Slim application reaches the final feature set, so the finished Slim software can be carried over as one complete port rather than maintaining two moving targets during active development.
@@ -206,7 +163,7 @@ VitaFlightRadar is written in C for **VitaSDK** and uses Vita2D for rendering. G
 
 The project includes Vita networking, HTTPS/TLS handling, map caching, static-library relocation/link fixes, Vita-safe icon/VPK packaging and LiveArea validation.
 
-Current feature development is maintained on the `v240-build` branch for the PCH-2000 Slim. The PCH-1000 compatibility branch is intentionally paused until the Slim feature set is complete.
+Current experimental development remains separate from the public stable release. V2.0 stays recommended until a newer real-hardware-tested build is ready. The PCH-1000 compatibility branch is intentionally paused until the Slim feature set is complete.
 
 ## Disclaimer
 
