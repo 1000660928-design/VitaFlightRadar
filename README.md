@@ -133,7 +133,7 @@ If V2.0 works correctly on your Vita, use it. If it does not, install V1.9.3 and
 
 ## Version history
 
-See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELOG.md) for detailed notes from the original proof of concept through the current model-specific builds.
+See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELOG.md) for detailed notes from the original proof of concept through the current builds.
 
 Historical development/build branches remain in the repository.
 
