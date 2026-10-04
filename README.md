@@ -1,141 +1,180 @@
 # VitaFlightRadar ✈️
 
-**Live aircraft tracking on a PlayStation Vita.**
+**Live aircraft tracking on PlayStation Vita.**
 
-VitaFlightRadar is a PS Vita homebrew application that uses Wi-Fi to download live ADS-B aircraft data and plot nearby airplanes over satellite imagery. The project started as a circular radar experiment and evolved into a touch-controlled satellite flight map with panning, pinch zoom, coordinate search, aircraft selection and route information.
+VitaFlightRadar is a homebrew flight-tracking application for PS Vita. It uses Wi-Fi to retrieve live aircraft data and displays flights over an interactive satellite map with touch controls, search, route information and live tracking.
 
-## Download
+> [!NOTE]
+> **PCH-1000 FAT/OLED and PCH-2000 Slim use the same VitaFlightRadar application.** The downloads below are different software versions, not model-exclusive builds.
 
-**Current stable release: VitaFlightRadar v2.0**
+## 📥 Downloads
 
-### **[Download VitaFlightRadar v2.0](releases/VitaFlightRadar-v2.0-Slim.vpk)**
+| Version | Status | Recommended use |
+| --- | --- | --- |
+| **V2.5** | 🟢 **Latest / Recommended** | Start here. This is the newest real-hardware-tested public release. |
+| **V2.0** | 🛟 **Stable fallback** | Use this if V2.5 causes problems on your Vita. |
+| **V1.9.3** | 🧰 **Compatibility fallback** | Try this if newer versions still have compatibility trouble. |
 
-V2.0 is the current recommended public build and the last version confirmed through real Vita testing to have the stable, responsive behavior we want.
+### 🟢 [Download VitaFlightRadar V2.5](releases/VitaFlightRadar-v2.5.vpk)
 
-### **[Download VitaFlightRadar v1.9.3 compatibility build](releases/VitaFlightRadar-v1.9.3-PCH1000.vpk)**
+### 🛟 [Download VitaFlightRadar V2.0](releases/VitaFlightRadar-v2.0.vpk)
+
+### 🧰 [Download VitaFlightRadar V1.9.3 Compatibility Build](releases/VitaFlightRadar-v1.9.3-Compatibility.vpk)
 
 > [!IMPORTANT]
-> **Both V2.0 and V1.9.3 can be used on PS Vita PCH-1000 FAT/OLED and PCH-2000 Slim systems.**
+> **Install V2.5 first.** If V2.5 does not behave correctly on your Vita, use **V2.0**. If you still have compatibility problems, try **V1.9.3**.
 >
-> **Start with V2.0. If V2.0 gives you problems on your Vita, especially on a PCH-1000 FAT/OLED system, try the V1.9.3 compatibility build.** V1.9.3 is kept available specifically as the safer fallback for systems that have trouble with the newer build.
+> V2.0 remains public intentionally so users always have a proven older version to return to.
 
-The two downloads are not separate "Slim-only" and "FAT-only" applications. They are different software versions of VitaFlightRadar. V1.9.3 contains compatibility-focused networking and map changes and remains available for users who need them.
+## ✨ V2.5 highlights
 
-See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELOG.md) for the complete development history.
+- **Remembers your last map position and zoom** between launches.
+- **TRACK FLIGHT** button for explicitly following a selected aircraft.
+- Tracking stays locked while zooming instead of dropping the selected aircraft.
+- A temporary missed aircraft refresh keeps the **last known tracked position** visible while retrying.
+- Previously valid route/timetable information is protected from temporary failed refreshes.
+- The compass now shows the selected aircraft's **real heading**.
+- More resilient flight search using multiple public live-data paths and equivalent identifier forms.
+- After a global flight match, the app focuses on that aircraft and loads a **small nearby traffic area** instead of trying to render worldwide traffic.
+- Slow search/network work is kept away from the main interaction path wherever possible.
+- Improved satellite-map loading, cache behavior, color consistency and zoom continuity.
+- Larger in-memory map tile cache and sharper center-tile priority.
+- Live aircraft refresh remains approximately every **4 seconds**.
 
-## Current stable feature set
+## 🗺️ Main features
 
-- Live nearby aircraft positions over satellite imagery.
-- One-finger map panning, touch-and-hold recentering and two-finger pinch zoom.
-- Tap aircraft to select them, or use UP / DOWN to cycle through aircraft.
-- **Triangle Search Hub** with coordinate search and flight-number search.
-- Search menus work with the **front touchscreen** or **D-pad + X**.
-- Coordinate search remembers the **three most recent coordinates** across launches.
-- Flight-number/callsign search accepts normalized entries such as `ELY5230`, jumps to a live aircraft when found and begins FOLLOW mode.
-- **FOLLOW mode** keeps the map centered on the searched aircraft as new live positions arrive.
-- Aircraft data refresh is **always automatic every 4 seconds**.
-- Selected-flight information includes aircraft metrics plus route/timetable data when public data is available.
-- Known helicopters, rotorcraft, drones, balloons, gliders and other known non-airplane ADS-B categories are filtered out.
-- Persistent satellite tile caching and the existing satellite-map renderer.
+- Live aircraft over satellite imagery.
+- One-finger map panning.
+- Two-finger pinch zoom.
+- Touch-and-hold recentering.
+- Tap an aircraft to select it.
+- UP / DOWN aircraft cycling.
+- **Triangle Search Hub**.
+- Coordinate search with the **three most recent searches saved**.
+- Flight-number / callsign search.
+- Live flight tracking.
+- Altitude, speed, heading and distance.
+- Origin, destination and timetable data when public data is available.
+- Automatic filtering of known helicopters, drones, balloons, gliders and other non-airplane ADS-B categories.
+- Persistent satellite tile caching.
+- Last-view persistence across app restarts.
 
-## Controls
+## 🎮 Controls
 
 | Control | Action |
 | --- | --- |
-| **One-finger drag** | Pan the satellite map; release to track aircraft around the new center |
-| **Stationary touch-and-hold** | Recenter directly on the point under your finger |
-| **Two-finger pinch** | Zoom the map and automatically change the live aircraft search radius |
-| **Tap aircraft** | Select aircraft and leave flight-follow mode |
-| **Triangle** | Open the Search Hub |
+| **One-finger drag** | Pan the map |
+| **Stationary touch-and-hold** | Recenter on that point |
+| **Two-finger pinch** | Zoom in / out |
+| **Tap aircraft** | Select aircraft |
+| **TRACK FLIGHT button** | Start / stop following the selected aircraft |
+| **Triangle** | Open Search Hub |
 | **UP / DOWN** | Navigate menus or cycle aircraft |
 | **X** | Confirm / Enter |
 | **Circle** | Cancel / Back |
-| **Square** | Unused in v2.0 |
-| **START** | Unused in v2.0 |
-| **PS button** | Leave / suspend through the Vita system UI |
+| **PS button** | Suspend / leave through the Vita system UI |
 
-There is intentionally no separate hardware zoom or aircraft-radius control. Map zoom and aircraft search radius work together through the touch screen.
-
-## Moving around the map
-
-Drag with one finger to move the map. When the drag ends, the center of the visible map becomes the new aircraft tracking point. Hold one finger still to recenter directly on that geographic point. Pinch with two fingers to zoom in or out.
-
-The map wraps horizontally around the Earth. The public nearby-aircraft API still has a finite point/radius search limit, so a very zoomed-out view does not mean the app can request every aircraft on Earth simultaneously.
-
-## Automatic refresh and flight following
-
-V2.0 has no AUTO/MANUAL modes. Live aircraft refresh is always enabled and runs approximately every **4 seconds**.
-
-When a flight is found through flight-number search, VitaFlightRadar enters **FOLLOW mode**. Each live refresh updates the aircraft and recenters the map on its newest reported position while its signal remains available.
-
-## Search Hub
+## 🔎 Search
 
 Press **Triangle** to open the Search Hub.
 
 ### Coordinate search
 
-Choose **Enter Coordinates** and type decimal coordinates such as:
+Enter decimal coordinates such as:
 
 ```text
 40.7128,-74.0060
 ```
 
-The app jumps to that location and saves it in the recent-search list. The latest **three** coordinate searches appear in the coordinate menu and can be selected without typing them again.
+The app jumps to the selected location and remembers your three most recent coordinate searches.
 
-### Flight-number search
+### Flight search
 
-Choose **Search Flight Number** and enter a live callsign/flight number such as:
+Enter a live callsign or flight number, for example:
 
 ```text
 ELY5230
+AIZ994
+NBT50K
 ```
 
-Spaces and letter case are normalized automatically. If the flight is found in the live aircraft feed, the map jumps to the aircraft, selects it and enters FOLLOW mode.
+Spaces and letter case are normalized. VitaFlightRadar tries the available public live-flight sources and moves the map to the aircraft when a live match is found.
 
-Both search menus can be controlled with the **front touchscreen** or **D-pad + X**. Use **Circle** to go back.
+> [!WARNING]
+> No public flight-tracking source guarantees coverage of every aircraft at every moment. A flight may exist on a commercial tracker while temporarily being absent from the public sources available to VitaFlightRadar.
 
-## Installing on a PS Vita
+## 🧭 Tracking
 
-You need a homebrew-enabled PS Vita with **VitaShell** installed.
+When **TRACK FLIGHT** is enabled:
 
-1. Start with the V2.0 VPK. If it gives your system compatibility problems, try the V1.9.3 compatibility build.
-2. Open **VitaShell** on the Vita.
-3. Connect the Vita to your PC using VitaShell **USB** or **FTP** mode.
-4. Copy the VPK to a convenient folder such as `ux0:/data/`.
-5. In VitaShell, navigate to the VPK.
-6. Press **X** on the file and choose **Install**.
-7. Return to the Vita home screen and launch **VitaFlightRadar**.
+- The selected aircraft remains the tracking target.
+- The map follows its newest reported position.
+- You can zoom while tracking.
+- Temporary missed refreshes keep the last known target visible while the app retries.
+- Existing route/timetable information stays visible instead of immediately changing to unavailable.
+- The compass displays the aircraft's heading.
 
-If an older build refuses to update cleanly, delete the old VitaFlightRadar bubble and install the chosen VPK fresh.
+## 📡 How it works
 
-## How it works
+The PS Vita is **not an ADS-B receiver**. VitaFlightRadar connects over Wi-Fi to public aircraft-data services and renders the aircraft positions they provide.
 
-The Vita itself is **not an ADS-B radio receiver**. VitaFlightRadar connects through Wi-Fi and requests live aircraft data from public ADS-B services, then plots aircraft relative to the geographic map center being viewed.
+Satellite imagery is downloaded as map tiles and cached locally. First-time loading in a new area may take longer than revisiting a cached area.
 
-Satellite imagery is rendered as cached 256x256 map tiles. The current renderer aggressively requests higher-detail imagery at close zoom levels to reduce software-side blur while keeping lower-detail tiles available as a fallback.
+Route and timetable information comes from separate public aviation sources. Those sources can be incomplete or temporarily unavailable, so some flights may show partial information even when their live position is visible.
 
-Flight route and timetable information is obtained separately because raw ADS-B position data does not reliably contain origin, destination or airline schedule fields. Public aviation data is incomplete, so private or unusual flights can still have missing route/timetable information.
+## 🎮 Compatibility
 
-## Compatibility
+VitaFlightRadar is intended for both:
 
-VitaFlightRadar uses one application codebase for PS Vita PCH-1000 FAT/OLED and PCH-2000 Slim systems.
+- **PS Vita PCH-1000 FAT/OLED**
+- **PS Vita PCH-2000 Slim**
 
-- **V2.0:** current recommended stable public build for both PCH-1000 and PCH-2000.
-- **V1.9.3:** compatibility fallback for both models, especially useful if V2.0 has trouble on a PCH-1000 FAT/OLED system.
+There is no requirement to use a separate application solely because of your Vita model.
 
-If V2.0 works correctly on your Vita, use it. If it does not, install V1.9.3 and report the issue so it can be investigated in the next release.
+### Which version should I use?
 
-## Version history
+1. **V2.5** - recommended for everyone.
+2. **V2.0** - stable fallback if V2.5 has issues.
+3. **V1.9.3** - compatibility fallback if newer versions still do not behave correctly.
 
-See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELOG.md) for detailed notes from the original proof of concept through the current builds.
+## 🛠️ Installation
 
-Historical development/build branches remain in the repository.
+You need a homebrew-enabled PS Vita with **VitaShell**.
 
-## Credits
+1. Download the VPK you want to use.
+2. Transfer it to the Vita using VitaShell USB or FTP.
+3. Navigate to the VPK in VitaShell.
+4. Press **X** and install it.
+5. Return to LiveArea and launch VitaFlightRadar.
+
+If an update behaves strangely, remove the old VitaFlightRadar bubble and perform a clean installation.
+
+## 🆘 Troubleshooting
+
+**V2.5 does not work correctly**  
+Try V2.0. If the issue remains, try V1.9.3 and report what happened.
+
+**A flight cannot be found**  
+Try the callsign or commercial flight number shown by your flight-tracking source. Live availability still depends on at least one accessible public source reporting the aircraft.
+
+**Route / departure / arrival is unavailable**  
+Position data and route/schedule data come from different sources. A plane can be visible while its public route or timetable data is missing.
+
+**The map takes time to sharpen**  
+New satellite tiles must be downloaded over Wi-Fi. Already-cached areas should load faster on later visits.
+
+## 📋 Release policy
+
+Only builds considered ready for normal users are promoted on this page. New releases are added after build validation and real-hardware testing.
+
+See [RELEASES.md](RELEASES.md) for the download summary and [CHANGELOG.md](CHANGELOG.md) for public release notes.
+
+## 🙌 Credits
 
 ### Creator
 
-**George Ultra**  
+**George Ultra**
+
 Created by George Ultra with help from **ChatGPT / OpenAI** for software development, debugging, VitaSDK integration, UI iteration, research and build automation.
 
 ### Technical / Emotional Support
@@ -143,23 +182,18 @@ Created by George Ultra with help from **ChatGPT / OpenAI** for software develop
 - **Ventiz**
 - **YahliKap**
 
-## Feedback, ideas and contact
+## 💬 Feedback and bug reports
 
-Contact **George Ultra** on Reddit for ideas, feedback, reviews or bug reports:  
+Contact **George Ultra** on Reddit:
+
 https://www.reddit.com/user/Diligent_Peace_1618/
 
-Real PS Vita hardware testing and community reports are a major part of the development process.
+When reporting a bug, please include the Vita model, VitaFlightRadar version, searched flight/callsign and what happened.
 
-## Development
+## ⚠️ Disclaimer
 
-VitaFlightRadar is written in C for **VitaSDK** and uses Vita2D for rendering. GitHub Actions builds and validates the installable VPKs.
+VitaFlightRadar is an unofficial hobby/homebrew project and is not affiliated with Sony, FlightRadar24, adsb.fi, OpenSky, ADSB.lol, ADSB One, Esri, airlines, airports or aircraft manufacturers.
 
-The project includes Vita networking, HTTPS/TLS handling, map caching, static-library relocation/link fixes, Vita-safe icon/VPK packaging and LiveArea validation.
+Live aircraft positions, routes, times and satellite imagery may be delayed, incomplete, unavailable or inaccurate.
 
-Only tested public releases are documented on this page. V2.0 remains the recommended release until a newer version is ready for public use.
-
-## Disclaimer
-
-VitaFlightRadar is an unofficial hobby/homebrew project and is not affiliated with Sony, FlightRadar24, adsb.fi, Esri, OpenStreetMap, airlines, airports or aircraft manufacturers.
-
-Do not use this application for navigation, air-traffic control, safety-critical decisions or operational aviation purposes.
+**Do not use VitaFlightRadar for navigation, air-traffic control, flight safety or any other safety-critical aviation purpose.**
