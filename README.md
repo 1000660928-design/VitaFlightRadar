@@ -23,12 +23,6 @@ The two downloads are not separate "Slim-only" and "FAT-only" applications. They
 
 See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELOG.md) for the complete development history.
 
-## Development status
-
-V2.1 through V2.4 were experimental development builds created after V2.0 while testing faster loading, broader flight search, route/timetable recovery and flight tracking. Real Vita testing exposed regressions in those builds, so they have been withdrawn from the public download page.
-
-Experimental development currently continues on the V2.4 line. V2.0 remains the public stable release until a newer build is tested on real hardware and considered ready for normal users.
-
 ## Current stable feature set
 
 - Live nearby aircraft positions over satellite imagery.
@@ -162,7 +156,7 @@ VitaFlightRadar is written in C for **VitaSDK** and uses Vita2D for rendering. G
 
 The project includes Vita networking, HTTPS/TLS handling, map caching, static-library relocation/link fixes, Vita-safe icon/VPK packaging and LiveArea validation.
 
-Current experimental development remains separate from the public stable release. V2.4 is the active development line, while V2.0 stays recommended until a newer real-hardware-tested build is ready. Future public builds are intended to support both PCH-1000 and PCH-2000 from the same release.
+Only tested public releases are documented on this page. V2.0 remains the recommended release until a newer version is ready for public use.
 
 ## Disclaimer
 
