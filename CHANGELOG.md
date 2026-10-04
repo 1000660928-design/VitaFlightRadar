@@ -4,78 +4,7 @@ This file tracks the major public iterations of VitaFlightRadar.
 
 ## Public release status
 
-**V2.0 is the current recommended public release for both PCH-1000 FAT/OLED and PCH-2000 Slim systems.** V1.9.3 remains available as a compatibility fallback if V2.0 does not work correctly on a particular Vita, especially on PCH-1000 hardware. V2.1 through V2.4 are preserved below as development history, with V2.4 as the active development line. A newer build will replace V2.0 only after real-hardware testing confirms it is ready.
-
-## v2.4
-
-Generic global-flight search, non-blocking lookup and map-continuity development update for PS Vita.
-
-- Moved the entire live-flight lookup chain to the background worker so failed/slow global searches no longer freeze the map or controller input.
-- Uses generic identifier resolution rather than airline-specific fixes.
-- Supports direct radio callsign lookup, commercial-flight resolution, equivalent/padded forms and aircraft identity fallbacks where public sources expose them.
-- Adds ADSB One as an additional search-only provider alongside the existing public fallbacks.
-- OpenSky global state data is downloaded at most once per search and all candidate callsigns are checked against the same snapshot.
-- After a global match, the app centers on the aircraft at the focused 10 km view and immediately refreshes only nearby traffic around that point.
-- Keeps normal live radar refresh local and automatic at approximately four seconds.
-- Keeps existing cached satellite tiles visible through larger zoom changes.
-- Requests a lower-resolution preview tile first after zoom changes so the map can remain visually populated while sharper tiles arrive.
-- Keeps v2.3 asynchronous route/timetable enrichment, immediate plane selection, controller buffering and explicit TRACK FLIGHT control.
-- Does not synthesize a live aircraft position when none of the connected public sources report one.
-- Passed VitaSDK compilation, VPK generation and package-integrity validation.
-
-## v2.3
-
-Commercial-flight resolution and UI responsiveness development update for PS Vita.
-
-- Reworked flight search so the passenger-facing commercial flight number is resolved before relying on the aircraft's ADS-B callsign.
-- Added Flightradar24 live search as a final resolver: commercial query -> live flight ID -> live aircraft position/callsign.
-- Added a selected-flight feed fallback if the richer live-detail endpoint is unavailable.
-- Retains adsb.fi, ADSB.lol and Airplanes.live as live ADS-B search/position fallbacks.
-- Improves handling of equivalent forms such as IZ25, AIZ25 and AIZ025.
-- Moved automatic aircraft refresh off the UI thread into a background data worker.
-- Moved selected-aircraft route/timetable enrichment off the UI thread.
-- Plane taps now update selection immediately while details populate asynchronously.
-- Added a second persistent HTTP handle for background network work.
-- Buffered controller samples so quick Triangle presses are less likely to be lost during short map requests.
-- Reduced satellite-tile blocking by attempting one tile host per frame with shorter request timeouts.
-- Keeps the explicit TRACK FLIGHT button and 4-second automatic aircraft refresh.
-- Passed VitaSDK compilation, VPK generation and package-integrity validation.
-
-## v2.2
-
-Live-coverage, route-data and explicit tracking development update for PS Vita.
-
-- Merges nearby aircraft from adsb.fi and ADSB.lol every automatic refresh.
-- Flight search now tries multiple live ADS-B providers.
-- Callsign matching accepts equivalent leading-zero forms such as AIZ25 and AIZ025.
-- Adds direct tracked-flight recovery when a followed aircraft temporarily drops out of the nearby feed.
-- Route lookup now merges data instead of replacing good fields when another provider fails.
-- Uses the ADSBdb combined aircraft + callsign route endpoint where possible.
-- Adds HexDB route and airport fallback.
-- Retries schedule lookup with the IATA callsign learned from route data, improving ICAO/IATA mismatches such as AIZ25 / IZ25.
-- Retries incomplete route/schedule enrichment automatically.
-- Adds clearly labeled UTC live time estimates when route data exists but a public schedule is unavailable.
-- Adds an on-screen TRACK FLIGHT target button.
-- Tracking is explicitly user-controlled and can be toggled on/off from the selected-flight panel.
-- While tracking is on, the map follows the selected aircraft as new positions arrive.
-- Retains v2.1 startup, network, map-loading and zoom performance improvements.
-- Passed VitaSDK compilation, VPK generation and package-integrity validation.
-
-## v2.1
-
-Performance, flight-search correctness and map-focus development update for PS Vita.
-
-- Shows the UI before live aircraft and route network work, reducing startup waiting.
-- Loads the Vita search keyboard only when a search is opened.
-- Reuses the libcurl connection/DNS/TLS state between requests.
-- Uses shorter aircraft, map and route network timeouts.
-- Prioritizes visible satellite tiles and removes long multi-level fallback download chains.
-- Defers route/timetable lookup until after the searched aircraft is visible.
-- Uses strict normalized callsign matching and removes the unrelated-first-result fallback.
-- Fresh launches reset to the default 5 km view.
-- Successful flight searches focus to a 10 km view.
-- Retains 4-second automatic aircraft refresh and FOLLOW mode.
-- Passed VitaSDK compilation, VPK generation and package-integrity validation.
+**V2.0 is the current recommended public release for both PCH-1000 FAT/OLED and PCH-2000 Slim systems.** V1.9.3 remains available as a compatibility fallback if V2.0 does not work correctly on a particular Vita, especially on PCH-1000 hardware.
 
 ## v2.0
 
