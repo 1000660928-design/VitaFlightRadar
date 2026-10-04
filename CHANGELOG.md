@@ -4,7 +4,7 @@ This file tracks the major public iterations of VitaFlightRadar.
 
 ## Public release status
 
-**V2.0 Slim is the current recommended public PCH-2000 release.** V2.1 through V2.4 are preserved below as development history, but their public VPK downloads have been withdrawn after real-hardware testing exposed regressions. A newer build will replace V2.0 only after it is tested and considered ready.
+**V2.0 is the current recommended public release for both PCH-1000 FAT/OLED and PCH-2000 Slim systems.** V1.9.3 remains available as a compatibility fallback if V2.0 does not work correctly on a particular Vita, especially on PCH-1000 hardware. V2.1 through V2.4 are preserved below as development history, with V2.4 as the active development line. A newer build will replace V2.0 only after real-hardware testing confirms it is ready.
 
 ## v2.4 Slim
 
@@ -79,9 +79,9 @@ Performance, flight-search correctness and map-focus update for the PS Vita Slim
 
 ## v2.0 Slim
 
-Major search and live-flight-following update for the PS Vita Slim / PCH-2000.
+Major search and live-flight-following update. The VPK is intended to run on both PCH-1000 FAT/OLED and PCH-2000 Slim systems.
 
-- V2 development now targets the PCH-2000 Slim exclusively; the PCH-1000 compatibility edition is paused at v1.9.3 until the Slim feature set is complete.
+- V2.0 became the main feature build. Later community feedback clarified that VitaFlightRadar does not need separate model-specific application builds; both PCH-1000 and PCH-2000 users can try the same VPK.
 - Triangle now opens a Search Hub instead of jumping directly to coordinate entry.
 - Added **Enter Coordinates** and **Search Flight Number** choices.
 - Search menus support front-touch selection and D-pad UP/DOWN + X.
@@ -96,9 +96,9 @@ Major search and live-flight-following update for the PS Vita Slim / PCH-2000.
 
 ## v1.9.3-PCH1000
 
-Dedicated PS Vita 1000 FAT/OLED compatibility build based on the v1.9.2 feature set.
+Compatibility-focused build based on the v1.9.2 feature set. It remains available for either Vita model and is especially useful as a fallback when V2.0 has trouble on PCH-1000 FAT/OLED hardware.
 
-- Created a separate public PCH-1000 release instead of modifying the proven PCH-2000 Slim package.
+- Originally published as a PCH-1000-focused compatibility package; it can also be installed on PCH-2000 systems.
 - Replaced the compatibility build's HTTPS path with VitaSDK libcurl using an mbedTLS backend and explicit TLS 1.2 behavior.
 - Avoids depending on firmware-native HTTPS behavior for satellite/network requests.
 - Explicitly creates the application and map-cache directory hierarchy before cache use.
