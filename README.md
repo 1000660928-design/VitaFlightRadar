@@ -6,21 +6,20 @@ VitaFlightRadar is a PS Vita homebrew application that uses Wi-Fi to download li
 
 ## Download
 
-### PS Vita 2000 Slim — PCH-20xx
+**Current stable release: VitaFlightRadar v2.0**
 
-**Current stable release: VitaFlightRadar v2.0 Slim**
+### **[Download VitaFlightRadar v2.0](releases/VitaFlightRadar-v2.0-Slim.vpk)**
 
-### **[Download VitaFlightRadar v2.0 — PCH-2000 Slim](releases/VitaFlightRadar-v2.0-Slim.vpk)**
+V2.0 is the current recommended public build and the last version confirmed through real Vita testing to have the stable, responsive behavior we want.
 
-V2.0 is the current public PS Vita Slim / PCH-2000 release. It is the last version confirmed through real Vita testing to have the stable, responsive map interaction we want. Later V2.1–V2.4 builds are development/testing versions and are not offered as public downloads while the next stable release is being rebuilt and tested.
+### **[Download VitaFlightRadar v1.9.3 compatibility build](releases/VitaFlightRadar-v1.9.3-PCH1000.vpk)**
 
-### PS Vita 1000 FAT / OLED — PCH-10xx / PCH-11xx
+> [!IMPORTANT]
+> **Both V2.0 and V1.9.3 can be used on PS Vita PCH-1000 FAT/OLED and PCH-2000 Slim systems.**
+>
+> **Start with V2.0. If V2.0 gives you problems on your Vita, especially on a PCH-1000 FAT/OLED system, try the V1.9.3 compatibility build.** V1.9.3 is kept available specifically as the safer fallback for systems that have trouble with the newer build.
 
-**Legacy compatibility build: v1.9.3-PCH1000**
-
-### **[Download VitaFlightRadar v1.9.3 — PCH-1000 FAT/OLED](releases/VitaFlightRadar-v1.9.3-PCH1000.vpk)**
-
-The FAT/OLED edition is currently frozen at v1.9.3 while feature development focuses exclusively on the PCH-2000 Slim. After the Slim feature set is complete and thoroughly tested, the finished application can be ported back to the PCH-1000 compatibility path.
+The two downloads are not separate "Slim-only" and "FAT-only" applications. They are different software versions of VitaFlightRadar. V1.9.3 contains compatibility-focused networking and map changes and remains available for users who need them.
 
 See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELOG.md) for the complete development history.
 
@@ -28,7 +27,7 @@ See [RELEASES.md](RELEASES.md) for the release index and [CHANGELOG.md](CHANGELO
 
 V2.1 through V2.4 were experimental development builds created after V2.0 while testing faster loading, broader flight search, route/timetable recovery and flight tracking. Real Vita testing exposed regressions in those builds, so they have been withdrawn from the public download page.
 
-Development will continue from the proven V2.0 baseline. A newer version will replace V2.0 here only after it is tested on real hardware and considered ready for normal users.
+Experimental development currently continues on the V2.4 line. V2.0 remains the public stable release until a newer build is tested on real hardware and considered ready for normal users.
 
 ## Current stable feature set
 
@@ -105,7 +104,7 @@ Both search menus can be controlled with the **front touchscreen** or **D-pad + 
 
 You need a homebrew-enabled PS Vita with **VitaShell** installed.
 
-1. Download the VPK for your Vita model from the model selector above.
+1. Start with the V2.0 VPK. If it gives your system compatibility problems, try the V1.9.3 compatibility build.
 2. Open **VitaShell** on the Vita.
 3. Connect the Vita to your PC using VitaShell **USB** or **FTP** mode.
 4. Copy the VPK to a convenient folder such as `ux0:/data/`.
@@ -113,7 +112,7 @@ You need a homebrew-enabled PS Vita with **VitaShell** installed.
 6. Press **X** on the file and choose **Install**.
 7. Return to the Vita home screen and launch **VitaFlightRadar**.
 
-If an older build refuses to update cleanly, delete the old VitaFlightRadar bubble and install the correct model-specific VPK fresh.
+If an older build refuses to update cleanly, delete the old VitaFlightRadar bubble and install the chosen VPK fresh.
 
 ## How it works
 
@@ -123,14 +122,14 @@ Satellite imagery is rendered as cached 256x256 map tiles. The current renderer 
 
 Flight route and timetable information is obtained separately because raw ADS-B position data does not reliably contain origin, destination or airline schedule fields. Public aviation data is incomplete, so private or unusual flights can still have missing route/timetable information.
 
-## Model-specific builds
+## Compatibility
 
-V2 feature development currently targets the **PCH-2000 Slim only**.
+VitaFlightRadar uses one application codebase for PS Vita PCH-1000 FAT/OLED and PCH-2000 Slim systems.
 
-- **PCH-2000 Slim:** v2.0 is the current stable public release.
-- **PCH-1000 FAT/OLED:** v1.9.3-PCH1000 remains available as the existing compatibility build.
+- **V2.0:** current recommended stable public build for both PCH-1000 and PCH-2000.
+- **V1.9.3:** compatibility fallback for both models, especially useful if V2.0 has trouble on a PCH-1000 FAT/OLED system.
 
-The PCH-1000 version will be revisited after the Slim application reaches the final feature set, so the finished Slim software can be carried over as one complete port rather than maintaining two moving targets during active development.
+If V2.0 works correctly on your Vita, use it. If it does not, install V1.9.3 and report the issue so it can be investigated in the next release.
 
 ## Version history
 
@@ -163,7 +162,7 @@ VitaFlightRadar is written in C for **VitaSDK** and uses Vita2D for rendering. G
 
 The project includes Vita networking, HTTPS/TLS handling, map caching, static-library relocation/link fixes, Vita-safe icon/VPK packaging and LiveArea validation.
 
-Current experimental development remains separate from the public stable release. V2.0 stays recommended until a newer real-hardware-tested build is ready. The PCH-1000 compatibility branch is intentionally paused until the Slim feature set is complete.
+Current experimental development remains separate from the public stable release. V2.4 is the active development line, while V2.0 stays recommended until a newer real-hardware-tested build is ready. Future public builds are intended to support both PCH-1000 and PCH-2000 from the same release.
 
 ## Disclaimer
 
