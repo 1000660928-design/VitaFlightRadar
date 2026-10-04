@@ -1,14 +1,25 @@
 # VitaFlightRadar Releases
 
-## PS Vita 2000 Slim — PCH-20xx
+## Current stable release
 
-**Current stable release: v2.0 Slim**
+**VitaFlightRadar v2.0**
 
-### [Download VitaFlightRadar v2.0 Slim](releases/VitaFlightRadar-v2.0-Slim.vpk)
+### [Download VitaFlightRadar v2.0](releases/VitaFlightRadar-v2.0-Slim.vpk)
 
-V2.0 is the current stable public release for the **PS Vita Slim / PCH-2000**. It is the last build confirmed through real Vita testing to provide the stable, responsive baseline we want. V2.1–V2.4 have been withdrawn from public download while the next release is rebuilt and tested.
+V2.0 is the current recommended stable public build for **both PS Vita PCH-1000 FAT/OLED and PCH-2000 Slim systems**.
 
-Highlights:
+### Compatibility fallback
+
+### [Download VitaFlightRadar v1.9.3 compatibility build](releases/VitaFlightRadar-v1.9.3-PCH1000.vpk)
+
+> [!IMPORTANT]
+> **Both downloads can be used on either Vita model.**
+>
+> **Try V2.0 first. If V2.0 does not work correctly on your system, especially on a PCH-1000 FAT/OLED Vita, try V1.9.3.** The V1.9.3 build is kept available as a compatibility fallback.
+
+V1.9.3 includes compatibility-focused networking and map changes. It is not a different application for a different Vita model.
+
+Highlights of V2.0:
 
 - Triangle Search Hub
 - Coordinate search with three recent saved coordinate searches
@@ -25,15 +36,7 @@ Highlights:
 
 ### Development builds
 
-V2.1, V2.2, V2.3 and V2.4 are retained in project history for development/reference only. Their public VPK downloads have been withdrawn because real Vita testing exposed regressions. A later version will become public only after it is tested and ready.
-
-## PS Vita 1000 FAT / OLED — PCH-10xx / PCH-11xx
-
-**Current compatibility build: v1.9.3-PCH1000**
-
-### [Download VitaFlightRadar v1.9.3 PCH-1000](releases/VitaFlightRadar-v1.9.3-PCH1000.vpk)
-
-The PCH-1000 edition is currently paused while V2 development focuses on the Slim. The plan is to port the completed Slim feature set back to the PCH-1000 after the Slim application reaches its final form.
+V2.1, V2.2, V2.3 and V2.4 are retained in project history for development/reference only. Their public VPK downloads remain withdrawn because real Vita testing exposed regressions. **V2.4 is the active development line.** A newer version will become the public download only after real-hardware testing confirms it is ready.
 
 ## Historical versions
 
@@ -45,8 +48,8 @@ Detailed notes are in [CHANGELOG.md](CHANGELOG.md).
 | **v2.3 Slim** | Development / withdrawn | Experimental commercial resolver and background-worker work |
 | **v2.2 Slim** | Development / withdrawn | Experimental multi-feed, route/time and tracking work |
 | **v2.1 Slim** | Development / withdrawn | Experimental performance and search changes |
-| **v2.0 Slim** | **Current stable PCH-2000 release** | Search Hub, saved coordinate history, flight search, continuous follow, always-on 4-second refresh |
-| **v1.9.3-PCH1000** | PCH-1000 compatibility build | mbedTLS networking, cache-directory hardening, satellite fallback |
+| **v2.0** | **Current stable release** | Recommended for PCH-1000 and PCH-2000; Search Hub, saved coordinate history, flight search, continuous follow, always-on 4-second refresh |
+| **v1.9.3** | Compatibility fallback | Available for PCH-1000 and PCH-2000; mbedTLS networking, cache-directory hardening, satellite fallback |
 | **v1.9.2** | Previous PCH-2000 release | Higher-detail satellite zoom and larger texture cache |
 | **v1.9.1** | Historical | Stable map hotfix |
 | **v1.9** | Historical / Known map regression | Experimental async performance engine |
