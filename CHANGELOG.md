@@ -6,9 +6,9 @@ This file tracks the major public iterations of VitaFlightRadar.
 
 **V2.0 is the current recommended public release for both PCH-1000 FAT/OLED and PCH-2000 Slim systems.** V1.9.3 remains available as a compatibility fallback if V2.0 does not work correctly on a particular Vita, especially on PCH-1000 hardware. V2.1 through V2.4 are preserved below as development history, with V2.4 as the active development line. A newer build will replace V2.0 only after real-hardware testing confirms it is ready.
 
-## v2.4 Slim
+## v2.4
 
-Generic global-flight search, non-blocking lookup and map-continuity update for the PS Vita Slim / PCH-2000.
+Generic global-flight search, non-blocking lookup and map-continuity development update for PS Vita.
 
 - Moved the entire live-flight lookup chain to the background worker so failed/slow global searches no longer freeze the map or controller input.
 - Uses generic identifier resolution rather than airline-specific fixes.
@@ -23,9 +23,9 @@ Generic global-flight search, non-blocking lookup and map-continuity update for 
 - Does not synthesize a live aircraft position when none of the connected public sources report one.
 - Passed VitaSDK compilation, VPK generation and package-integrity validation.
 
-## v2.3 Slim
+## v2.3
 
-Commercial-flight resolution and UI responsiveness update for the PS Vita Slim / PCH-2000.
+Commercial-flight resolution and UI responsiveness development update for PS Vita.
 
 - Reworked flight search so the passenger-facing commercial flight number is resolved before relying on the aircraft's ADS-B callsign.
 - Added Flightradar24 live search as a final resolver: commercial query -> live flight ID -> live aircraft position/callsign.
@@ -41,9 +41,9 @@ Commercial-flight resolution and UI responsiveness update for the PS Vita Slim /
 - Keeps the explicit TRACK FLIGHT button and 4-second automatic aircraft refresh.
 - Passed VitaSDK compilation, VPK generation and package-integrity validation.
 
-## v2.2 Slim
+## v2.2
 
-Live-coverage, route-data and explicit tracking update for the PS Vita Slim / PCH-2000.
+Live-coverage, route-data and explicit tracking development update for PS Vita.
 
 - Merges nearby aircraft from adsb.fi and ADSB.lol every automatic refresh.
 - Flight search now tries multiple live ADS-B providers.
@@ -61,9 +61,9 @@ Live-coverage, route-data and explicit tracking update for the PS Vita Slim / PC
 - Retains v2.1 startup, network, map-loading and zoom performance improvements.
 - Passed VitaSDK compilation, VPK generation and package-integrity validation.
 
-## v2.1 Slim
+## v2.1
 
-Performance, flight-search correctness and map-focus update for the PS Vita Slim / PCH-2000.
+Performance, flight-search correctness and map-focus development update for PS Vita.
 
 - Shows the UI before live aircraft and route network work, reducing startup waiting.
 - Loads the Vita search keyboard only when a search is opened.
@@ -77,7 +77,7 @@ Performance, flight-search correctness and map-focus update for the PS Vita Slim
 - Retains 4-second automatic aircraft refresh and FOLLOW mode.
 - Passed VitaSDK compilation, VPK generation and package-integrity validation.
 
-## v2.0 Slim
+## v2.0
 
 Major search and live-flight-following update. The VPK is intended to run on both PCH-1000 FAT/OLED and PCH-2000 Slim systems.
 
