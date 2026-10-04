@@ -1,39 +1,49 @@
-# VitaFlightRadar Releases
+# VitaFlightRadar Releases ✈️
 
-## Current stable release
+## 🟢 Current recommended release: V2.5
 
-**VitaFlightRadar v2.0**
+### [Download VitaFlightRadar V2.5](releases/VitaFlightRadar-v2.5.vpk)
 
-### [Download VitaFlightRadar v2.0](releases/VitaFlightRadar-v2.0-Slim.vpk)
+**V2.5 is the current recommended public version** for both PS Vita PCH-1000 FAT/OLED and PCH-2000 Slim systems.
 
-V2.0 is the current recommended stable public build for **both PS Vita PCH-1000 FAT/OLED and PCH-2000 Slim systems**.
+It has passed VitaSDK compilation, VPK integrity validation and real-hardware testing.
 
-### Compatibility fallback
+**SHA-256**
 
-### [Download VitaFlightRadar v1.9.3 compatibility build](releases/VitaFlightRadar-v1.9.3-PCH1000.vpk)
+```text
+57e4b8a4239c7601017868b5fb961885fc1cb8abbe1e14916329d5279b24bf7b
+```
+
+### V2.5 highlights
+
+- Persistent last map location and zoom.
+- Dedicated TRACK FLIGHT control.
+- Tracking remains locked while zooming.
+- Last-known tracked aircraft stays visible during temporary feed loss.
+- Route/timetable information is protected from temporary failed refreshes.
+- Aircraft-heading compass.
+- More resilient multi-source flight search.
+- Global flight lookup followed by a focused local traffic area.
+- Improved map caching, loading continuity and satellite-image consistency.
+- Automatic approximately 4-second aircraft refresh.
+
+## 🛟 Stable fallback: V2.0
+
+### [Download VitaFlightRadar V2.0](releases/VitaFlightRadar-v2.0.vpk)
+
+V2.0 remains available as a **proven stable fallback**.
+
+Use V2.0 if V2.5 produces unexpected behavior on your Vita. Keeping this version public is intentional so users always have a known older build to return to.
+
+## 🧰 Compatibility fallback: V1.9.3
+
+### [Download VitaFlightRadar V1.9.3 Compatibility Build](releases/VitaFlightRadar-v1.9.3-Compatibility.vpk)
+
+V1.9.3 contains compatibility-focused networking and map changes. It can be installed on either Vita model and remains useful if newer versions have trouble on a particular setup.
 
 > [!IMPORTANT]
-> **Both downloads can be used on either Vita model.**
->
-> **Try V2.0 first. If V2.0 does not work correctly on your system, especially on a PCH-1000 FAT/OLED Vita, try V1.9.3.** The V1.9.3 build is kept available as a compatibility fallback.
+> These are **software-version choices**, not separate Slim-only and FAT-only applications. Start with V2.5 regardless of Vita model.
 
-V1.9.3 includes compatibility-focused networking and map changes. It is not a different application for a different Vita model.
+## 📋 Public release policy
 
-Highlights of V2.0:
-
-- Triangle Search Hub
-- Coordinate search with three recent saved coordinate searches
-- Live flight-number/callsign search
-- Automatic jump to a searched aircraft
-- FOLLOW mode
-- Permanent 4-second aircraft refresh
-- Touchscreen or D-pad + X menu control
-- Satellite map, panning, pinch zoom and aircraft selection
-- Route/timetable information when public data is available
-- Square and START intentionally unused
-- Passed VitaSDK compilation and VPK integrity validation
-- Confirmed as the current real-hardware stable baseline
-
-## Public release policy
-
-Only builds currently offered for download are listed on this page. New versions are added here only after real-hardware testing confirms they are ready for public use.
+Only versions intentionally offered to normal users are listed on this page. New builds are promoted after build validation and real-hardware testing.
