@@ -44,13 +44,13 @@ Detailed notes are in [CHANGELOG.md](CHANGELOG.md).
 
 | Version | Status | Major milestone |
 | --- | --- | --- |
-| **v2.4 Slim** | Development / withdrawn | Experimental global search and map-continuity work |
-| **v2.3 Slim** | Development / withdrawn | Experimental commercial resolver and background-worker work |
-| **v2.2 Slim** | Development / withdrawn | Experimental multi-feed, route/time and tracking work |
-| **v2.1 Slim** | Development / withdrawn | Experimental performance and search changes |
+| **v2.4** | Development / withdrawn | Experimental global search and map-continuity work |
+| **v2.3** | Development / withdrawn | Experimental commercial resolver and background-worker work |
+| **v2.2** | Development / withdrawn | Experimental multi-feed, route/time and tracking work |
+| **v2.1** | Development / withdrawn | Experimental performance and search changes |
 | **v2.0** | **Current stable release** | Recommended for PCH-1000 and PCH-2000; Search Hub, saved coordinate history, flight search, continuous follow, always-on 4-second refresh |
 | **v1.9.3** | Compatibility fallback | Available for PCH-1000 and PCH-2000; mbedTLS networking, cache-directory hardening, satellite fallback |
-| **v1.9.2** | Previous PCH-2000 release | Higher-detail satellite zoom and larger texture cache |
+| **v1.9.2** | Previous release | Higher-detail satellite zoom and larger texture cache |
 | **v1.9.1** | Historical | Stable map hotfix |
 | **v1.9** | Historical / Known map regression | Experimental async performance engine |
 | **v1.8** | Historical | Slippy satellite map, pan and progressive cached tiles |
