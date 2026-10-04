@@ -1,209 +1,50 @@
-# VitaFlightRadar Changelog
+# VitaFlightRadar Changelog ✈️
 
-This file tracks the major public iterations of VitaFlightRadar.
+This changelog covers the versions currently presented as public downloads.
 
-## Public release status
+## v2.5
 
-**V2.0 is the current recommended public release for both PCH-1000 FAT/OLED and PCH-2000 Slim systems.** V1.9.3 remains available as a compatibility fallback if V2.0 does not work correctly on a particular Vita, especially on PCH-1000 hardware.
+Current recommended public release.
+
+- Added persistence for the last map latitude, longitude and zoom so the app reopens at the user's previous view.
+- Added the on-screen **TRACK FLIGHT** control for explicitly following a selected aircraft.
+- Improved tracked-aircraft locking while zooming.
+- Keeps the last known tracked aircraft visible when a live-data refresh temporarily misses the target.
+- Prevents temporary route-data failures from immediately replacing previously valid route/timetable information.
+- Changed the compass to show the selected aircraft's actual heading.
+- Added more resilient multi-source live-flight search and equivalent identifier handling.
+- Uses global lookup to find a requested aircraft, then returns to a focused local traffic view around the result.
+- Moved slow flight/search operations away from normal interaction paths where possible.
+- Improved satellite-map continuity during zoom transitions.
+- Standardized satellite imagery to one consistent source for more consistent color and appearance.
+- Added a fresh versioned map cache for the updated imagery behavior.
+- Increased the in-memory map tile cache from 40 to 64 textures.
+- Prioritizes proper sharp center tiles before lower-detail fallback imagery.
+- Retains approximately 4-second automatic aircraft refresh.
+- Passed VitaSDK compilation, VPK generation and package-integrity validation.
+- Approved after real PS Vita hardware testing.
 
 ## v2.0
 
-Major search and live-flight-following update. The VPK is intended to run on both PCH-1000 FAT/OLED and PCH-2000 Slim systems.
+Stable fallback release.
 
-- V2.0 became the main feature build. Later community feedback clarified that VitaFlightRadar does not need separate model-specific application builds; both PCH-1000 and PCH-2000 users can try the same VPK.
-- Triangle now opens a Search Hub instead of jumping directly to coordinate entry.
-- Added **Enter Coordinates** and **Search Flight Number** choices.
-- Search menus support front-touch selection and D-pad UP/DOWN + X.
+- Added the Triangle Search Hub.
+- Added coordinate search and flight-number/callsign search.
+- Added front-touch and D-pad + X menu control.
 - Added persistent storage for the three most recent coordinate searches.
-- Added live flight-number/callsign search.
-- A successful flight search centers the map on the aircraft, selects it and displays its data.
-- Added FOLLOW mode so the map recenters on the searched aircraft as new live positions arrive.
-- Removed the Square AUTO/MANUAL refresh toggle.
-- START is intentionally unused in v2.0.
-- Aircraft refresh is permanently automatic at approximately four seconds.
-- Built successfully with VitaSDK and passed VPK integrity validation.
+- Successful flight search jumps to and selects the aircraft.
+- Added automatic flight-follow behavior.
+- Live aircraft refresh runs approximately every four seconds.
+- Passed VitaSDK compilation and VPK integrity validation.
+- Retained publicly as the recommended fallback if V2.5 has problems on a particular Vita.
 
-## v1.9.3-PCH1000
+## v1.9.3
 
-Compatibility-focused build based on the v1.9.2 feature set. It remains available for either Vita model and is especially useful as a fallback when V2.0 has trouble on PCH-1000 FAT/OLED hardware.
+Compatibility fallback.
 
-- Originally published as a PCH-1000-focused compatibility package; it can also be installed on PCH-2000 systems.
-- Replaced the compatibility build's HTTPS path with VitaSDK libcurl using an mbedTLS backend and explicit TLS 1.2 behavior.
-- Avoids depending on firmware-native HTTPS behavior for satellite/network requests.
-- Explicitly creates the application and map-cache directory hierarchy before cache use.
-- Added automatic satellite parent/lower-zoom fallback so an unavailable high-resolution tile does not leave the map permanently black.
-- Retains the v1.9.2 high-resolution satellite changes: maximum zoom level 21, close-zoom extra-detail requests and 40 cached textures.
-- Retains the stable v1.8-derived map renderer, one-finger panning, touch-and-hold recentering, pinch zoom and automatic aircraft-radius behavior.
-- Retains coordinate search, aircraft filtering, AUTO/MANUAL refresh, route information and touch aircraft selection.
-- Links the Vita pthread implementation needed by the mbedTLS static libraries.
-- Passed VitaSDK compilation, linking, VPK generation, package integrity and Vita icon validation.
-- Public build contains no creator-specific startup coordinates.
-- Real PCH-1000 hardware confirmation is still requested before calling the compatibility issue universally resolved.
-
-## v1.9.2
-
-High-resolution satellite hotfix built on the stable v1.9.1/v1.8 renderer.
-
-- Raised the satellite detail ceiling from zoom level 19 to zoom level 21.
-- Added a close-zoom quality cushion: at street-level zooms, the renderer requests one complete tile level sharper than the mathematical minimum whenever possible.
-- The sharper tile is downsampled to the Vita display instead of enlarging a lower-resolution tile, reducing software-side blur and pixelation.
-- Keeps the previous lower-detail imagery visible while sharper tiles arrive, preserving the stable non-black fallback behavior.
-- Increased the in-memory texture cache from 32 to 40 map tiles so higher-resolution imagery can remain resident longer.
-- Kept the proven v1.8/v1.9.1 slippy-map renderer, one-finger panning, touch-and-hold recentering, pinch zoom and automatic aircraft-radius behavior.
-- Kept coordinate search, aircraft filtering, AUTO/MANUAL refresh, route information and touch aircraft selection.
-- Kept safe Release compiler optimization with `-O3` and no forced CPU/GPU clock settings.
-- Public build contains no creator-specific startup coordinates.
-
-## v1.9.1
-
-Satellite-map stability hotfix.
-
-- Fixed the real-hardware regression from v1.9 where aircraft rendered correctly but the satellite map could remain completely black.
-- Removed the experimental v1.9 asynchronous satellite-worker pipeline from the recommended build.
-- Restored the exact proven v1.8 multi-tile satellite renderer and interaction model.
-- Kept one-finger panning, touch-and-hold recentering, pinch zoom and automatic aircraft-radius behavior.
-- Kept coordinate search, aircraft filtering, AUTO/MANUAL refresh, route information and touch aircraft selection.
-- Kept safe Release compiler optimization with `-O3` and linker dead-section removal.
-- Does not force CPU/GPU clock changes or require overclocking.
-- Public build contains no creator-specific startup coordinates.
-
-## v1.9
-
-Performance-focused experimental release built on the v1.8 feature set.
-
-- Moved satellite tile network I/O off the render/UI thread.
-- Added two background satellite-tile worker threads.
-- Added persistent HTTP sessions so map workers could reuse network connections rather than repeating setup for every tile.
-- Added priority tile scheduling, neighboring/parent-tile prefetching and a larger in-memory cache.
-- Moved disk map-cache work and aircraft/route refresh work away from the frame loop.
-- Added stale-request invalidation and debounced configuration persistence.
-- Added aggressive Release compiler optimization.
-- Removed experimental forced CPU/GPU clock changes before release.
-
-**Known issue:** real PS Vita testing showed that the experimental asynchronous map pipeline could fail to deliver satellite tiles to the renderer, producing a black map while aircraft icons continued to work. v1.9 is therefore preserved for development history but is not recommended. Use v1.9.1 or newer.
-
-## v1.8
-
-- Rebuilt the satellite renderer as a multi-tile slippy-map system instead of replacing one large map image after every view change.
-- Added one-finger map dragging/panning.
-- Releasing a drag makes the new map center the aircraft tracking center and refreshes the live aircraft feed around that point.
-- Added stationary touch-and-hold recentering to the geographic point beneath the finger.
-- Kept two-finger pinch as the unified map zoom + aircraft-radius control.
-- Added horizontal world wrapping to remove the hard left/right map edge when panning around the globe.
-- Added an in-memory tile cache and a persistent Vita storage tile cache.
-- Added progressive tile loading so missing tiles arrive one at a time instead of blanking and rebuilding the entire map at once.
-- Added cached parent/low-resolution tile fallback while sharper imagery is being loaded, reducing cut-off/empty map regions.
-- Increased supported satellite zoom detail up to zoom level 19.
-- Changed post-pinch rebasing to prefer sharper imagery that can be downscaled instead of stretching lower-resolution imagery upward.
-- Added a short touch-gesture grace period before new satellite network requests begin, reducing interruptions while repeatedly dragging or pinching.
-- Improved smaller-text rendering for cleaner readability.
-- Kept the aircraft feed radius tied to the actual visible map area, up to the adsb.fi nearby-query limit.
-- Kept coordinate search, tap-to-select, UP/DOWN selection, Square AUTO/MANUAL refresh and START manual refresh.
-- Public builds use a neutral coordinate-search example and do not include the creator's private startup-location file.
-
-## v1.7
-
-- Removed the world-map mode entirely.
-- Removed L/R hardware zoom controls.
-- Removed LEFT/RIGHT aircraft-radius controls.
-- Removed SELECT-to-exit; use the Vita system UI/PS button normally.
-- Pinch zoom is now the single control for both map scale and aircraft search radius.
-- Zooming in automatically reduces the live-aircraft radius to match the visible map area.
-- Zooming out automatically expands the live aircraft search area.
-- Added high-resolution satellite tile rebasing after pinch gestures so the map does not remain a stretched, blurry image.
-- Kept tap-to-select aircraft.
-- Kept UP/DOWN aircraft cycling.
-- Kept Triangle coordinate search.
-- Kept Square AUTO/MANUAL refresh.
-- Kept START manual refresh.
-- Kept Circle cancel/back behavior in dialogs.
-- Coordinate jumps preserve the current map zoom style and recalculate the aircraft feed radius from the visible map.
-
-## v1.6
-
-- Added two-finger touch pinch zoom.
-- Added touch aircraft selection while keeping UP/DOWN selection.
-- Made visual pinch zoom immediate instead of requiring a new tile download for every movement.
-- Fixed radius controls becoming unresponsive after world-map mode or hardware map zoom.
-- Made X a world-map toggle that returned to the previous local map state.
-
-## v1.5
-
-- Removed the 2 km preset.
-- Added 5 km / 10 km / 15 km / 20 km local aircraft radius presets.
-- Added whole-world satellite-map mode on X.
-- Added coordinate search on Triangle.
-- Added Vita on-screen keyboard support for coordinate entry.
-- Separated satellite-image zoom from aircraft radius.
-- Added X as Enter/confirm inside coordinate entry.
-- Added Circle as cancel/back.
-
-## v1.4
-
-- Replaced the radar-focused UI direction with a satellite-map-focused design.
-- Added satellite imagery.
-- Added 2 km / 5 km / 10 km radius modes.
-- Added known helicopter/rotorcraft filtering.
-- Expanded filtering for other known non-airplane ADS-B categories.
-- Retained 4-second live refresh.
-
-## v1.3
-
-- Reworked geographic rendering after earlier map attempts were unreliable.
-- Added vector-map experiments and richer geographic context.
-- Redesigned the selected-flight panel into route/time/metric cards.
-- Added route progress presentation.
-- Improved origin/destination and timetable lookup fallbacks.
-- Added clearer map status reporting for troubleshooting.
-
-## v1.2.1
-
-- Packaging repair release.
-- Fixed corrupted/incompatible Vita icon packaging that caused VitaShell installation failure.
-- Added stronger VPK/icon validation to the build process.
-
-## v1.2
-
-- Reduced the previously very large aircraft search area.
-- Improved map rendering attempts and route lookup fallbacks.
-- Enlarged and simplified on-screen text.
-- Continued 4-second aircraft refresh.
-- Improved flight-information layout.
-
-Historical note: the original v1.2 package had an install-package/icon problem; v1.2.1 is the corrected build.
-
-## v1.1
-
-- Replaced simple arrow/triangle aircraft markers with top-down airplane-shaped icons.
-- Increased font weight/readability.
-- Changed auto refresh from 10 seconds to 4 seconds.
-- Added date/time display.
-- Added a compass.
-- Began map/terrain integration.
-- Redesigned selected-flight information around callsign, plane type, origin/destination and estimated timing.
-- Added route-data lookup beyond raw ADS-B position information.
-
-## v1.0.1
-
-- Fixed the VPK install error caused by an incompatible Vita icon PNG format.
-- Repacked the application using a Vita-compatible indexed icon.
-
-## v1.0
-
-- First installable VitaFlightRadar prototype.
-- Live aircraft data from adsb.fi over Wi-Fi.
-- Circular radar presentation.
-- Manual location center for Vita models without GPS.
-- Aircraft callsign, registration/type, altitude, speed, heading and distance.
-- Touch aircraft selection.
-- UP/DOWN selection.
-- L/R range presets.
-- START manual refresh.
-- Square AUTO/MANUAL mode.
-- Initial 10-second automatic refresh.
-
-Historical note: the first package required a follow-up packaging fix, released as v1.0.1.
-
-## Early proof of concept
-
-Before the first VPK build, the project existed as a VitaSDK source prototype focused on proving that a Wi-Fi-only PS Vita could download public ADS-B data and render nearby aircraft without GPS or 3G hardware.
+- Added compatibility-focused networking changes using VitaSDK libcurl with an mbedTLS backend.
+- Hardened application and map-cache directory creation.
+- Added satellite parent/lower-zoom fallback behavior.
+- Retains high-resolution satellite support and established touch-map controls.
+- Can be used on either PCH-1000 FAT/OLED or PCH-2000 Slim systems.
+- Retained publicly for systems that have trouble with newer releases.
