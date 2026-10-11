@@ -1,0 +1,42 @@
+name: Configure Repository About
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/configure-repository-about.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  configure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update repository description and homepage
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method PATCH /repos/${{ github.repository }}             -f description='Live aircraft tracking on PlayStation Vita — satellite map, flight search, route data and real-time tracking.'             -f homepage='https://github.com/1000660928-design/VitaFlightRadar/releases/latest'
+
+      - name: Add repository topics
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method PUT /repos/${{ github.repository }}/topics             -H 'Accept: application/vnd.github+json'             --input - <<'EOF'
+          {
+            "names": [
+              "ps-vita",
+              "playstation-vita",
+              "vita-homebrew",
+              "homebrew",
+              "vitasdk",
+              "flight-tracker",
+              "flight-radar",
+              "ads-b",
+              "aviation",
+              "aircraft-tracking"
+            ]
+          }
+          EOF
