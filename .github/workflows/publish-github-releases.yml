@@ -1,0 +1,115 @@
+name: Publish GitHub Releases
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/publish-github-releases.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Create release notes
+        shell: bash
+        run: |
+          cat > /tmp/v25.md <<'EOF'
+          ## ✈️ VitaFlightRadar V2.5
+
+          **Current recommended release** for both PS Vita PCH-1000 FAT/OLED and PCH-2000 Slim.
+
+          ### Highlights
+          - Remembers the last map location and zoom between launches
+          - Dedicated **TRACK FLIGHT** control
+          - Tracking remains locked while zooming
+          - Keeps the last known tracked aircraft visible during temporary feed loss
+          - Protects valid route/timetable information from temporary failed refreshes
+          - Compass shows the selected aircraft's actual heading
+          - More resilient multi-source flight search
+          - Improved satellite-map caching, loading continuity and image consistency
+          - Automatic live-aircraft refresh approximately every 4 seconds
+
+          ### Compatibility
+          Start with V2.5 on either Vita model. If you encounter issues, V2.0 remains available as a stable fallback and V1.9.3 remains available as a compatibility fallback.
+
+          > VitaFlightRadar is an unofficial hobby/homebrew project. Live aircraft and timetable data may be incomplete or delayed. Do not use it for safety-critical aviation purposes.
+          EOF
+
+          cat > /tmp/v20.md <<'EOF'
+          ## 🛟 VitaFlightRadar V2.0
+
+          **Stable fallback release** for both PS Vita PCH-1000 FAT/OLED and PCH-2000 Slim.
+
+          V2.0 is intentionally kept available for users who experience problems with V2.5.
+
+          ### Highlights
+          - Triangle Search Hub
+          - Coordinate search with three recent saved locations
+          - Flight-number / callsign search
+          - Automatic flight-follow behavior
+          - Touchscreen and D-pad menu controls
+          - Satellite map with panning and pinch zoom
+          - Approximately 4-second live-aircraft refresh
+
+          > This is an older stable fallback. New users should normally try V2.5 first.
+          EOF
+
+          cat > /tmp/v193.md <<'EOF'
+          ## 🧰 VitaFlightRadar V1.9.3
+
+          **Compatibility fallback** for both PS Vita PCH-1000 FAT/OLED and PCH-2000 Slim.
+
+          V1.9.3 contains compatibility-focused networking and map changes and is kept available for setups that have trouble with newer releases.
+
+          ### Highlights
+          - Compatibility-focused HTTPS/TLS networking changes
+          - Hardened app and map-cache directory handling
+          - Satellite parent/lower-zoom fallback
+          - High-resolution satellite support
+          - Established touch-map controls
+
+          > Try V2.5 first, then V2.0 if needed. Use V1.9.3 as an additional compatibility option.
+          EOF
+
+      - name: Publish V1.9.3 release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.9.3 >/dev/null 2>&1; then
+            gh release edit v1.9.3 --title "VitaFlightRadar V1.9.3 - Compatibility Fallback" --notes-file /tmp/v193.md
+            gh release upload v1.9.3 releases/VitaFlightRadar-v1.9.3-Compatibility.vpk --clobber
+          else
+            gh release create v1.9.3 releases/VitaFlightRadar-v1.9.3-Compatibility.vpk               --target main               --title "VitaFlightRadar V1.9.3 - Compatibility Fallback"               --notes-file /tmp/v193.md
+          fi
+
+      - name: Publish V2.0 release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v2.0 >/dev/null 2>&1; then
+            gh release edit v2.0 --title "VitaFlightRadar V2.0 - Stable Fallback" --notes-file /tmp/v20.md
+            gh release upload v2.0 releases/VitaFlightRadar-v2.0.vpk --clobber
+          else
+            gh release create v2.0 releases/VitaFlightRadar-v2.0.vpk               --target main               --title "VitaFlightRadar V2.0 - Stable Fallback"               --notes-file /tmp/v20.md
+          fi
+
+      - name: Publish V2.5 release and mark latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v2.5 >/dev/null 2>&1; then
+            gh release edit v2.5 --title "VitaFlightRadar V2.5" --notes-file /tmp/v25.md --latest
+            gh release upload v2.5 releases/VitaFlightRadar-v2.5.vpk --clobber
+          else
+            gh release create v2.5 releases/VitaFlightRadar-v2.5.vpk               --target main               --title "VitaFlightRadar V2.5"               --notes-file /tmp/v25.md               --latest
+          fi
