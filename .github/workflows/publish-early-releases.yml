@@ -1,0 +1,291 @@
+name: Publish Early GitHub Releases
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/publish-early-releases.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Download V1.0.1 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: VitaFlightRadar-VPK
+          path: artifacts/v101
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 35088495113
+
+      - name: Download V1.1 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: VitaFlightRadar-v1.1-VPK
+          path: artifacts/v11
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 35090983666
+
+      - name: Download V1.2 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: VitaFlightRadar-v1.2-VPK
+          path: artifacts/v12
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 35094434502
+
+      - name: Download V1.2.1 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: VitaFlightRadar-v1.2-VPK
+          path: artifacts/v121
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 35095388718
+
+      - name: Download V1.3 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: VitaFlightRadar-v1.3-VPK
+          path: artifacts/v13
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 35098237231
+
+      - name: Download V1.4 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: VitaFlightRadar-v1.4-VPK
+          path: artifacts/v14
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 35107282276
+
+      - name: Download V1.5 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: VitaFlightRadar-v1.5-VPK
+          path: artifacts/v15
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 35112315238
+
+      - name: Download V1.6 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: VitaFlightRadar-v1.6-VPK
+          path: artifacts/v16
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: 35115711465
+
+      - name: Rename recovered VPKs
+        run: |
+          cp artifacts/v101/VitaFlightRadar.vpk VitaFlightRadar-v1.0.1.vpk
+          cp artifacts/v11/VitaFlightRadar.vpk VitaFlightRadar-v1.1.vpk
+          cp artifacts/v12/VitaFlightRadar.vpk VitaFlightRadar-v1.2.vpk
+          cp artifacts/v121/VitaFlightRadar.vpk VitaFlightRadar-v1.2.1.vpk
+          cp artifacts/v13/VitaFlightRadar.vpk VitaFlightRadar-v1.3.vpk
+          cp artifacts/v14/VitaFlightRadar.vpk VitaFlightRadar-v1.4.vpk
+          cp artifacts/v15/VitaFlightRadar.vpk VitaFlightRadar-v1.5.vpk
+          cp artifacts/v16/VitaFlightRadar.vpk VitaFlightRadar-v1.6.vpk
+          ls -lh VitaFlightRadar-v*.vpk
+
+      - name: Create release notes
+        run: |
+          cat > /tmp/v10.md <<'EOF'
+          ## VitaFlightRadar V1.0
+
+          First historical VitaFlightRadar prototype.
+
+          - First live ADS-B aircraft display
+          - Circular radar presentation
+          - Callsign, altitude, speed, heading and distance information
+          - Touch aircraft selection
+          - Manual refresh and early automatic-refresh behavior
+
+          > [!WARNING]
+          > The original V1.0 install package had a Vita LiveArea/icon packaging problem. The original source archive is preserved here for history. **V1.0.1 is the first corrected installable VPK.**
+          EOF
+
+          cat > /tmp/v101.md <<'EOF'
+          ## VitaFlightRadar V1.0.1
+
+          First corrected installable VitaFlightRadar package.
+
+          - Fixed the Vita LiveArea icon/package format that prevented V1.0 from installing correctly
+          - Retained the original V1.0 radar feature set
+
+          > Historical release. Use V2.5 for the current experience.
+          EOF
+
+          cat > /tmp/v11.md <<'EOF'
+          ## VitaFlightRadar V1.1
+
+          Early interface and aircraft-display redesign.
+
+          - Added top-down airplane-shaped markers
+          - Improved text readability
+          - Changed automatic aircraft refresh to roughly 4 seconds
+          - Added date/time display
+          - Added the first compass
+          - Expanded selected-flight information and route lookup work
+
+          > Historical release. Use V2.5 for the current experience.
+          EOF
+
+          cat > /tmp/v12.md <<'EOF'
+          ## VitaFlightRadar V1.2
+
+          Early map and route-information update.
+
+          - Reduced the oversized aircraft search area
+          - Improved early map rendering attempts
+          - Expanded route lookup fallbacks
+          - Enlarged and simplified on-screen information
+          - Continued approximately 4-second aircraft refresh
+
+          > [!WARNING]
+          > The original V1.2 package later required a packaging/icon repair. V1.2.1 is the corrected follow-up.
+          EOF
+
+          cat > /tmp/v121.md <<'EOF'
+          ## VitaFlightRadar V1.2.1
+
+          Packaging repair for V1.2.
+
+          - Corrected Vita icon/VPK packaging
+          - Added stronger package validation
+          - Retained the V1.2 feature set
+
+          > Historical release. Use V2.5 for the current experience.
+          EOF
+
+          cat > /tmp/v13.md <<'EOF'
+          ## VitaFlightRadar V1.3
+
+          Geographic and selected-flight panel redesign.
+
+          - Reworked geographic rendering
+          - Added vector-map experiments
+          - Redesigned flight information into route/time/metric cards
+          - Added route-progress presentation
+          - Improved origin/destination and timetable fallbacks
+
+          > Historical release. Use V2.5 for the current experience.
+          EOF
+
+          cat > /tmp/v14.md <<'EOF'
+          ## VitaFlightRadar V1.4
+
+          Satellite-map focused update.
+
+          - Replaced the radar-focused direction with a satellite-map design
+          - Added satellite imagery
+          - Added multiple local aircraft-radius modes
+          - Added known helicopter/rotorcraft filtering
+          - Expanded filtering for other known non-airplane ADS-B categories
+
+          > Historical release. Use V2.5 for the current experience.
+          EOF
+
+          cat > /tmp/v15.md <<'EOF'
+          ## VitaFlightRadar V1.5
+
+          Search, world-view and zoom update.
+
+          - Added coordinate search on Triangle
+          - Added Vita on-screen keyboard coordinate entry
+          - Added whole-world satellite-map mode
+          - Added additional local aircraft-radius presets
+          - Separated satellite-image zoom from aircraft radius
+
+          > Historical release. Use V2.5 for the current experience.
+          EOF
+
+          cat > /tmp/v16.md <<'EOF'
+          ## VitaFlightRadar V1.6
+
+          Touch-control and zoom update.
+
+          - Added two-finger pinch zoom
+          - Added touch aircraft selection
+          - Made visual pinch zoom immediate
+          - Improved radius-control behavior
+          - Improved world-map/local-map transitions
+
+          > Historical release. Use V2.5 for the current experience.
+          EOF
+
+      - name: Publish V1.0 source-only history release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v1.0 >/dev/null 2>&1 || gh release create v1.0             VitaFlightRadar-v1.0-source.zip             --target main             --title "VitaFlightRadar V1.0 - Original Prototype"             --notes-file /tmp/v10.md
+
+      - name: Publish V1.0.1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v1.0.1 >/dev/null 2>&1 || gh release create v1.0.1             VitaFlightRadar-v1.0.1.vpk             --target main             --title "VitaFlightRadar V1.0.1 - First Installable Fix"             --notes-file /tmp/v101.md
+
+      - name: Publish V1.1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v1.1 >/dev/null 2>&1 || gh release create v1.1             VitaFlightRadar-v1.1.vpk             --target main             --title "VitaFlightRadar V1.1"             --notes-file /tmp/v11.md
+
+      - name: Publish V1.2
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v1.2 >/dev/null 2>&1 || gh release create v1.2             VitaFlightRadar-v1.2.vpk             --target main             --title "VitaFlightRadar V1.2"             --notes-file /tmp/v12.md
+
+      - name: Publish V1.2.1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v1.2.1 >/dev/null 2>&1 || gh release create v1.2.1             VitaFlightRadar-v1.2.1.vpk             --target main             --title "VitaFlightRadar V1.2.1 - Packaging Fix"             --notes-file /tmp/v121.md
+
+      - name: Publish V1.3
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v1.3 >/dev/null 2>&1 || gh release create v1.3             VitaFlightRadar-v1.3.vpk             --target main             --title "VitaFlightRadar V1.3"             --notes-file /tmp/v13.md
+
+      - name: Publish V1.4
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v1.4 >/dev/null 2>&1 || gh release create v1.4             VitaFlightRadar-v1.4.vpk             --target main             --title "VitaFlightRadar V1.4 - Satellite Map"             --notes-file /tmp/v14.md
+
+      - name: Publish V1.5
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v1.5 >/dev/null 2>&1 || gh release create v1.5             VitaFlightRadar-v1.5.vpk             --target main             --title "VitaFlightRadar V1.5 - Search and World View"             --notes-file /tmp/v15.md
+
+      - name: Publish V1.6
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v1.6 >/dev/null 2>&1 || gh release create v1.6             VitaFlightRadar-v1.6.vpk             --target main             --title "VitaFlightRadar V1.6 - Touch Zoom Update"             --notes-file /tmp/v16.md
+
+      - name: Re-mark V2.5 as latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit v2.5 --latest
