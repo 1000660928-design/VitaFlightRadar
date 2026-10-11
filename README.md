@@ -15,11 +15,11 @@ VitaFlightRadar is a homebrew flight-tracking application for PS Vita. It uses W
 | **V2.0** | 🛟 **Stable fallback** | Use this if V2.5 causes problems on your Vita. |
 | **V1.9.3** | 🧰 **Compatibility fallback** | Try this if newer versions still have compatibility trouble. |
 
-### 🟢 [Download VitaFlightRadar V2.5](releases/VitaFlightRadar-v2.5.vpk)
+### 🟢 [Download VitaFlightRadar V2.5](https://github.com/1000660928-design/VitaFlightRadar/releases/download/v2.5/VitaFlightRadar-v2.5.vpk)
 
-### 🛟 [Download VitaFlightRadar V2.0](releases/VitaFlightRadar-v2.0.vpk)
+### 🛟 [Download VitaFlightRadar V2.0](https://github.com/1000660928-design/VitaFlightRadar/releases/download/v2.0/VitaFlightRadar-v2.0.vpk)
 
-### 🧰 [Download VitaFlightRadar V1.9.3 Compatibility Build](releases/VitaFlightRadar-v1.9.3-Compatibility.vpk)
+### 🧰 [Download VitaFlightRadar V1.9.3 Compatibility Build](https://github.com/1000660928-design/VitaFlightRadar/releases/download/v1.9.3/VitaFlightRadar-v1.9.3-Compatibility.vpk)
 
 > [!IMPORTANT]
 > **Install V2.5 first.** If V2.5 does not behave correctly on your Vita, use **V2.0**. If you still have compatibility problems, try **V1.9.3**.
