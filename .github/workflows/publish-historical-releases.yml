@@ -1,0 +1,123 @@
+name: Publish Historical GitHub Releases
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/publish-historical-releases.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Create historical release notes
+        shell: bash
+        run: |
+          cat > /tmp/v17.md <<'EOF'
+          ## VitaFlightRadar V1.7
+
+          Historical public release.
+
+          - Removed the world-map mode
+          - Made pinch zoom the main map-scale / aircraft-radius control
+          - Added horizontal world wrapping
+          - Kept tap-to-select and UP/DOWN aircraft selection
+          - Coordinate search remained available on Triangle
+
+          > Historical release preserved for users who want to explore older VitaFlightRadar versions.
+          EOF
+
+          cat > /tmp/v18.md <<'EOF'
+          ## VitaFlightRadar V1.8
+
+          Historical public release.
+
+          - Rebuilt the satellite renderer as a multi-tile slippy-map system
+          - Added one-finger panning
+          - Added touch-and-hold recentering
+          - Added persistent map-tile caching
+          - Added progressive tile loading
+          - Improved pinch zoom and satellite-image continuity
+
+          > Historical release preserved for users who want to explore older VitaFlightRadar versions.
+          EOF
+
+          cat > /tmp/v19.md <<'EOF'
+          ## VitaFlightRadar V1.9
+
+          Historical experimental release.
+
+          - Experimented with asynchronous satellite tile workers
+          - Added background map/network work and more aggressive caching
+          - Added performance-oriented build changes
+
+          > [!WARNING]
+          > Real PS Vita testing exposed a black-map regression in this version. It is preserved for project history, but V1.9.1 or a newer release is recommended instead.
+          EOF
+
+          cat > /tmp/v191.md <<'EOF'
+          ## VitaFlightRadar V1.9.1
+
+          Historical satellite-map stability hotfix.
+
+          - Removed the experimental V1.9 asynchronous satellite pipeline
+          - Restored the proven multi-tile renderer
+          - Fixed the black-map regression seen in V1.9
+          - Kept panning, pinch zoom, coordinate search and aircraft selection
+
+          > Historical release preserved for users who want to explore older VitaFlightRadar versions.
+          EOF
+
+          cat > /tmp/v192.md <<'EOF'
+          ## VitaFlightRadar V1.9.2
+
+          Historical high-resolution satellite update.
+
+          - Raised satellite detail support to zoom level 21
+          - Added sharper close-zoom tile requests
+          - Kept lower-detail imagery visible while sharper tiles loaded
+          - Increased the in-memory tile cache
+          - Retained the stable V1.8/V1.9.1 renderer and touch controls
+
+          > Historical release preserved for users who want to explore older VitaFlightRadar versions.
+          EOF
+
+      - name: Publish V1.7
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v1.7 >/dev/null 2>&1 || gh release create v1.7             releases/VitaFlightRadar-v1.7.vpk             --target main             --title "VitaFlightRadar V1.7"             --notes-file /tmp/v17.md
+
+      - name: Publish V1.8
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v1.8 >/dev/null 2>&1 || gh release create v1.8             releases/VitaFlightRadar-v1.8.vpk             --target main             --title "VitaFlightRadar V1.8"             --notes-file /tmp/v18.md
+
+      - name: Publish V1.9
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v1.9 >/dev/null 2>&1 || gh release create v1.9             releases/VitaFlightRadar-v1.9.vpk             --target main             --title "VitaFlightRadar V1.9 - Historical Experimental Build"             --notes-file /tmp/v19.md
+
+      - name: Publish V1.9.1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v1.9.1 >/dev/null 2>&1 || gh release create v1.9.1             releases/VitaFlightRadar-v1.9.1.vpk             --target main             --title "VitaFlightRadar V1.9.1 - Satellite Stability Hotfix"             --notes-file /tmp/v191.md
+
+      - name: Publish V1.9.2
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view v1.9.2 >/dev/null 2>&1 || gh release create v1.9.2             releases/VitaFlightRadar-v1.9.2.vpk             --target main             --title "VitaFlightRadar V1.9.2 - High Resolution Satellite Update"             --notes-file /tmp/v192.md
